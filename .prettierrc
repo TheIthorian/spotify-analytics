@@ -1,0 +1,7 @@
+{
+    "arrowParens": "avoid",
+    "htmlWhitespaceSensitivity": "strict",
+    "jsxSingleQuote": true,
+    "singleQuote": true,
+    "tabWidth": 4
+}
