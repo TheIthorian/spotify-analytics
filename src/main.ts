@@ -1,10 +1,17 @@
-import { createServer } from 'http';
-import { controller } from './controller';
+import * as express from 'express';
 const hostname = '127.0.0.1';
 const port = 3000;
 
-const server = createServer(controller);
+const app = express();
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+app.get('/', (req, res) => {
+    res.send('Hello');
+});
+
+app.get('/health', (req, res) => {
+    res.status(200);
+});
+
+app.listen(port, () => {
+    console.log(`App listening on ${hostname}:${port}`);
 });
