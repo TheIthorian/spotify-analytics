@@ -1,6 +1,6 @@
 import * as express from 'express';
 import initialiseRoutes from './routes';
-import { requestLogger } from './requestLogger';
+import { requestLogger } from './logger';
 import { createServer } from 'http';
 
 const LOCALHOST = '127.0.0.1';
