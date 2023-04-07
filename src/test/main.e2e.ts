@@ -2,7 +2,7 @@ import * as request from 'supertest';
 import { expressApp, start } from '../main';
 import { Server } from 'http';
 
-describe('Home (e2e)', () => {
+describe('Health', () => {
     let app: ReturnType<typeof expressApp>;
     let server: Server;
 
@@ -15,11 +15,11 @@ describe('Home (e2e)', () => {
         server.close();
     });
 
-    it('/ (GET)', async () => {
+    it('/api/health (GET) - responds with ok', async () => {
         await request(app)
-            .get('/')
+            .get('/api/health')
             .expect(200)
-            .expect('Hello')
+            .expect('ok')
             .then()
             .catch(err => {
                 throw err;
