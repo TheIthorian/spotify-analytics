@@ -1,10 +1,12 @@
 import * as express from 'express';
 import initialiseRoutes from './routes';
-import { requestLogger } from './logger';
+import { makeLogger, requestLogger } from './logger';
 import { createServer } from 'http';
 
 const LOCALHOST = '127.0.0.1';
 const DEFAULT_PORT = 3000;
+
+const log = makeLogger(module);
 
 export function expressApp(port: number) {
     const app = express();
@@ -25,7 +27,7 @@ export function start(port = DEFAULT_PORT) {
     const server = createServer(app);
     server.listen(port);
 
-    console.log(`App listening on http://${LOCALHOST}:${port}`);
+    log.info(`App listening on http://${LOCALHOST}:${port}`);
     return { app, server };
 }
 
