@@ -10,7 +10,7 @@
         "start": "yarn ts src/main.ts",
         "dev": "yarn ts-node-dev src/main.ts | pino-pretty",
         "postinstall": "husky install",
-        "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+        "format": "prettier --write \"src/**/*.ts\"",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test": "jest",
         "test:cov": "jest --coverage",
