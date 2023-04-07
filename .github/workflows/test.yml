@@ -18,7 +18,7 @@ jobs:
             - name: Generate coverage report
               run: |
                   yarn install
-                  yarn test:cov
+                  yarn test
             - name: Upload coverage to Codecov
               uses: codecov/codecov-action@v1
               with:
