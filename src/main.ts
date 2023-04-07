@@ -2,9 +2,11 @@ import * as express from 'express';
 import initialiseRoutes from './routes';
 import { makeLogger, requestLogger } from './logger';
 import { createServer } from 'http';
+import * as fileUpload from 'express-fileupload';
 
 const LOCALHOST = '127.0.0.1';
 const DEFAULT_PORT = 3000;
+const MAX_UPLOAD_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
 const log = makeLogger(module);
 
@@ -12,6 +14,16 @@ export function expressApp(port: number) {
     const app = express();
 
     app.use(requestLogger);
+
+    app.use(
+        fileUpload({
+            limits: { fileSize: MAX_UPLOAD_FILE_SIZE },
+            safeFileNames: true,
+            abortOnLimit: true,
+            useTempFiles: true,
+            preserveExtension: true,
+        })
+    );
 
     app.use(initialiseRoutes());
 
