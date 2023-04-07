@@ -6,7 +6,7 @@ import { createServer } from 'http';
 const LOCALHOST = '127.0.0.1';
 const DEFAULT_PORT = 3000;
 
-export function expressApp(port) {
+export function expressApp(port: number) {
     const app = express();
 
     app.use(requestLogger);
