@@ -1,17 +1,18 @@
 import * as express from 'express';
+import initialiseRoutes from './routes';
+import { requestLogger } from './requestLogger';
+
 const hostname = '127.0.0.1';
 const port = 3000;
 
 const app = express();
 
-app.get('/', (req, res) => {
-    res.send('Hello');
-});
+app.use(requestLogger);
 
-app.get('/health', (req, res) => {
-    res.status(200);
-});
+app.use(initialiseRoutes());
+
+app.get('/', (req, res) => res.send('Hello'));
 
 app.listen(port, () => {
-    console.log(`App listening on ${hostname}:${port}`);
+    console.log(`App listening on http://${hostname}:${port}`);
 });
