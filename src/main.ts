@@ -1,18 +1,34 @@
 import * as express from 'express';
 import initialiseRoutes from './routes';
 import { requestLogger } from './requestLogger';
+import { createServer } from 'http';
 
-const hostname = '127.0.0.1';
-const port = 3000;
+const LOCALHOST = '127.0.0.1';
+const DEFAULT_PORT = 3000;
 
-const app = express();
+export function expressApp(port) {
+    const app = express();
 
-app.use(requestLogger);
+    app.use(requestLogger);
 
-app.use(initialiseRoutes());
+    app.use(initialiseRoutes());
 
-app.get('/', (req, res) => res.send('Hello'));
+    app.get('/', (req, res) => res.send('Hello'));
 
-app.listen(port, () => {
-    console.log(`App listening on http://${hostname}:${port}`);
-});
+    app.set('port', port);
+
+    return app;
+}
+
+export function start(port = DEFAULT_PORT) {
+    const app = expressApp(port);
+    const server = createServer(app);
+    server.listen(port);
+
+    console.log(`App listening on http://${LOCALHOST}:${port}`);
+    return { app, server };
+}
+
+if (require.main === module) {
+    start();
+}
