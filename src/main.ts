@@ -23,7 +23,7 @@ export function expressApp(port: number) {
             safeFileNames: true,
             abortOnLimit: true,
             useTempFiles: true,
-            preserveExtension: true,
+            preserveExtension: 10,
         })
     );
 
