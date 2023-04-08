@@ -1,5 +1,5 @@
 import * as request from 'supertest';
-import { expressApp, start } from '../main';
+import { expressApp, start, stop } from '../main';
 import { Server } from 'http';
 
 describe('Health', () => {
@@ -10,9 +10,9 @@ describe('Health', () => {
         ({ app, server } = start(3001));
     });
 
-    afterAll(() => {
+    afterAll(async () => {
         app.removeAllListeners();
-        server.close();
+        await stop(server);
     });
 
     it('/api/health (GET) - responds with ok', async () => {
