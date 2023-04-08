@@ -1,0 +1,17 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+model UploadFileQueue {
+    id       Int    @id @default(autoincrement())
+    status   Int    @default(0) // 0: waiting, 1: processing, 2: complete, 3: failed
+    filePath String
+}
