@@ -14,8 +14,6 @@ export const getUploadHandler: RequestHandler[] = [
 export const postUploadHandler: RequestHandler[] = [
     async (req, res, next) => {
         log.info(`(postUploadHandler)`);
-        log.info({ files: req.files }, 'allFiles');
-        log.info({ fileNames: req.files }, 'allFiles');
 
         if (!req.files || !Object.keys(req.files).length) {
             res.status(400);
@@ -23,6 +21,8 @@ export const postUploadHandler: RequestHandler[] = [
         } else {
             const allFiles = Object.values(req.files);
             uploadApi.saveFiles(allFiles);
+            res.status(200);
+            res.json({ message: 'File uploaded', status: 'Processing' });
         }
 
         next();

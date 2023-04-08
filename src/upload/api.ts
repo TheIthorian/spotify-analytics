@@ -1,7 +1,7 @@
 import { UploadedFile } from 'express-fileupload';
-import * as path from 'path';
 
 import { makeLogger } from '../logger';
+import prisma from '../prismaClient';
 
 const log = makeLogger(module);
 
@@ -19,14 +19,16 @@ export function saveFiles(
 }
 
 function saveFile(file: UploadedFile) {
-    const { name: fileName, mimetype, size, md5 } = file;
+    const { name: fileName, tempFilePath, mimetype, size, md5 } = file;
 
-    log.info({ fileName, mimetype, size, md5 }, `(${saveFile.name}) - saving file: ${fileName}`);
+    log.info(
+        { fileName, mimetype, size, md5, tempFilePath },
+        `(${saveFile.name}) - saving file: ${fileName}`
+    );
 
-    const uploadPath = path.join(__dirname, '../../files/', fileName);
-
-    console.log(uploadPath);
-    file.mv(uploadPath, err => {
-        if (err) log.error(err, `(saveFile) - error moving file`);
-    });
+    prisma.uploadFileQueue
+        .create({
+            data: { filePath: tempFilePath, status: 0 },
+        })
+        .catch(err => log.error(err, 'Unable to push to queue'));
 }
