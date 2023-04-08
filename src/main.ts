@@ -1,8 +1,9 @@
 import * as express from 'express';
-import initialiseRoutes from './routes';
-import { makeLogger, requestLogger } from './logger';
 import { createServer } from 'http';
 import * as fileUpload from 'express-fileupload';
+
+import initialiseRoutes from './routes';
+import { makeLogger, requestLogger } from './logger';
 
 const LOCALHOST = '127.0.0.1';
 const DEFAULT_PORT = 3000;
