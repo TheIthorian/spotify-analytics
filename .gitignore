@@ -1,7 +1,9 @@
 yarn.lock
 node_modules/
 dist/
-app.log
-files
-tmp/
 coverage/
+tmp/
+app.log
+.env
+prisma/*.db
+prisma/*.db-journal

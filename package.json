@@ -64,12 +64,14 @@
         "typescript": "^4.7.2"
     },
     "dependencies": {
+        "@prisma/client": "^4.12.0",
         "@types/express-fileupload": "^1.4.1",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
         "express-fileupload": "^1.4.0",
         "express-promise-router": "^4.1.1",
         "pino": "^8.11.0",
-        "pino-multi-stream": "^6.0.0"
+        "pino-multi-stream": "^6.0.0",
+        "prisma": "^4.12.0"
     }
 }
