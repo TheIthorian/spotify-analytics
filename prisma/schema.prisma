@@ -11,7 +11,11 @@ datasource db {
 }
 
 model UploadFileQueue {
-    id       Int    @id @default(autoincrement())
-    status   Int    @default(0) // 0: waiting, 1: processing, 2: complete, 3: failed
+    id       Int     @id @default(autoincrement())
+    status   Int     @default(0) // 0: waiting, 1: processing, 2: complete, 3: failed
     filePath String
+    filename String?
+    mimetype String
+    size     Int
+    md5      String
 }
