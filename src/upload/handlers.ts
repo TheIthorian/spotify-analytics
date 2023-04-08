@@ -5,8 +5,18 @@ import * as uploadApi from './api';
 const log = makeLogger(module);
 
 export const getUploadHandler: RequestHandler[] = [
-    (req, res, next) => {
-        res.send('upload');
+    async (req, res, next) => {
+        log.info('(getUploadHandler)');
+        try {
+            const uploads = await uploadApi.getUploads();
+            uploads.forEach(upload => (upload.status = uploadApi.STATUS_BY_ID[upload.status]));
+
+            res.status(200);
+            res.json(uploads);
+        } catch (err) {
+            log.error(err, 'getUploadHandler');
+            res.sendStatus(500);
+        }
         next();
     },
 ];
