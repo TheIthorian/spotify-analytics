@@ -31,7 +31,7 @@ export const postUploadHandler: RequestHandler[] = [
             res.send('No files uploaded');
         } else {
             const allFiles = Object.values(req.files);
-            uploadApi.saveFiles(allFiles);
+            await uploadApi.saveFiles(allFiles);
             res.status(200);
             res.json({ message: 'File uploaded', status: 'Processing' });
         }
