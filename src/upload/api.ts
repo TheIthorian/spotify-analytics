@@ -1,4 +1,4 @@
-import { readFile } from 'fs/promises';
+import { readFile, unlink } from 'fs/promises';
 import { UploadedFile } from 'express-fileupload';
 import { StreamHistory, UploadFileQueue } from '@prisma/client';
 
@@ -20,11 +20,31 @@ async function saveFile(file: UploadedFile) {
     const { name: filename, tempFilePath, mimetype, size, md5 } = file;
     log.info({ filename, mimetype, size, md5, tempFilePath }, `(${saveFile.name}) - Saving file`);
 
+    const existingFileUpload = await prisma.uploadFileQueue.findFirst({
+        where: { md5, status: { in: [JOB_STATUS.COMPLETE, JOB_STATUS.WAITING] } },
+    });
+    if (existingFileUpload) {
+        log.info(existingFileUpload, 'File already exists. Skipping upload.');
+        void deleteTempFile(tempFilePath);
+        return;
+    }
+
     await prisma.uploadFileQueue
         .create({
-            data: { filePath: tempFilePath, status: 0, filename, mimetype, size, md5 },
+            data: {
+                filePath: tempFilePath,
+                status: existingFileUpload ? JOB_STATUS.DUPLICATE : JOB_STATUS.WAITING,
+                filename,
+                mimetype,
+                size,
+                md5,
+            },
         })
         .catch(err => log.error(err, 'Unable to push file to queue'));
+}
+
+function deleteTempFile(filePath: string) {
+    unlink(filePath).catch(err => log.error({ err, filePath }, 'Error removing temp file'));
 }
 
 export async function getUploads() {
@@ -69,7 +89,7 @@ export async function dequeueAllFiles(batchSize = 10) {
 }
 
 async function processFile(file: UploadFileQueue) {
-    log.info(`${processFile.name}`);
+    log.info({ id: file.id }, `${processFile.name}`);
 
     if (/^StreamingHistory*/.test(file.filename)) {
         await insertStreamingHistory(file);
@@ -80,6 +100,8 @@ async function processFile(file: UploadFileQueue) {
         log.info('This is an unknown file');
         await markAsIgnored(file);
     }
+
+    void deleteTempFile(file.filePath);
 }
 
 async function insertStreamingHistory(file: UploadFileQueue) {
