@@ -4,6 +4,7 @@ export const STATUS_BY_ID = {
     2: 'complete',
     3: 'failed',
     4: 'ignored',
+    5: 'duplicate',
 } as const;
 
 export const JOB_STATUS = {
@@ -12,4 +13,5 @@ export const JOB_STATUS = {
     COMPLETE: 2,
     FAILED: 3,
     IGNORED: 4,
-};
+    DUPLICATE: 5,
+} as const;
