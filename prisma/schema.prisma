@@ -10,12 +10,46 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+// File processing queue
 model UploadFileQueue {
     id       Int     @id @default(autoincrement())
-    status   Int     @default(0) // 0: waiting, 1: processing, 2: complete, 3: failed
+    status   Int     @default(0) // 0: waiting
     filePath String
     filename String?
     mimetype String
     size     Int
     md5      String
+
+    @@index([status])
+}
+
+// User playlists
+model Playlist {
+    id                Int             @id @default(autoincrement())
+    name              String
+    lastModifiedDate  DateTime
+    description       String
+    numberOfFollowers Int
+    tracks            PlaylistTrack[]
+}
+
+// Tracks for playlists
+model PlaylistTrack {
+    id             Int       @id @default(autoincrement())
+    name           String
+    artistName     String
+    albumName      String?
+    spotifyTrackId Int?
+    Playlist       Playlist? @relation(fields: [playlistId], references: [id])
+    playlistId     Int?
+}
+
+// User stream history
+model StreamHistory {
+    id             Int      @id @default(autoincrement())
+    trackName      String
+    artistName     String
+    msPlayed       Int
+    endTime        DateTime
+    spotifyTrackId Int?
 }
