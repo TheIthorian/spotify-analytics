@@ -8,27 +8,19 @@ import { JOB_STATUS } from './constants';
 
 const log = makeLogger(module);
 
-export function saveFiles(
+export async function saveFiles(
     files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]
 ) {
-    if (Array.isArray(files)) {
-        for (const file of files) {
-            saveFiles(file);
-        }
-        return;
-    }
-
-    saveFile(files);
+    const filesArray = [files].flat(3);
+    filesArray.forEach(file => console.log(file.name));
+    await Promise.all(filesArray.map(file => saveFile(file)));
 }
 
-function saveFile(file: UploadedFile) {
+async function saveFile(file: UploadedFile) {
     const { name: filename, tempFilePath, mimetype, size, md5 } = file;
-    log.info(
-        { name: filename, mimetype, size, md5, tempFilePath },
-        `(${saveFile.name}) - saving file: ${filename}`
-    );
+    log.info({ filename, mimetype, size, md5, tempFilePath }, `(${saveFile.name}) - Saving file`);
 
-    prisma.uploadFileQueue
+    await prisma.uploadFileQueue
         .create({
             data: { filePath: tempFilePath, status: 0, filename, mimetype, size, md5 },
         })
@@ -53,32 +45,31 @@ export async function dequeueAllFiles(batchSize = 10) {
     log.info(`(${dequeueAllFiles.name})`);
 
     let numberOfFilesProcessed = 0;
-    let i = 0;
-    const limit = 100;
+    let loopIndex = 0;
+    const dequeueLimit = 100;
     do {
         const uploads = await prisma.uploadFileQueue.findMany({
             take: batchSize,
             where: { status: JOB_STATUS.WAITING },
             orderBy: { id: 'asc' },
         });
-        log.info(`(${dequeueAllFiles.name}) - found ${uploads.length} uploads to process`);
+        log.info({ dequeueSize: uploads.length }, `(${dequeueAllFiles.name}) - Dequeuing uploads`);
 
         if (!uploads.length) {
             return;
         }
 
         for (const uploadFile of uploads) {
-            void processFile(uploadFile);
+            await processFile(uploadFile);
         }
 
         numberOfFilesProcessed = uploads.length;
-        i++;
-        log.info({ numberOfFilesProcessed, i });
-    } while (numberOfFilesProcessed >= batchSize && i < limit);
+        loopIndex++;
+    } while (numberOfFilesProcessed >= batchSize && loopIndex < dequeueLimit);
 }
 
 async function processFile(file: UploadFileQueue) {
-    log.info('processFile - entry');
+    log.info(`${processFile.name}`);
 
     if (/^StreamingHistory*/.test(file.filename)) {
         await insertStreamingHistory(file);
