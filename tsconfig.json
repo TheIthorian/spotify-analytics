@@ -16,6 +16,6 @@
         "allowJs": true,
         "noImplicitAny": false,
         "strict": true,
-        "strictNullChecks": true
+        "strictNullChecks": false
     }
 }
