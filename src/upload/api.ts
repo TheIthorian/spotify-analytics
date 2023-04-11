@@ -3,13 +3,11 @@ import { UploadedFile } from 'express-fileupload';
 import prisma from '../prismaClient';
 import { makeLogger } from '../logger';
 import { JOB_STATUS } from './constants';
-import { deleteTempFile } from 'util/file';
+import { deleteTempFile } from '../util/file';
 
 const log = makeLogger(module);
 
-export async function saveFiles(
-    files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]
-) {
+export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]) {
     const filesArray = [files].flat(3);
     filesArray.forEach(file => console.log(file.name));
     await Promise.all(filesArray.map(file => saveFile(file)));
