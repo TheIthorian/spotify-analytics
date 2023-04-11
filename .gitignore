@@ -7,3 +7,4 @@ app.log
 .env
 prisma/*.db
 prisma/*.db-journal
+.vscode
