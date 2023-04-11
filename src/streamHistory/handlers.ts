@@ -1,14 +1,14 @@
 import { NextFunction, Request, RequestHandler } from 'express';
-import { z } from 'zod';
 
 import { makeLogger } from '../logger';
 import * as api from './api';
-import { ParsedQueryResponse } from 'util/typescript';
+import { ParsedQueryResponse } from '../util/typescript';
+import { QuerySchemaValidator } from '../util/schema';
 
 const log = makeLogger(module);
 
 export const getHistoryHandler: RequestHandler[] = [
-    SchemaValidator(api.GetStreamHistoryOptionsSchema),
+    QuerySchemaValidator(api.GetStreamHistoryOptionsSchema),
     async (req: Request, res: ParsedQueryResponse<api.GetStreamHistoryOptions>, next: NextFunction) => {
         log.info('(getStreamHistoryHandler)');
         log.info(res.locals.parsedQuery);
@@ -26,16 +26,3 @@ export const getHistoryHandler: RequestHandler[] = [
         next();
     },
 ];
-
-function SchemaValidator<SchemaType extends z.ZodType, T>(schema: SchemaType): RequestHandler {
-    return function schemaValidation(req: Request, res, next) {
-        const result = schema.parse(req.query);
-        if (!result.success) {
-            log.error(result.error);
-        } else {
-            res.locals.parsedQuery = result.data as T;
-        }
-
-        next();
-    };
-}
