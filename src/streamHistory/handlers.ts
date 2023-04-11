@@ -1,15 +1,15 @@
-import { Request, RequestHandler } from 'express';
+import { NextFunction, Request, RequestHandler } from 'express';
 import { z } from 'zod';
 
 import { makeLogger } from '../logger';
 import * as api from './api';
-import { ApiRequestHandler, ParsedQueryResponse } from 'util/typescript';
+import { ParsedQueryResponse } from 'util/typescript';
 
 const log = makeLogger(module);
 
-export const getHistoryHandler: ApiRequestHandler<api.GetStreamHistoryOptions>[] = [
+export const getHistoryHandler: RequestHandler[] = [
     SchemaValidator(api.GetStreamHistoryOptionsSchema),
-    async (req, res: ParsedQueryResponse<api.GetStreamHistoryOptions>, next) => {
+    async (req: Request, res: ParsedQueryResponse<api.GetStreamHistoryOptions>, next: NextFunction) => {
         log.info('(getStreamHistoryHandler)');
         log.info(res.locals.parsedQuery);
 
