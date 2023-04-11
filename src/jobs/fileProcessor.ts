@@ -16,8 +16,10 @@ function dequeue() {
         .catch(err => log.error(err));
 }
 
-dequeue();
-
-setInterval(() => {
+if (require.main == module) {
     dequeue();
-}, JOB_INTERVAL_SECONDS * 1000);
+
+    setInterval(() => {
+        dequeue();
+    }, JOB_INTERVAL_SECONDS * 1000);
+}
