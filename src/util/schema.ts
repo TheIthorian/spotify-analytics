@@ -17,17 +17,3 @@ export function QuerySchemaValidator<SchemaType extends z.ZodType>(schema: Schem
         next();
     };
 }
-
-export function BodySchemaValidator<SchemaType extends z.ZodType>(schema: SchemaType): RequestHandler {
-    return function schemaValidation(req, res, next) {
-        const result = schema.parse(req.query);
-
-        if (!result.success) {
-            log.error(result.error);
-        } else {
-            res.locals.parsedBody = result.data;
-        }
-
-        next();
-    };
-}
