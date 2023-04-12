@@ -1,7 +1,7 @@
 import QueryString from 'node:querystring';
 import prisma from 'prismaClient';
 import { makeLogger } from '../logger';
-import { getSpotifyClient } from 'spotifyClient/spotifyClient';
+import { getSpotifyClient } from '../spotifyClient/spotifyClient';
 
 const log = makeLogger(module);
 
