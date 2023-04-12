@@ -10,13 +10,13 @@ const log = makeLogger(module);
 export const getHistoryHandler: RequestHandler[] = [
     QuerySchemaValidator(api.GetStreamHistoryOptionsSchema),
     async (req: Request, res: ParsedQueryResponse<api.GetStreamHistoryOptions>, next: NextFunction) => {
-        log.info('(getStreamHistoryHandler)');
-        log.info(res.locals.parsedQuery);
+        log.info({ url: req.url }, '(getStreamHistoryHandler)');
 
         try {
-            const streamHistories = await api.getStreamHistory();
+            const streamHistories = await api.getStreamHistory(res.locals.parsedQuery);
 
             res.status(200);
+            res.setHeader('count', streamHistories.length);
             res.json(streamHistories);
         } catch (err) {
             log.error(err, 'getStreamHistoryHandler');
