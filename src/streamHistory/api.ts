@@ -5,12 +5,12 @@ import { z } from 'zod';
 
 const log = makeLogger(module);
 
-const MAX_PAGE_SIZE = 100;
+const MAX_RECORD_LIMIT = 100;
 
 export const GetStreamHistoryOptionsSchema = z.object({
     dateFrom: z.coerce.date().optional(),
     dateTo: z.coerce.date().optional(),
-    pageSize: z.coerce.number().positive().optional(),
+    limit: z.coerce.number().positive().optional(),
     offset: z.coerce.number().nonnegative().optional(),
 });
 
@@ -28,10 +28,10 @@ export async function getStreamHistory(options: GetStreamHistoryOptions) {
         if (options.dateTo) dateFilter.lte = options.dateTo;
     }
 
-    const pageSize = options.pageSize ?? MAX_PAGE_SIZE;
+    const limit = options.limit === undefined || options.limit > 100 ? MAX_RECORD_LIMIT : options.limit;
     const offset = options.offset ?? 0;
-    queryArgs.skip = pageSize * offset;
-    queryArgs.take = pageSize;
+    queryArgs.skip = limit * offset;
+    queryArgs.take = limit;
 
     log.debug({ queryArgs }, `(${getStreamHistory.name}) - queryArgs`);
 
