@@ -52,4 +52,7 @@ model StreamHistory {
     msPlayed       Int
     endTime        DateTime
     spotifyTrackId Int?
+
+    @@index([endTime])
+    @@index([spotifyTrackId])
 }
