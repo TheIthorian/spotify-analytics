@@ -33,11 +33,16 @@ export async function getStreamHistory(options: GetStreamHistoryOptions) {
     queryArgs.skip = pageSize * offset;
     queryArgs.take = pageSize;
 
-    log.info({ queryArgs }, `(${getStreamHistory.name}) - queryArgs`);
+    log.debug({ queryArgs }, `(${getStreamHistory.name}) - queryArgs`);
 
-    return await prisma.streamHistory.findMany({
+    const streamHistory = await prisma.streamHistory.findMany({
         ...queryArgs,
         select: { id: true, trackName: true, artistName: true, msPlayed: true, endTime: true, spotifyTrackId: true },
         orderBy: { endTime: 'desc' },
     });
+
+    const recordCount = await prisma.streamHistory.count();
+
+    log.info({ resultCount: streamHistory.length, recordCount }, `(${getStreamHistory.name}) - results`);
+    return { streamHistory, recordCount };
 }

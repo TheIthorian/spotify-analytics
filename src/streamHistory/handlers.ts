@@ -13,11 +13,12 @@ export const getHistoryHandler: RequestHandler[] = [
         log.info({ url: req.url }, '(getStreamHistoryHandler)');
 
         try {
-            const streamHistories = await api.getStreamHistory(res.locals.parsedQuery);
+            const { streamHistory, recordCount } = await api.getStreamHistory(res.locals.parsedQuery);
 
             res.status(200);
-            res.setHeader('count', streamHistories.length);
-            res.json(streamHistories);
+            res.setHeader('count', streamHistory.length);
+            res.setHeader('total', recordCount);
+            res.json(streamHistory);
         } catch (err) {
             log.error(err, 'getStreamHistoryHandler');
             res.sendStatus(500);
