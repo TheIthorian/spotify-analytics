@@ -1,5 +1,5 @@
 import { makeLogger } from '../logger';
-import { dequeueAllFiles } from '../upload/api';
+import { dequeueAllFiles } from '../upload/fileProcessor';
 
 const log = makeLogger(module);
 
