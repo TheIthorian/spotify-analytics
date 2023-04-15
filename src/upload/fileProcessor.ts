@@ -4,7 +4,7 @@ import prisma from '../prismaClient';
 import { makeLogger } from '../logger';
 import { JOB_STATUS } from './constants';
 import { StreamHistory, UploadFileQueue } from '@prisma/client';
-import { deleteTempFile } from 'util/file';
+import { deleteTempFile } from '../util/file';
 
 const log = makeLogger(module);
 
