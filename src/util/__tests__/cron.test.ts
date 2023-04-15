@@ -6,12 +6,7 @@ describe('cronString', () => {
     });
 
     it('sets the correct values when all are set', () => {
-        expect(
-            cronString(
-                { seconds: 1, minutes: 2, hours: 3, dayOfMonth: 4, month: 5, week: 6 },
-                false
-            )
-        ).toBe('1 2 3 4 5 6');
+        expect(cronString({ seconds: 1, minutes: 2, hours: 3, dayOfMonth: 4, month: 5, week: 6 }, false)).toBe('1 2 3 4 5 6');
     });
 
     it('sets the correct values when some are set', () => {

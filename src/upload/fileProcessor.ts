@@ -93,12 +93,7 @@ function isValidStreamHistory(tracks: any[]): tracks is StreamHistory[] {
     if (!Array.isArray(tracks)) return false;
 
     for (const track of tracks) {
-        if (
-            track.trackName == undefined ||
-            track.artistName == undefined ||
-            track.endTime == undefined ||
-            track.msPlayed == undefined
-        ) {
+        if (track.trackName == undefined || track.artistName == undefined || track.endTime == undefined || track.msPlayed == undefined) {
             log.info(track, 'Track failed validation');
             return false;
         }
