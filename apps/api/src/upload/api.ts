@@ -9,7 +9,6 @@ const log = makeLogger(module);
 
 export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]) {
     const filesArray = [files].flat(3);
-    filesArray.forEach(file => console.log(file.name));
     await Promise.all(filesArray.map(file => saveFile(file)));
 }
 

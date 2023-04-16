@@ -22,7 +22,6 @@ export function cronString(options: CronOptions, interval = true): string {
     };
 
     const cs = interval ? intervalString(allIntervals) : nonIntervalString(allIntervals);
-    console.log(cs);
     return cs;
 }
 
