@@ -68,7 +68,8 @@
         "ts-jest": "^28.0.3",
         "ts-node": "^10.8.0",
         "ts-node-dev": "^2.0.0",
-        "typescript": "^4.7.2"
+        "typescript": "^4.7.2",
+        "spotify-analytics-formatting": "*"
     },
     "dependencies": {
         "@prisma/client": "^4.12.0",
