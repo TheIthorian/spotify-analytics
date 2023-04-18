@@ -1,0 +1,12 @@
+.vscode
+node_modules/
+coverage/
+dist/
+tmp/
+prisma/*.db
+prisma/*.db-journal
+
+yarn.lock
+
+.env
+app.log

@@ -7,7 +7,7 @@ import { makeLogger, requestLogger } from './logger';
 import prisma from './prismaClient';
 
 const LOCALHOST = '127.0.0.1';
-const DEFAULT_PORT = 3000;
+const DEFAULT_PORT = 3001;
 const MAX_UPLOAD_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
 const log = makeLogger(module);

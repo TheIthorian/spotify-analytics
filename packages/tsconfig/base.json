@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "lib": ["ESNext"],
+        "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "ESNext",
+        "sourceMap": true,
+        "incremental": true,
+        "skipLibCheck": true,
+        "allowJs": true,
+        "noImplicitAny": false,
+        "strict": true,
+        "strictNullChecks": false,
+        "noErrorTruncation": true
+    }
+}
