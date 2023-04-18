@@ -15,7 +15,6 @@ jobs:
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
-            - name: yarn test:e2e
+            - name: turbo test:e2e
               run: |
-                  yarn install
-                  yarn test:e2e
+                  turbo test:e2e
