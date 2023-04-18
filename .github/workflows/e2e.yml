@@ -17,4 +17,4 @@ jobs:
                   node-version: ${{ matrix.node-version }}
             - name: turbo test:e2e
               run: |
-                  turbo test:e2e
+                  npx turbo test:e2e
