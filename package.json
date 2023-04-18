@@ -6,6 +6,10 @@
         "apps/*",
         "packages/*"
     ],
+    "scripts": {
+        "test": "turbo run test",
+        "test:e2e": "turbo run test:e2e"
+    },
     "packageManager": "npm@8.5.1",
     "dependencies": {
         "turbo": "^1.9.3"

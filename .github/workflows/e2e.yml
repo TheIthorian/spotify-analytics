@@ -5,19 +5,22 @@ name: e2e
 jobs:
     test:
         name: e2e
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-latest
         strategy:
             matrix:
-                node-version: [14.x, 16.x, 18.x]
+                node-version: [18.x]
         steps:
             - uses: actions/checkout@v3
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
                   cache: 'npm'
+
             - name: Install dependencies
               run: npm install
-            - name: turbo test:e2e
+
+            - name: Run end to end tests
               run: |
-                  npx turbo test:e2e
+                  npm run test:e2e
