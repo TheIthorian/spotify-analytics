@@ -5,6 +5,7 @@ import * as fileUpload from 'express-fileupload';
 import initialiseRoutes from './routes';
 import { makeLogger, requestLogger } from './logger';
 import prisma from './prismaClient';
+import { allowCrossDomain } from './middleware/cors';
 
 const LOCALHOST = '127.0.0.1';
 const DEFAULT_PORT = 3001;
@@ -16,6 +17,8 @@ export function expressApp(port: number) {
     const app = express();
 
     app.use(requestLogger);
+
+    app.use(allowCrossDomain);
 
     app.use(
         fileUpload({
