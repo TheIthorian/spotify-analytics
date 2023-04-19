@@ -67,7 +67,7 @@ function streamHistoryDataRow({
     spotifyTrackId: number;
 }) {
     return (
-        <tr>
+        <tr key={id}>
             <td>{id}</td>
             <td>{trackName}</td>
             <td>{artistName}</td>
