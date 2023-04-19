@@ -31,7 +31,7 @@ export function makeLogger(module: Module | undefined, level = DEFAULT_LEVEL): L
 const logger = makeLogger(module);
 
 export function requestLogger(req: Request, res, next: NextFunction) {
-    const { method, url, ip } = req;
-    logger.info({ method, url, ip }, `[${method}] - ${url}`);
+    const { method, url, ip, host } = req;
+    logger.info({ method, url, ip, host }, `[${method}] - ${url}`);
     next();
 }
