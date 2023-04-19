@@ -1,6 +1,7 @@
 import { HomeLayout } from '@/layout/home';
 import { Inter } from 'next/font/google';
 import { Nav } from 'c/nav';
+import { StreamHistory } from '@/components/stream-history';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -10,6 +11,7 @@ export default function Home() {
             <Nav />
             <h1>Home</h1>
             <h1>Another</h1>
+            <StreamHistory />
         </HomeLayout>
     );
 }
