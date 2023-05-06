@@ -50,7 +50,7 @@ export async function getStreamHistory(options: GetStreamHistoryOptions) {
 export const GetTopArtistsOptionsSchema = z.object({
     dateFrom: z.coerce.date().optional(),
     dateTo: z.coerce.date().optional(),
-    limit: z.coerce.number().positive().optional(),
+    limit: z.coerce.number().positive().optional().default(10),
     groupBy: z
         .union([z.literal('timePlayed'), z.literal('listenCount')])
         .default('listenCount')
@@ -79,12 +79,11 @@ export async function getTopArtist(options: GetTopArtistsOptions): Promise<Artis
 
     log.debug({ queryArgs }, `(${getStreamHistory.name}) - queryArgs`);
 
-    const resultLimit = options.limit ?? 10;
     if (options.groupBy === 'timePlayed') {
-        return await getArtistsByTimePlayed(queryArgs, resultLimit);
+        return await getArtistsByTimePlayed(queryArgs, options.limit);
     }
 
-    return getArtistsByPlayCount(queryArgs, resultLimit);
+    return getArtistsByPlayCount(queryArgs, options.limit);
 }
 
 async function getArtistsByTimePlayed(queryArgs: TopArtistsListAggregateQueryOptions, limit: number) {
