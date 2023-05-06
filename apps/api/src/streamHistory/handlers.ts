@@ -27,3 +27,22 @@ export const getHistoryHandler: RequestHandler[] = [
         next();
     },
 ];
+
+export const getTopArtistHandler: RequestHandler[] = [
+    QuerySchemaValidator(api.GetTopArtistsOptionsSchema),
+    async (req: Request, res: ParsedQueryResponse<api.GetTopArtistsOptions>, next: NextFunction) => {
+        log.info({ url: req.url }, '(getTopArtistHandler)');
+
+        try {
+            const topArtists = await api.getTopArtist(res.locals.parsedQuery);
+
+            res.status(200);
+            res.json(topArtists);
+        } catch (err) {
+            log.error(err, 'getStreamHistoryHandler');
+            res.sendStatus(500);
+        }
+
+        next();
+    },
+];
