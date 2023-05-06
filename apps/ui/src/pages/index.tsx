@@ -9,9 +9,9 @@ export default function Home() {
     return (
         <HomeLayout>
             <Nav />
-            <h1>Home</h1>
-            <h1>Another</h1>
-            <StreamHistory />
+            <div className='p-2'>
+                <StreamHistory />
+            </div>
         </HomeLayout>
     );
 }
