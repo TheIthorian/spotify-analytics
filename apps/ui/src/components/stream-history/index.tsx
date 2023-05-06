@@ -39,9 +39,8 @@ export function StreamHistory() {
                     <tr className='border-b-2 border-solid border-gray-800'>
                         <Th>Track Name</Th>
                         <Th>Artist Name</Th>
-                        <Th>Ms Played</Th>
+                        <Th>Seconds Played</Th>
                         <Th>End Time</Th>
-                        <Th>Spotify TrackId</Th>
                     </tr>
                     {streamHistoryData.map(item => streamHistoryDataRow(item))}
                 </tbody>
@@ -56,22 +55,19 @@ function streamHistoryDataRow({
     trackName,
     artistName,
     msPlayed,
-    spotifyTrackId,
 }: {
     endTime: Date;
     id: number;
     trackName: string;
     artistName: string;
     msPlayed: number;
-    spotifyTrackId: number;
 }) {
     return (
         <tr key={id} className='p-2 border-b border-solid border-gray-800 odd:bg-gray-200 hover:bg-stone-100'>
             <Td>{trackName}</Td>
             <Td>{artistName}</Td>
-            <Td>{msPlayed}</Td>
+            <Td>{(msPlayed / 1000).toFixed(0)}</Td>
             <Td>{new Date(endTime).toLocaleDateString()}</Td>
-            <Td>{spotifyTrackId}</Td>
         </tr>
     );
 }
