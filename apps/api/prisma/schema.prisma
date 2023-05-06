@@ -54,5 +54,6 @@ model StreamHistory {
     spotifyTrackId Int?
 
     @@index([endTime])
+    @@index([artistName])
     @@index([spotifyTrackId])
 }
