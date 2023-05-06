@@ -41,7 +41,7 @@ export function TopArtists() {
         labels,
         datasets: [
             {
-                label: 'Top Artists By Playtime',
+                label: 'Top Artists By Play Count',
                 data: topArtistsData.map(d => d.count),
                 backgroundColor: '#1DB954',
             },
