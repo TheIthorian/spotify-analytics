@@ -20,3 +20,17 @@ export function QuerySchemaValidator<SchemaType extends z.ZodType>(schema: Schem
         next();
     };
 }
+
+export function parseLimit(limit?: number, maxLimit = 100) {
+    const DEFAULT_LIMIT = 10;
+
+    if (limit === undefined) {
+        return DEFAULT_LIMIT;
+    }
+
+    if (limit > maxLimit) {
+        return maxLimit;
+    }
+
+    return limit;
+}

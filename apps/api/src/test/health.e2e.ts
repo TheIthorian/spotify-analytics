@@ -1,20 +1,8 @@
 import * as request from 'supertest';
-import { expressApp, start, stop } from '../main';
-import { Server } from 'http';
+import { expressApp } from '../main';
 
 describe('Health', () => {
-    let app: ReturnType<typeof expressApp>;
-    let server: Server;
-
-    beforeAll(async () => {
-        ({ app, server } = start(3001));
-    });
-
-    afterAll(async () => {
-        app.removeAllListeners();
-        await stop(server);
-    });
-
+    const app = expressApp(3001);
     it('/api/health (GET) - responds with ok', async () => {
         await request(app)
             .get('/api/health')
@@ -22,6 +10,7 @@ describe('Health', () => {
             .expect('ok')
             .then()
             .catch(err => {
+                console.error(err);
                 throw err;
             });
     });

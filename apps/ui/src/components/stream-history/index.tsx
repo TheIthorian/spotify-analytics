@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { getStreamHistory } from './data';
 
 export function StreamHistory() {
@@ -33,16 +33,14 @@ export function StreamHistory() {
     }
 
     return (
-        <div>
-            <table>
+        <div className='p-3 max-w-full overflow-x-auto'>
+            <table className='border-solid border-4 border-gray-800 table-fixed w-full'>
                 <tbody>
-                    <tr>
-                        <th>id</th>
-                        <th>trackName</th>
-                        <th>artistName</th>
-                        <th>msPlayed</th>
-                        <th>endTime</th>
-                        <th>spotifyTrackId</th>
+                    <tr className='border-b-2 border-solid border-gray-800'>
+                        <Th>Track Name</Th>
+                        <Th>Artist Name</Th>
+                        <Th>Seconds Played</Th>
+                        <Th>End Time</Th>
                     </tr>
                     {streamHistoryData.map(item => streamHistoryDataRow(item))}
                 </tbody>
@@ -57,23 +55,29 @@ function streamHistoryDataRow({
     trackName,
     artistName,
     msPlayed,
-    spotifyTrackId,
 }: {
     endTime: Date;
     id: number;
     trackName: string;
     artistName: string;
     msPlayed: number;
-    spotifyTrackId: number;
 }) {
     return (
-        <tr key={id}>
-            <td>{id}</td>
-            <td>{trackName}</td>
-            <td>{artistName}</td>
-            <td>{msPlayed}</td>
-            <td>{new Date(endTime).toLocaleDateString()}</td>
-            <td>{spotifyTrackId}</td>
+        <tr key={id} className='p-2 border-b border-solid border-gray-800 odd:bg-gray-200 hover:bg-stone-100'>
+            <Td>{trackName}</Td>
+            <Td>{artistName}</Td>
+            <Td>{(msPlayed / 1000).toFixed(0)}</Td>
+            <Td>{new Date(endTime).toLocaleDateString()}</Td>
         </tr>
     );
+}
+
+function Th({ children }: { children: ReactNode }) {
+    // return <th className='p-1 text-left border-r border-gray-800'>{children}</th>;
+    return <th className='p-1 border-r border-gray-800'>{children}</th>;
+}
+
+function Td({ children }: { children: ReactNode }) {
+    // return <td className='p-1 text-left align-top border-r border-gray-800'>{children}</td>;
+    return <td className='p-1 border-r border-gray-800'>{children}</td>;
 }
