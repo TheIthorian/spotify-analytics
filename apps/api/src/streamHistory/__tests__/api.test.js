@@ -1,0 +1,131 @@
+import { prismaMock } from '../../__mocks__/prismaClient';
+import { getStreamHistory, getTopArtist } from '../api';
+
+describe('stream history api', () => {
+    describe('getStreamHistory', () => {
+        const totalRecords = 109;
+        const queryResult = [
+            {
+                id: '1',
+                trackName: 'trackName',
+                artistName: 'artistName',
+                msPlayed: '100',
+                endTime: new Date(2021, 1, 10),
+                spotifyTrackId: '123',
+            },
+        ];
+
+        beforeEach(() => {
+            jest.resetAllMocks();
+            prismaMock.streamHistory.findMany.mockResolvedValue(queryResult);
+            prismaMock.streamHistory.count.mockResolvedValue(totalRecords);
+        });
+
+        it('Finds the latest stream history items using query defaults', async () => {
+            const result = await getStreamHistory({});
+
+            expect(prismaMock.streamHistory.findMany).toHaveBeenCalledTimes(1);
+            expect(prismaMock.streamHistory.findMany).toHaveBeenCalledWith({
+                skip: 0,
+                take: 100,
+                select: { id: true, trackName: true, artistName: true, msPlayed: true, endTime: true, spotifyTrackId: true },
+                orderBy: { endTime: 'desc' },
+            });
+
+            expect(result).toStrictEqual({ streamHistory: queryResult, recordCount: totalRecords });
+        });
+
+        it('Finds the latest stream history items, using api options', async () => {
+            // Given
+            const dateFrom = new Date(2022, 0, 1);
+            const dateTo = new Date(2023, 0, 1);
+
+            // When
+            await getStreamHistory({
+                dateFrom,
+                dateTo,
+                limit: 10,
+                offset: 2,
+            });
+
+            // Then
+            expect(prismaMock.streamHistory.findMany).toHaveBeenCalledTimes(1);
+            expect(prismaMock.streamHistory.findMany).toHaveBeenCalledWith({
+                where: { endTime: { gte: dateFrom, lte: dateTo } },
+                skip: 10 * 2,
+                take: 10,
+                select: { id: true, trackName: true, artistName: true, msPlayed: true, endTime: true, spotifyTrackId: true },
+                orderBy: { endTime: 'desc' },
+            });
+        });
+    });
+
+    describe('getTopArtists', () => {
+        const queryResult = [
+            { _count: { id: 1000 }, artistName: 'ABC' },
+            { _count: { id: 2000 }, artistName: 'XYZ' },
+        ];
+
+        beforeEach(() => {
+            jest.resetAllMocks();
+            prismaMock.streamHistory.groupBy.mockResolvedValue(queryResult);
+        });
+
+        it('finds all uploads by time played', async () => {
+            const result = await getTopArtist({});
+
+            expect(result).toStrictEqual([
+                { count: 1000, name: 'ABC' },
+                { count: 2000, name: 'XYZ' },
+            ]);
+        });
+
+        it('filters records by options', async () => {
+            // Given
+            const dateFrom = new Date(2022, 0, 1);
+            const dateTo = new Date(2023, 0, 1);
+
+            // When
+            await getTopArtist({
+                dateFrom,
+                dateTo,
+            });
+
+            // Then
+            expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledTimes(1);
+            expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledWith({
+                by: ['artistName'],
+                _count: { id: true }, // defaults to count
+                where: { endTime: { gte: dateFrom, lte: dateTo } },
+                orderBy: {
+                    _count: { id: 'desc' },
+                },
+                take: 10, // default limit
+            });
+        });
+
+        it('groups by count and uses limit', async () => {
+            const queryResult = [
+                { _sum: { msPlayed: 1000 }, artistName: 'ABC' },
+                { _sum: { msPlayed: 2000 }, artistName: 'XYZ' },
+            ];
+
+            prismaMock.streamHistory.groupBy.mockResolvedValue(queryResult);
+
+            await getTopArtist({
+                groupBy: 'timePlayed',
+                limit: 20,
+            });
+
+            expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledTimes(1);
+            expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledWith({
+                by: ['artistName'],
+                _sum: { msPlayed: true },
+                orderBy: {
+                    _sum: { msPlayed: 'desc' },
+                },
+                take: 20,
+            });
+        });
+    });
+});
