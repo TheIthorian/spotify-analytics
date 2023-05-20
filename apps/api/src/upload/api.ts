@@ -19,6 +19,7 @@ async function saveFile(file: UploadedFile) {
     const existingFileUpload = await prisma.uploadFileQueue.findFirst({
         where: { md5, status: { in: [JOB_STATUS.COMPLETE, JOB_STATUS.WAITING] } },
     });
+
     if (existingFileUpload) {
         log.info(existingFileUpload, 'File already exists. Skipping upload.');
         void deleteTempFile(tempFilePath);
