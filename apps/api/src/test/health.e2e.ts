@@ -7,7 +7,7 @@ describe('Health', () => {
     let server: Server;
 
     beforeAll(async () => {
-        ({ app, server } = start(3001));
+        ({ app, server } = start(3002));
     });
 
     afterAll(async () => {
@@ -22,6 +22,7 @@ describe('Health', () => {
             .expect('ok')
             .then()
             .catch(err => {
+                console.error(err);
                 throw err;
             });
     });
