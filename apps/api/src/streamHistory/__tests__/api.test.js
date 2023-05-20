@@ -27,7 +27,7 @@ describe('stream history api', () => {
             expect(prismaMock.streamHistory.findMany).toHaveBeenCalledTimes(1);
             expect(prismaMock.streamHistory.findMany).toHaveBeenCalledWith({
                 skip: 0,
-                take: 100,
+                take: 10,
                 select: { id: true, trackName: true, artistName: true, msPlayed: true, endTime: true, spotifyTrackId: true },
                 orderBy: { endTime: 'desc' },
             });
@@ -35,7 +35,7 @@ describe('stream history api', () => {
             expect(result).toStrictEqual({ streamHistory: queryResult, recordCount: totalRecords });
         });
 
-        it('Finds the latest stream history items, using api options', async () => {
+        it('Finds the latest stream history items using api options', async () => {
             // Given
             const dateFrom = new Date(2022, 0, 1);
             const dateTo = new Date(2023, 0, 1);
@@ -57,6 +57,15 @@ describe('stream history api', () => {
                 select: { id: true, trackName: true, artistName: true, msPlayed: true, endTime: true, spotifyTrackId: true },
                 orderBy: { endTime: 'desc' },
             });
+        });
+
+        it('Has the max limit as 100', async () => {
+            await getStreamHistory({
+                limit: 1000,
+            });
+
+            expect(prismaMock.streamHistory.findMany).toHaveBeenCalledTimes(1);
+            expect(prismaMock.streamHistory.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 100 }));
         });
     });
 
@@ -126,6 +135,15 @@ describe('stream history api', () => {
                 },
                 take: 20,
             });
+        });
+
+        it('Has the max limit as 100', async () => {
+            await getTopArtist({
+                limit: 1000,
+            });
+
+            expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledTimes(1);
+            expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledWith(expect.objectContaining({ take: 100 }));
         });
     });
 });
