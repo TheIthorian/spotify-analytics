@@ -1,15 +1,34 @@
 import { existsSync, writeFileSync } from 'fs';
 import * as hashMd5 from 'md5';
+
 import { prismaMock } from '../../__mocks__/prismaClient';
+
 import { getUploads, saveFiles } from '../api';
 import { JOB_STATUS } from '../constants';
 
 const streamHistoryFileData = [
     {
-        endTime: '2020-12-03 10:40',
-        artistName: 'Metallica',
-        trackName: 'One',
-        msPlayed: 447440,
+        ts: '2014-12-29T23:35:17Z',
+        username: 'username',
+        platform: 'platform',
+        ms_played: 5665,
+        conn_country: 'GB',
+        ip_addr_decrypted: 'ip_addr_decrypted',
+        user_agent_decrypted: 'unknown',
+        master_metadata_track_name: 'master_metadata_track_name',
+        master_metadata_album_artist_name: 'master_metadata_album_artist_name',
+        master_metadata_album_album_name: 'master_metadata_album_album_name',
+        spotify_track_uri: 'spotify:spotify_track_uri',
+        episode_name: null,
+        episode_show_name: null,
+        spotify_episode_uri: null,
+        reason_start: 'appload',
+        reason_end: 'appload',
+        shuffle: false,
+        skipped: true,
+        offline: false,
+        offline_timestamp: 0,
+        incognito_mode: false,
     },
 ];
 
@@ -37,6 +56,7 @@ describe('upload api', () => {
             // Given
             prismaMock.uploadFileQueue.findFirst.mockResolvedValue(undefined);
             prismaMock.uploadFileQueue.create.mockResolvedValue({});
+            prismaMock.uploadFileQueue.findMany.mockResolvedValue('123');
 
             // When
             await saveFiles(fileToUpload);
