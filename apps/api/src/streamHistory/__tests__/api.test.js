@@ -8,10 +8,22 @@ describe('stream history api', () => {
             {
                 id: '1',
                 trackName: 'trackName',
+                albumName: 'albumName',
                 artistName: 'artistName',
-                msPlayed: '100',
-                endTime: new Date(2021, 1, 10),
-                spotifyTrackId: '123',
+                msPlayed: 100,
+                datePlayed: new Date(2021, 1, 10),
+                platform: 'platform',
+                spotifyTrackUri: 'spotifyTrackUri',
+                isSong: true,
+                episodeName: null,
+                episodeShowName: null,
+                spotifyShowUri: null,
+                shuffle: false,
+                skipped: false,
+                offline: false,
+                reasonStart: 'unknown',
+                reasonEnd: 'unknown',
+                incognitoMode: false,
             },
         ];
 
@@ -28,8 +40,7 @@ describe('stream history api', () => {
             expect(prismaMock.streamHistory.findMany).toHaveBeenCalledWith({
                 skip: 0,
                 take: 10,
-                select: { id: true, trackName: true, artistName: true, msPlayed: true, endTime: true, spotifyTrackId: true },
-                orderBy: { endTime: 'desc' },
+                orderBy: { datePlayed: 'desc' },
             });
 
             expect(result).toStrictEqual({ streamHistory: queryResult, recordCount: totalRecords });
@@ -51,11 +62,10 @@ describe('stream history api', () => {
             // Then
             expect(prismaMock.streamHistory.findMany).toHaveBeenCalledTimes(1);
             expect(prismaMock.streamHistory.findMany).toHaveBeenCalledWith({
-                where: { endTime: { gte: dateFrom, lte: dateTo } },
+                where: { datePlayed: { gte: dateFrom, lte: dateTo } },
                 skip: 10 * 2,
                 take: 10,
-                select: { id: true, trackName: true, artistName: true, msPlayed: true, endTime: true, spotifyTrackId: true },
-                orderBy: { endTime: 'desc' },
+                orderBy: { datePlayed: 'desc' },
             });
         });
 
@@ -105,7 +115,7 @@ describe('stream history api', () => {
             expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledWith({
                 by: ['artistName'],
                 _count: { id: true }, // defaults to count
-                where: { endTime: { gte: dateFrom, lte: dateTo } },
+                where: { datePlayed: { gte: dateFrom, lte: dateTo }, isSong: true },
                 orderBy: {
                     _count: { id: 'desc' },
                 },
@@ -130,6 +140,7 @@ describe('stream history api', () => {
             expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledWith({
                 by: ['artistName'],
                 _sum: { msPlayed: true },
+                where: { isSong: true },
                 orderBy: {
                     _sum: { msPlayed: 'desc' },
                 },

@@ -22,7 +22,7 @@ export async function getStreamHistory(options: GetStreamHistoryOptions) {
 
     if (options.dateFrom || options.dateTo) {
         const dateFilter: { gte?: Date; lte?: Date } = {};
-        queryArgs.where = { endTime: dateFilter };
+        queryArgs.where = { datePlayed: dateFilter };
         if (options.dateFrom) dateFilter.gte = options.dateFrom;
         if (options.dateTo) dateFilter.lte = options.dateTo;
     }
@@ -36,8 +36,7 @@ export async function getStreamHistory(options: GetStreamHistoryOptions) {
 
     const streamHistory = await prisma.streamHistory.findMany({
         ...queryArgs,
-        select: { id: true, trackName: true, artistName: true, msPlayed: true, endTime: true, spotifyTrackId: true },
-        orderBy: { endTime: 'desc' },
+        orderBy: { datePlayed: 'desc' },
     });
 
     const recordCount = await prisma.streamHistory.count();
@@ -63,15 +62,15 @@ type ArtistListenAmount = {
     count: number;
 };
 
-type TopArtistsListAggregateQueryOptions = { where?: { endTime?: { gte?: Date; lte?: Date } } };
+type TopArtistsListAggregateQueryOptions = { where: { datePlayed?: { gte?: Date; lte?: Date }; isSong: boolean } };
 
 export async function getTopArtist(options: GetTopArtistsOptions): Promise<ArtistListenAmount[]> {
     log.info({ options }, `(${getTopArtist.name})`);
 
-    const queryArgs: TopArtistsListAggregateQueryOptions = {};
+    const queryArgs: TopArtistsListAggregateQueryOptions = { where: { isSong: true } };
     if (options.dateFrom || options.dateTo) {
         const dateFilter: { gte?: Date; lte?: Date } = {};
-        queryArgs.where = { endTime: dateFilter };
+        queryArgs.where.datePlayed = dateFilter;
         if (options.dateFrom) dateFilter.gte = options.dateFrom;
         if (options.dateTo) dateFilter.lte = options.dateTo;
     }

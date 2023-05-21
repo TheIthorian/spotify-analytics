@@ -7,10 +7,23 @@ const today = new Date();
 async function insertStreamHistory() {
     await prisma.streamHistory.create({
         data: {
-            trackName: 'track.trackName',
-            artistName: 'track.artistName',
+            trackName: 'trackName',
+            albumName: 'albumName',
+            artistName: 'artistName',
             msPlayed: 100,
-            endTime: today,
+            datePlayed: today,
+            platform: 'platform',
+            spotifyTrackUri: 'spotifyTrackUri',
+            isSong: true,
+            episodeName: null,
+            episodeShowName: null,
+            spotifyShowUri: null,
+            shuffle: false,
+            skipped: false,
+            offline: false,
+            reasonStart: 'unknown',
+            reasonEnd: 'unknown',
+            incognitoMode: false,
         },
     });
 }
@@ -34,11 +47,23 @@ describe('Stream History', () => {
         expect(res.body).toStrictEqual([
             {
                 id: 1,
-                trackName: 'track.trackName',
-                artistName: 'track.artistName',
+                trackName: 'trackName',
+                albumName: 'albumName',
+                artistName: 'artistName',
                 msPlayed: 100,
-                endTime: today.toISOString(),
-                spotifyTrackId: null,
+                datePlayed: today.toISOString(),
+                platform: 'platform',
+                spotifyTrackUri: 'spotifyTrackUri',
+                isSong: true,
+                episodeName: null,
+                episodeShowName: null,
+                spotifyShowUri: null,
+                shuffle: false,
+                skipped: false,
+                offline: false,
+                reasonStart: 'unknown',
+                reasonEnd: 'unknown',
+                incognitoMode: false,
             },
         ]);
     });
@@ -52,6 +77,6 @@ describe('Stream History', () => {
             });
 
         expect(res.body.length).toBe(1);
-        expect(res.body).toStrictEqual([{ count: 1, name: 'track.artistName' }]);
+        expect(res.body).toStrictEqual([{ count: 1, name: 'artistName' }]);
     });
 });

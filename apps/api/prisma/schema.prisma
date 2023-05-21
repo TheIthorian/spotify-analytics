@@ -46,6 +46,37 @@ model PlaylistTrack {
 
 // User stream history
 model StreamHistory {
+    id         Int     @id @default(autoincrement())
+    trackName  String?
+    albumName  String?
+    artistName String?
+
+    msPlayed   Int
+    datePlayed DateTime
+
+    platform        String
+    spotifyTrackUri String?
+
+    isSong          Boolean
+    episodeName     String?
+    episodeShowName String?
+    spotifyShowUri  String?
+
+    shuffle Boolean
+    skipped Boolean?
+    offline Boolean
+
+    reasonStart   String
+    reasonEnd     String
+    incognitoMode Boolean?
+
+    @@index([datePlayed])
+    @@index([trackName])
+    @@index([artistName])
+    @@index([isSong])
+}
+
+model SimpleStreamHistory {
     id             Int      @id @default(autoincrement())
     trackName      String
     artistName     String
