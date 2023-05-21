@@ -22,7 +22,7 @@ export async function getStreamHistory(options: GetStreamHistoryOptions) {
 
     if (options.dateFrom || options.dateTo) {
         const dateFilter: { gte?: Date; lte?: Date } = {};
-        queryArgs.where = { endTime: dateFilter };
+        queryArgs.where = { datePlayed: dateFilter };
         if (options.dateFrom) dateFilter.gte = options.dateFrom;
         if (options.dateTo) dateFilter.lte = options.dateTo;
     }
@@ -36,8 +36,24 @@ export async function getStreamHistory(options: GetStreamHistoryOptions) {
 
     const streamHistory = await prisma.streamHistory.findMany({
         ...queryArgs,
-        select: { id: true, trackName: true, artistName: true, msPlayed: true, endTime: true, spotifyTrackId: true },
-        orderBy: { endTime: 'desc' },
+        select: {
+            id: true,
+            trackName: true,
+            albumName: true,
+            artistName: true,
+            msPlayed: true,
+            datePlayed: true,
+            platform: true,
+            spotifyTrackUri: true,
+            isSong: true,
+            episodeName: true,
+            episodeShowName: true,
+            spotifyShowUri: true,
+            shuffle: true,
+            skipped: true,
+            offline: true,
+        },
+        orderBy: { datePlayed: 'desc' },
     });
 
     const recordCount = await prisma.streamHistory.count();
@@ -63,7 +79,7 @@ type ArtistListenAmount = {
     count: number;
 };
 
-type TopArtistsListAggregateQueryOptions = { where?: { endTime?: { gte?: Date; lte?: Date } } };
+type TopArtistsListAggregateQueryOptions = { where?: { datePlayed?: { gte?: Date; lte?: Date } } };
 
 export async function getTopArtist(options: GetTopArtistsOptions): Promise<ArtistListenAmount[]> {
     log.info({ options }, `(${getTopArtist.name})`);
@@ -71,7 +87,7 @@ export async function getTopArtist(options: GetTopArtistsOptions): Promise<Artis
     const queryArgs: TopArtistsListAggregateQueryOptions = {};
     if (options.dateFrom || options.dateTo) {
         const dateFilter: { gte?: Date; lte?: Date } = {};
-        queryArgs.where = { endTime: dateFilter };
+        queryArgs.where = { datePlayed: dateFilter };
         if (options.dateFrom) dateFilter.gte = options.dateFrom;
         if (options.dateTo) dateFilter.lte = options.dateTo;
     }
