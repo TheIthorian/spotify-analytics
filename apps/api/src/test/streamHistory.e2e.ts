@@ -21,6 +21,9 @@ async function insertStreamHistory() {
             shuffle: false,
             skipped: false,
             offline: false,
+            reasonStart: 'unknown',
+            reasonEnd: 'unknown',
+            incognitoMode: false,
         },
     });
 }
@@ -58,6 +61,9 @@ describe('Stream History', () => {
                 shuffle: false,
                 skipped: false,
                 offline: false,
+                reasonStart: 'unknown',
+                reasonEnd: 'unknown',
+                incognitoMode: false,
             },
         ]);
     });

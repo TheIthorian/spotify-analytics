@@ -117,9 +117,6 @@ async function insertStreamingHistory(file: UploadFileQueue) {
         username: string;
         platform: string;
         ms_played: number;
-        conn_country: string;
-        ip_addr_decrypted: string;
-        user_agent_decrypted: string;
         master_metadata_track_name: string;
         master_metadata_album_artist_name: string;
         master_metadata_album_album_name: string;
@@ -142,9 +139,6 @@ async function insertStreamingHistory(file: UploadFileQueue) {
             'username',
             'platform',
             'ms_played',
-            'conn_country',
-            'ip_addr_decrypted',
-            'user_agent_decrypted',
             'master_metadata_track_name',
             'master_metadata_album_artist_name',
             'master_metadata_album_album_name',
@@ -183,6 +177,9 @@ async function insertStreamingHistory(file: UploadFileQueue) {
                         shuffle: track.shuffle,
                         skipped: track.skipped,
                         offline: track.offline,
+                        reasonStart: track.reason_start,
+                        reasonEnd: track.reason_end,
+                        incognitoMode: track.incognito_mode,
                     },
                 });
             })
