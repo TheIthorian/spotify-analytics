@@ -112,7 +112,7 @@ describe('stream history api', () => {
             expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledWith({
                 by: ['artistName'],
                 _count: { id: true }, // defaults to count
-                where: { datePlayed: { gte: dateFrom, lte: dateTo } },
+                where: { datePlayed: { gte: dateFrom, lte: dateTo }, isSong: true },
                 orderBy: {
                     _count: { id: 'desc' },
                 },
@@ -137,6 +137,7 @@ describe('stream history api', () => {
             expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledWith({
                 by: ['artistName'],
                 _sum: { msPlayed: true },
+                where: { isSong: true },
                 orderBy: {
                     _sum: { msPlayed: 'desc' },
                 },
