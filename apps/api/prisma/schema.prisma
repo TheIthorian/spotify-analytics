@@ -63,7 +63,7 @@ model StreamHistory {
     spotifyShowUri  String?
 
     shuffle Boolean
-    skipped Boolean
+    skipped Boolean?
     offline Boolean
 
     @@index([datePlayed])
