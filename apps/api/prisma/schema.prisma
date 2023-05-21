@@ -46,21 +46,21 @@ model PlaylistTrack {
 
 // User stream history
 model StreamHistory {
-    id         Int    @id @default(autoincrement())
-    trackName  String
-    albumName  String
-    artistName String
+    id         Int     @id @default(autoincrement())
+    trackName  String?
+    albumName  String?
+    artistName String?
 
     msPlayed   Int
     datePlayed DateTime
 
     platform        String
-    spotifyTrackUri String
+    spotifyTrackUri String?
 
     isSong          Boolean
-    episodeName     String
-    episodeShowName String
-    spotifyShowUri  String
+    episodeName     String?
+    episodeShowName String?
+    spotifyShowUri  String?
 
     shuffle Boolean
     skipped Boolean
