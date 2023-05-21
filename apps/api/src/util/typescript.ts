@@ -9,3 +9,29 @@ export interface ParsedQueryResponse<T> extends Response {
 export interface ParsedBodyResponse<T> extends Response {
     locals: Record<string, any> & { parsedBody?: T };
 }
+
+export function isType<T>(item: unknown, fields: string[]): item is T {
+    if (Array.isArray(item)) return false;
+
+    for (const field of fields) {
+        if (!item.hasOwnProperty(field)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+export function isArrayType<T>(items: unknown, fields: string[]): items is T[] {
+    if (!Array.isArray(items)) return false;
+
+    for (const track of items) {
+        for (const field of fields) {
+            if (!track.hasOwnProperty(field)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
