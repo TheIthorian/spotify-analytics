@@ -97,6 +97,9 @@ describe('dequeueAllFiles', () => {
                 shuffle: false,
                 skipped: true,
                 offline: false,
+                reasonStart: 'appload',
+                reasonEnd: 'appload',
+                incognitoMode: false,
             },
         });
     });

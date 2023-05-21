@@ -21,6 +21,9 @@ describe('stream history api', () => {
                 shuffle: false,
                 skipped: false,
                 offline: false,
+                reasonStart: 'unknown',
+                reasonEnd: 'unknown',
+                incognitoMode: false,
             },
         ];
 
