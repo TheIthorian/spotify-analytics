@@ -36,23 +36,6 @@ export async function getStreamHistory(options: GetStreamHistoryOptions) {
 
     const streamHistory = await prisma.streamHistory.findMany({
         ...queryArgs,
-        select: {
-            id: true,
-            trackName: true,
-            albumName: true,
-            artistName: true,
-            msPlayed: true,
-            datePlayed: true,
-            platform: true,
-            spotifyTrackUri: true,
-            isSong: true,
-            episodeName: true,
-            episodeShowName: true,
-            spotifyShowUri: true,
-            shuffle: true,
-            skipped: true,
-            offline: true,
-        },
         orderBy: { datePlayed: 'desc' },
     });
 
