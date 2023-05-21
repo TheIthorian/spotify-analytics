@@ -66,6 +66,10 @@ model StreamHistory {
     skipped Boolean?
     offline Boolean
 
+    reasonStart   String
+    reasonEnd     String
+    incognitoMode Boolean?
+
     @@index([datePlayed])
     @@index([trackName])
     @@index([artistName])
