@@ -1,4 +1,3 @@
-import { STATUS_BY_ID } from './constants';
 import { RequestHandler } from 'express';
 import { makeLogger } from '../logger';
 import * as uploadApi from './api';
