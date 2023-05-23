@@ -55,8 +55,8 @@ describe('upload api', () => {
         it('saves the uploaded file to database', async () => {
             // Given
             prismaMock.uploadFileQueue.findFirst.mockResolvedValue(undefined);
-            prismaMock.uploadFileQueue.create.mockResolvedValue({});
-            prismaMock.uploadFileQueue.findMany.mockResolvedValue('123');
+            prismaMock.uploadFileQueue.create.mockResolvedValue({ id: 1 });
+            prismaMock.uploadFileQueue.findMany.mockResolvedValue([{ id: 1, status: 0 }]);
 
             // When
             await saveFiles(fileToUpload);
@@ -76,7 +76,8 @@ describe('upload api', () => {
 
         it('does not save the file if it has already been uploaded', async () => {
             // Given
-            prismaMock.uploadFileQueue.findFirst.mockResolvedValue({});
+            prismaMock.uploadFileQueue.findFirst.mockResolvedValue([{ id: 1 }]);
+            prismaMock.uploadFileQueue.findMany.mockResolvedValue([{ id: 1, status: 0 }]);
 
             // When
             await saveFiles(fileToUpload);
@@ -89,6 +90,9 @@ describe('upload api', () => {
 
     describe('getUploads', () => {
         it('finds all uploads', async () => {
+            prismaMock.uploadFileQueue.findFirst.mockResolvedValue([{ id: 1 }]);
+            prismaMock.uploadFileQueue.findMany.mockResolvedValue([{ id: 1, status: 0 }]);
+
             await getUploads();
             expect(prismaMock.uploadFileQueue.findMany).toHaveBeenCalledTimes(1);
         });
