@@ -1,0 +1,12 @@
+{
+    "name": "spotify-analytics-file-processor",
+    "version": "0.0.1",
+    "repository": "git@github.com:TheIthorian/spotify-analytics.git",
+    "author": "TheIthorian",
+    "license": "Apache-2.0",
+    "scripts": {
+        "build": "",
+        "start": "",
+        "test": ""
+    }
+}
