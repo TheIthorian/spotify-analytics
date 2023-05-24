@@ -65,8 +65,25 @@ func main() {
 	}
 	defer db.Close()
 
+	t1 := time.Now()
+	fileQueue, err := getFileQueue(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range fileQueue {
+		processFile(&file, db)
+	}
+
+	elapsed := time.Since(t1)
+	fmt.Println("elapsed: ")
+	fmt.Println(elapsed)
+
+}
+
+func processFile(uploadFile *UploadFileQueue, db *sql.DB) {
 	// Read JSON file
-	file, err := os.Open(jsonFile)
+	file, err := os.Open(uploadFile.filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -93,9 +110,6 @@ func main() {
 			fmt.Println(err)
 			continue
 		}
-
-		fmt.Println(track.Ts)
-		fmt.Println(t)
 
 		var historyRecord = StreamHistory{
 			trackName:       track.Master_Metadata_Track_Name,
@@ -130,7 +144,6 @@ func main() {
 	defer stmt.Close()
 
 	for _, history := range streamHistoryRecords {
-		print(history)
 		_, err := stmt.Exec(
 			history.trackName, history.albumName, history.artistName, history.msPlayed,
 			history.datePlayed,
@@ -143,6 +156,8 @@ func main() {
 		}
 	}
 
+	deleteFile(uploadFile.filePath)
+
 	fmt.Println("Data inserted into the database successfully.")
 }
 
@@ -151,7 +166,7 @@ func print(history StreamHistory) {
 	// fmt.Println(history.albumName)
 	// fmt.Println(history.artistName)
 	// fmt.Println(history.msPlayed)
-	// fmt.Println(history.datePlayed)
+	fmt.Println(history.datePlayed)
 	// fmt.Println(history.platform)
 	// fmt.Println(history.spotifyTrackUri)
 	fmt.Println(history.isSong)
@@ -164,4 +179,49 @@ func print(history StreamHistory) {
 	// fmt.Println(history.reasonStart)
 	// fmt.Println(history.reasonEnd)
 	// fmt.Println(history.incognitoMode)
+}
+
+type UploadFileQueue struct {
+	id       int
+	status   int
+	filePath string
+	fileName sql.NullString
+	mimeType string
+	size     int
+	MD5      string
+}
+
+func getFileQueue(db *sql.DB) ([]UploadFileQueue, error) {
+	rows, err := db.Query("SELECT id, status, filePath, filename, mimetype, size, md5 FROM UploadFileQueue WHERE status = 0 LIMIT 1")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []UploadFileQueue
+	for rows.Next() {
+		var d UploadFileQueue
+		rows.Scan(&d.id, &d.status, &d.filePath, &d.fileName, &d.mimeType, &d.size, &d.MD5)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, d)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+// fix
+func deleteFile(filePath string) error {
+	err := os.Remove(filePath)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("File %s deleted successfully\n", filePath)
+	return nil
 }
