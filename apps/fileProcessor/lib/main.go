@@ -86,12 +86,23 @@ func main() {
 
 	var streamHistoryRecords []StreamHistory
 	for _, track := range tracks {
+		layout := "2006-01-02T15:04:05Z"
+		t, err := time.Parse(layout, track.Ts)
+
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		fmt.Println(track.Ts)
+		fmt.Println(t)
+
 		var historyRecord = StreamHistory{
 			trackName:       track.Master_Metadata_Track_Name,
 			albumName:       track.Master_Metadata_Album_Album_Name,
 			artistName:      track.Master_Metadata_Album_Artist_Name,
 			msPlayed:        track.Ms_Played,
-			datePlayed:      time.Now(),
+			datePlayed:      t,
 			platform:        track.Platform,
 			spotifyTrackUri: track.Spotify_Track_Uri,
 			isSong:          track.Episode_Name == "",
