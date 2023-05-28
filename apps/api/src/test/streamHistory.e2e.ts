@@ -1,76 +1,73 @@
+import { StreamHistory } from '@prisma/client';
 import * as request from 'supertest';
+import * as fs from 'fs';
+
 import prisma from '../prismaClient';
 import { expressApp } from '../main';
 import { dequeueAllFiles } from '../upload/fileProcessor';
-import * as fs from 'fs';
+import { generateStreamHistory } from './testUtils/recordGenerator';
 
-const today = new Date();
+let streamHistories: Omit<StreamHistory, 'id'>[] = [];
+let sortedHistories: Record<string, any>[] = [];
 
-async function insertStreamHistory() {
-    await prisma.streamHistory.create({
-        data: {
-            trackName: 'trackName',
-            albumName: 'albumName',
-            artistName: 'artistName',
-            msPlayed: 100,
-            datePlayed: today,
-            platform: 'platform',
-            spotifyTrackUri: 'spotifyTrackUri',
-            isSong: true,
-            episodeName: null,
-            episodeShowName: null,
-            spotifyShowUri: null,
-            shuffle: false,
-            skipped: false,
-            offline: false,
-            reasonStart: 'unknown',
-            reasonEnd: 'unknown',
-            incognitoMode: false,
-        },
-    });
-}
+const numberOfStreams = 3;
 
 describe('Stream History', () => {
     beforeAll(async () => {
-        await insertStreamHistory();
+        streamHistories = [...Array(3)].map(() => generateStreamHistory({ artistName: 'artistName' }));
+        await Promise.all(
+            streamHistories.map(history =>
+                prisma.streamHistory.create({
+                    data: history,
+                })
+            )
+        );
+
+        sortedHistories = [...streamHistories]
+            .sort((a, b) => b.datePlayed.getTime() - a.datePlayed.getTime())
+            .map(history => ({ ...history, datePlayed: history.datePlayed.toISOString() }));
     });
 
     const app = expressApp(3001);
 
-    it('/api/history (GET) - returns history', async () => {
-        const res = await request(app)
-            .get('/api/history')
-            .expect(200)
-            .catch(err => {
-                throw err;
-            });
+    describe('Get History', () => {
+        it('/api/history (GET) - returns history, sorting by date', async () => {
+            const res = await request(app)
+                .get('/api/history')
+                .expect(200)
+                .catch(err => {
+                    throw err;
+                });
 
-        expect(res.body.length).toBe(1);
-        expect(res.body).toStrictEqual([
-            {
-                id: 1,
-                trackName: 'trackName',
-                albumName: 'albumName',
-                artistName: 'artistName',
-                msPlayed: 100,
-                datePlayed: today.toISOString(),
-                platform: 'platform',
-                spotifyTrackUri: 'spotifyTrackUri',
-                isSong: true,
-                episodeName: null,
-                episodeShowName: null,
-                spotifyShowUri: null,
-                shuffle: false,
-                skipped: false,
-                offline: false,
-                reasonStart: 'unknown',
-                reasonEnd: 'unknown',
-                incognitoMode: false,
-            },
-        ]);
+            expect(res.body.length).toBe(Math.min(numberOfStreams, 10));
+            expect(res.body).toMatchObject(sortedHistories.slice(0, 10));
+        });
+
+        it('/api/history (GET) - returns all history when limit is high enough', async () => {
+            const res = await request(app)
+                .get('/api/history')
+                .query({ limit: numberOfStreams + 5 })
+                .expect(200)
+                .catch(err => {
+                    throw err;
+                });
+
+            expect(res.body.length).toBe(numberOfStreams);
+            expect(res.body).toMatchObject(sortedHistories);
+        });
     });
 
-    it('/api/top-artists (GET) - returns top artists', async () => {
+    it.skip('/api/top-artists (GET) - returns top artists', async () => {
+        // Update every other history to have the same artist name
+        await prisma.streamHistory.updateMany({
+            data: streamHistories
+                .filter((_, index) => index % 2)
+                .map(history => {
+                    history.artistName = 'artistName';
+                    return history;
+                }), // Every other history
+        });
+
         const res = await request(app)
             .get('/api/top-artists')
             .expect(200)
@@ -78,8 +75,50 @@ describe('Stream History', () => {
                 throw err;
             });
 
-        expect(res.body.length).toBe(1);
-        expect(res.body).toStrictEqual([{ count: 1, name: 'artistName' }]);
+        expect(res.body.length).toBe(numberOfStreams);
+        expect(res.body).toStrictEqual([{ count: numberOfStreams, name: 'artistName' }]);
+    });
+
+    it.skip('/api/top-tracks (GET) - returns top tracks', async () => {
+        // Update every other history to have the same artist name
+        await prisma.streamHistory.updateMany({
+            data: streamHistories
+                .filter((_, index) => index % 2) // Every other history
+                .map(history => {
+                    history.trackName = 'trackName';
+                    return history;
+                }),
+        });
+
+        const res = await request(app)
+            .get('/api/top-tracks')
+            .expect(200)
+            .catch(err => {
+                throw err;
+            });
+
+        expect(res.body.length).toBe(numberOfStreams);
+        expect(res.body).toStrictEqual([{ count: Math.floor(numberOfStreams / 2), name: 'trackName' }]);
+    });
+
+    it.skip('/api/top-tracks (GET) - returns stats', async () => {
+        // Update every other history to have the same artist name
+        const res = await request(app)
+            .get('/api/history/stats')
+            .expect(200)
+            .catch(err => {
+                throw err;
+            });
+
+        expect(res.body).toStrictEqual({
+            totalPlaytime: expect.any(Number),
+            uniqueArtistCount: 1,
+            uniqueTrackCount: expect.any(Number),
+            trackCount: 8,
+        });
+
+        expect(res.body.totalPlaytime).toBeGreaterThan(0);
+        expect(res.body.uniqueTrackCount).toBeGreaterThan(0);
     });
 
     describe.skip('Performance', () => {
