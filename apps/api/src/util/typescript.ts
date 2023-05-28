@@ -14,7 +14,7 @@ export function isType<T>(item: unknown, fields: string[]): item is T {
     if (Array.isArray(item)) return false;
 
     for (const field of fields) {
-        if (!item.hasOwnProperty(field)) {
+        if (!item[field]) {
             return false;
         }
     }
@@ -27,7 +27,7 @@ export function isArrayType<T>(items: unknown, fields: string[]): items is T[] {
 
     for (const track of items) {
         for (const field of fields) {
-            if (!track.hasOwnProperty(field)) {
+            if (!track[field]) {
                 return false;
             }
         }
