@@ -25,10 +25,16 @@ interface Logger {
 export function makeLogger(module: Module | undefined, level = DEFAULT_LEVEL): Logger {
     const streams = [{ stream: process.stdout }, { stream: createWriteStream('app.log', { flags: 'a' }) }];
 
-    return pino({ level }, multistream(streams));
+    let name = 'unknown';
+    if (module?.filename) {
+        const modulePath = module.filename.split('\\apps\\api\\src\\').pop().split('\\');
+        name = `${modulePath.join(', ')}`;
+    }
+
+    return pino({ level, name }, multistream(streams));
 }
 
-const logger = makeLogger(module);
+const logger = makeLogger(module, DEFAULT_LEVEL);
 
 export function requestLogger(req: Request, res, next: NextFunction) {
     const { method, url, ip, host } = req;
