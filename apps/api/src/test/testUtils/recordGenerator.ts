@@ -45,3 +45,7 @@ export function generateStreamHistory(properties: Partial<StreamHistory> = {}): 
         incognitoMode: properties?.incognitoMode ?? faker.datatype.boolean(),
     };
 }
+
+export function generateStreamHistories(properties: Partial<StreamHistory> = {}, count = 1): Omit<StreamHistory, 'id'>[] {
+    return Array.from({ length: count }, () => generateStreamHistory(properties));
+}
