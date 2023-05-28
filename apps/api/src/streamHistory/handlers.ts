@@ -1,4 +1,4 @@
-import { NextFunction, Request, RequestHandler } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { makeLogger } from '../logger';
 import * as api from './api';
@@ -38,6 +38,24 @@ export const getTopArtistHandler: RequestHandler[] = [
 
             res.status(200);
             res.json(topArtists);
+        } catch (err) {
+            log.error(err, 'getStreamHistoryHandler');
+            res.sendStatus(500);
+        }
+
+        next();
+    },
+];
+
+export const getStatsHandler: RequestHandler[] = [
+    async (req: Request, res: Response, next: NextFunction) => {
+        log.info({ url: req.url }, '(getStatsHandler)');
+
+        try {
+            const stats = await api.getStats();
+
+            res.status(200);
+            res.json(stats);
         } catch (err) {
             log.error(err, 'getStreamHistoryHandler');
             res.sendStatus(500);
