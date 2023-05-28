@@ -170,6 +170,13 @@ describe('Stream History', () => {
                     numberOfFileProcessed: 11,
                     sizeOfFiles: '10.524Mb each',
                 };
+
+                With streams:
+                Timing complete:  {
+                    time: '15.762s',
+                    numberOfFileProcessed: 11,
+                    sizeOfFiles: '10.524Mb each'
+                };
                  */
             },
             200 * 1000
