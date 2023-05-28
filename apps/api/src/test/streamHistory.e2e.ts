@@ -2,6 +2,7 @@ import * as request from 'supertest';
 import prisma from '../prismaClient';
 import { expressApp } from '../main';
 import { dequeueAllFiles } from '../upload/fileProcessor';
+import * as fs from 'fs';
 
 const today = new Date();
 
@@ -85,7 +86,11 @@ describe('Stream History', () => {
         it(
             'uploads and dequeues many large files',
             async () => {
-                const basePath = 'C:/Programming/Misc_Sites/spotify-analytics/.project/spotify-data/extended-stream-history/';
+                const basePath = JSON.parse(fs.readFileSync(`${__dirname}/config.json`, 'utf8')).exampleDataPath;
+                if (!basePath) {
+                    throw new Error('exampleDataPath not set in config.json. Please set it to a valid path.');
+                }
+
                 const files = new Array(11).fill(0).map((_, i) => basePath + 'endsong_' + i + '.json');
 
                 // Upload files
