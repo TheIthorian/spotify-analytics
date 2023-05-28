@@ -58,7 +58,31 @@ type StreamHistory struct {
 	incognitoMode bool
 }
 
+type Config struct {
+	Database string `json:"database"`
+}
+
+func ReadConfigFromFile(filePath string) (*Config, error) {
+	fmt.Printf("Reading config from: %v\n", filePath)
+	fileContent, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	var config Config
+	err = json.Unmarshal(fileContent, &config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
+}
+
 func main() {
+	config, err := ReadConfigFromFile(os.Args[1])
+	fmt.Printf("Using database: %v\n", config.Database)
+
+	dbFile := config.Database
 	db, err := sql.Open("sqlite3", dbFile)
 	if err != nil {
 		log.Fatal(err)
@@ -82,6 +106,8 @@ func main() {
 }
 
 func processFile(uploadFile *UploadFileQueue, db *sql.DB) {
+	fmt.Printf("Processing file: %v\n", uploadFile.filePath)
+
 	// Read JSON file
 	file, err := os.Open(uploadFile.filePath)
 	if err != nil {
