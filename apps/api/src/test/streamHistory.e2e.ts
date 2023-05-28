@@ -1,76 +1,77 @@
+import { StreamHistory } from '@prisma/client';
 import * as request from 'supertest';
+import * as fs from 'fs';
+
 import prisma from '../prismaClient';
 import { expressApp } from '../main';
 import { dequeueAllFiles } from '../upload/fileProcessor';
-import * as fs from 'fs';
+import { generateStreamHistories, generateStreamHistory } from './testUtils/recordGenerator';
 
-const today = new Date();
+let streamHistories: Omit<StreamHistory, 'id'>[] = [];
+let sortedHistories: Record<string, any>[] = [];
 
-async function insertStreamHistory() {
-    await prisma.streamHistory.create({
-        data: {
-            trackName: 'trackName',
-            albumName: 'albumName',
-            artistName: 'artistName',
-            msPlayed: 100,
-            datePlayed: today,
-            platform: 'platform',
-            spotifyTrackUri: 'spotifyTrackUri',
-            isSong: true,
-            episodeName: null,
-            episodeShowName: null,
-            spotifyShowUri: null,
-            shuffle: false,
-            skipped: false,
-            offline: false,
-            reasonStart: 'unknown',
-            reasonEnd: 'unknown',
-            incognitoMode: false,
-        },
-    });
+const numberOfStreams = 20;
+
+async function insertHistory(histories: Omit<StreamHistory, 'id'>[]) {
+    return Promise.all(
+        histories.map(history =>
+            prisma.streamHistory.create({
+                data: history,
+            })
+        )
+    );
 }
 
 describe('Stream History', () => {
-    beforeAll(async () => {
-        await insertStreamHistory();
-    });
-
     const app = expressApp(3001);
 
-    it('/api/history (GET) - returns history', async () => {
-        const res = await request(app)
-            .get('/api/history')
-            .expect(200)
-            .catch(err => {
-                throw err;
-            });
+    describe('Get History', () => {
+        beforeAll(async () => {
+            streamHistories = [...Array(numberOfStreams)].map(() => generateStreamHistory());
+            await Promise.all(
+                streamHistories.map(history =>
+                    prisma.streamHistory.create({
+                        data: history,
+                    })
+                )
+            );
 
-        expect(res.body.length).toBe(1);
-        expect(res.body).toStrictEqual([
-            {
-                id: 1,
-                trackName: 'trackName',
-                albumName: 'albumName',
-                artistName: 'artistName',
-                msPlayed: 100,
-                datePlayed: today.toISOString(),
-                platform: 'platform',
-                spotifyTrackUri: 'spotifyTrackUri',
-                isSong: true,
-                episodeName: null,
-                episodeShowName: null,
-                spotifyShowUri: null,
-                shuffle: false,
-                skipped: false,
-                offline: false,
-                reasonStart: 'unknown',
-                reasonEnd: 'unknown',
-                incognitoMode: false,
-            },
-        ]);
+            sortedHistories = [...streamHistories]
+                .sort((a, b) => b.datePlayed.getTime() - a.datePlayed.getTime())
+                .map(history => ({ ...history, datePlayed: history.datePlayed.toISOString() }));
+        });
+
+        it('/api/history (GET) - returns history, sorting by date', async () => {
+            const res = await request(app)
+                .get('/api/history')
+                .expect(200)
+                .catch(err => {
+                    throw err;
+                });
+
+            expect(res.body.length).toBe(10);
+            expect(res.body).toMatchObject(sortedHistories.slice(0, 10)); // Only takes first 10
+        });
+
+        it('/api/history (GET) - returns all history when limit is high enough', async () => {
+            const res = await request(app)
+                .get('/api/history')
+                .query({ limit: numberOfStreams + 5 })
+                .expect(200)
+                .catch(err => {
+                    throw err;
+                });
+
+            expect(res.body.length).toBe(numberOfStreams);
+            expect(res.body).toMatchObject(sortedHistories);
+        });
     });
 
     it('/api/top-artists (GET) - returns top artists', async () => {
+        await prisma.streamHistory.deleteMany({});
+        await insertHistory(generateStreamHistories({ isSong: true, artistName: 'Test Artist' }, 3));
+        await insertHistory(generateStreamHistories({ isSong: true, artistName: 'Test Artist 2' }, 1));
+
         const res = await request(app)
             .get('/api/top-artists')
             .expect(200)
@@ -78,8 +79,55 @@ describe('Stream History', () => {
                 throw err;
             });
 
-        expect(res.body.length).toBe(1);
-        expect(res.body).toStrictEqual([{ count: 1, name: 'artistName' }]);
+        expect(res.body.length).toBe(2);
+        expect(res.body).toStrictEqual([
+            { count: 3, name: 'Test Artist' },
+            { count: 1, name: 'Test Artist 2' },
+        ]);
+
+        expect(res.body[0]).toMatchObject({ count: expect.any(Number), name: expect.any(String) });
+    });
+
+    it.skip('/api/top-tracks (GET) - returns top tracks', async () => {
+        await prisma.streamHistory.deleteMany({});
+        await insertHistory(generateStreamHistories({ isSong: true, trackName: 'Test Track' }, 3));
+        await insertHistory(generateStreamHistories({ isSong: true, trackName: 'Test Track 2' }, 1));
+
+        const res = await request(app)
+            .get('/api/top-tracks')
+            .expect(200)
+            .catch(err => {
+                throw err;
+            });
+
+        expect(res.body.length).toBe(2);
+        expect(res.body).toStrictEqual([
+            { count: 3, name: 'Test Artist' },
+            { count: 1, name: 'Test Artist 2' },
+        ]);
+
+        expect(res.body[0]).toMatchObject({ count: expect.any(Number), name: expect.any(String) });
+    });
+
+    it('/api/top-tracks (GET) - returns stats', async () => {
+        const res = await request(app)
+            .get('/api/history/stats')
+            .expect(200)
+            .catch(err => {
+                throw err;
+            });
+
+        expect(res.body).toStrictEqual({
+            totalPlaytime: expect.any(Number),
+            uniqueArtistCount: expect.any(Number),
+            uniqueTrackCount: expect.any(Number),
+            trackCount: expect.any(Number),
+        });
+
+        expect(res.body.totalPlaytime).toBeGreaterThan(0);
+        expect(res.body.uniqueArtistCount).toBeGreaterThan(0);
+        expect(res.body.uniqueTrackCount).toBeGreaterThan(0);
+        expect(res.body.trackCount).toBeGreaterThan(0);
     });
 
     describe.skip('Performance', () => {

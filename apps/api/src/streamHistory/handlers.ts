@@ -1,9 +1,10 @@
-import { NextFunction, Request, RequestHandler } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { makeLogger } from '../logger';
 import * as api from './api';
 import { ParsedQueryResponse } from '../util/typescript';
 import { QuerySchemaValidator } from '../util/schema';
+import { cache } from '../util/cache';
 
 const log = makeLogger(module);
 
@@ -38,6 +39,25 @@ export const getTopArtistHandler: RequestHandler[] = [
 
             res.status(200);
             res.json(topArtists);
+        } catch (err) {
+            log.error(err, 'getStreamHistoryHandler');
+            res.sendStatus(500);
+        }
+
+        next();
+    },
+];
+
+export const getStatsHandler: RequestHandler[] = [
+    async (req: Request, res: Response, next: NextFunction) => {
+        log.info({ url: req.url }, '(getStatsHandler)');
+
+        try {
+            const getStats = cache(api.getStats);
+            const stats = await getStats();
+
+            res.status(200);
+            res.json(stats);
         } catch (err) {
             log.error(err, 'getStreamHistoryHandler');
             res.sendStatus(500);

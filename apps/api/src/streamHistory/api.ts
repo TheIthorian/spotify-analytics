@@ -111,3 +111,20 @@ async function getArtistsByPlayCount(queryArgs: TopArtistsListAggregateQueryOpti
 
     return queryResult.map(a => ({ count: a._count.id, name: a.artistName }));
 }
+
+export async function getStats() {
+    log.info(`(${getStats.name})`);
+    const [totalPlaytime, uniqueArtistCount, uniqueTrackCount, trackCount] = await Promise.all([
+        prisma.streamHistory.aggregate({ _sum: { msPlayed: true }, where: { isSong: true } }),
+        prisma.$queryRaw`SELECT COUNT(DISTINCT ArtistName) as total FROM StreamHistory WHERE IsSong`,
+        prisma.$queryRaw`SELECT COUNT(DISTINCT TrackName) as total FROM StreamHistory WHERE IsSong`,
+        prisma.$queryRaw`SELECT COUNT(*) as total FROM StreamHistory WHERE IsSong`,
+    ]);
+
+    return {
+        totalPlaytime: totalPlaytime._sum.msPlayed,
+        uniqueArtistCount: parseInt(uniqueArtistCount[0].total), // Sqlite returns a bigint
+        uniqueTrackCount: parseInt(uniqueTrackCount[0].total),
+        trackCount: parseInt(trackCount[0].total),
+    };
+}
