@@ -25,7 +25,7 @@ export function TopArtists() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getTopArtists({})
+        getTopArtists({ groupBy: 'timePlayed' })
             .then(setTopArtistsData)
             .catch(err => {
                 console.error(err);
@@ -41,7 +41,7 @@ export function TopArtists() {
         labels,
         datasets: [
             {
-                label: 'Top Artists By Play Count',
+                label: 'Top Artists By Playtime (hours)',
                 data: topArtistsData.map(d => d.count),
                 backgroundColor: '#1DB954',
             },

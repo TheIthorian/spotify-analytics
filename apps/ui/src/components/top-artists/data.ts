@@ -9,7 +9,7 @@ export async function getTopArtists({
     dateFrom?: Date;
     dateTo?: Date;
     limit?: number;
-    groupBy?: 'count' | 'time';
+    groupBy?: 'listenCount' | 'timePlayed';
 }) {
     const query = new URLSearchParams();
     if (dateFrom) query.append('dateFrom', dateFrom.toISOString());
@@ -23,7 +23,10 @@ export async function getTopArtists({
         throw new Error('Error fetching data', { cause: await res.json() });
     }
 
-    const topArtists = await res.json();
+    const topArtists = (await res.json()).map((record: { count: number; name: string }) => ({
+        count: record.count / (1000 * 60 * 60),
+        name: record.name,
+    }));
 
     return topArtists;
 }

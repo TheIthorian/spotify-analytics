@@ -2,14 +2,17 @@ import { UploadedFile } from 'express-fileupload';
 
 import prisma from '../prismaClient';
 import { makeLogger } from '../logger';
-import { JOB_STATUS } from './constants';
+import { JOB_STATUS, STATUS_BY_ID } from './constants';
 import { deleteTempFile } from '../util/file';
+import { UploadFileQueue } from '@prisma/client';
 
 const log = makeLogger(module);
 
 export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]) {
     const filesArray = [files].flat(3);
-    await Promise.all(filesArray.map(file => saveFile(file)));
+    const uploads = await Promise.all(filesArray.map(file => saveFile(file)));
+    log.info(uploads, 'Finished uploading files');
+    return await getUploads(getUploadIds(uploads));
 }
 
 async function saveFile(file: UploadedFile) {
@@ -26,7 +29,7 @@ async function saveFile(file: UploadedFile) {
         return;
     }
 
-    await prisma.uploadFileQueue
+    const upload = await prisma.uploadFileQueue
         .create({
             data: {
                 filePath: tempFilePath,
@@ -38,10 +41,12 @@ async function saveFile(file: UploadedFile) {
             },
         })
         .catch(err => log.error(err, 'Unable to push file to queue'));
+
+    return upload;
 }
 
-export async function getUploads() {
-    return await prisma.uploadFileQueue.findMany({
+export async function getUploads(ids: number[] = null) {
+    const uploads = await prisma.uploadFileQueue.findMany({
         select: {
             id: true,
             status: true,
@@ -50,6 +55,25 @@ export async function getUploads() {
             size: true,
             md5: true,
         },
+        ...(ids ? { where: { id: { in: ids } } } : {}),
         orderBy: { id: 'desc' },
     });
+
+    for (const upload of uploads) {
+        upload.status = STATUS_BY_ID[upload.status];
+    }
+
+    return uploads;
+}
+
+function getUploadIds(uploads: Array<void | UploadFileQueue>) {
+    if (!uploads) return [];
+
+    const ids = [];
+    for (const upload of uploads) {
+        if (upload && upload.id) {
+            ids.push(upload.id);
+        }
+    }
+    return ids;
 }

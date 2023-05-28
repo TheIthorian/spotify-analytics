@@ -1,4 +1,3 @@
-import { STATUS_BY_ID } from './constants';
 import { RequestHandler } from 'express';
 import { makeLogger } from '../logger';
 import * as uploadApi from './api';
@@ -10,8 +9,6 @@ export const getUploadHandler: RequestHandler[] = [
         log.info('(getUploadHandler)');
         try {
             const uploads = await uploadApi.getUploads();
-            uploads.forEach(upload => (upload.status = STATUS_BY_ID[upload.status]));
-
             res.status(200);
             res.json(uploads);
         } catch (err) {
