@@ -8,7 +8,7 @@ import prisma from './prismaClient';
 import { allowCrossDomain } from './middleware/cors';
 
 const LOCALHOST = '127.0.0.1';
-const DEFAULT_PORT = 3001;
+const DEFAULT_PORT = process.env.INTEGRATION_TEST?.toUpperCase() === 'TRUE' ? 4001 : 3001;
 const MAX_UPLOAD_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
 const log = makeLogger(module);

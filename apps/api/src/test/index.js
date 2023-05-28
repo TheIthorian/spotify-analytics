@@ -7,7 +7,7 @@ const DATABASE_URL = 'file:./dev_test.db';
 // https://dev.to/tylerlwsmith/exiting-node-js-when-programmatically-using-concurrently-to-run-multiple-scripts-1o78
 concurrently(
     [
-        { command: 'npx prisma db push && npm run start:api', name: 'api setup', env: { DATABASE_URL } },
+        { command: 'npx prisma db push && npm run start:api', name: 'api setup', env: { DATABASE_URL, INTEGRATION_TEST: 'TRUE' } },
         { command: 'npx jest --config jest.json', name: 'jest', env: { DATABASE_URL } },
     ],
     {
