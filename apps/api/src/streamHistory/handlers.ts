@@ -4,6 +4,7 @@ import { makeLogger } from '../logger';
 import * as api from './api';
 import { ParsedQueryResponse } from '../util/typescript';
 import { QuerySchemaValidator } from '../util/schema';
+import { cache } from '../util/cache';
 
 const log = makeLogger(module);
 
@@ -52,7 +53,8 @@ export const getStatsHandler: RequestHandler[] = [
         log.info({ url: req.url }, '(getStatsHandler)');
 
         try {
-            const stats = await api.getStats();
+            const getStats = cache(api.getStats);
+            const stats = await getStats();
 
             res.status(200);
             res.json(stats);
