@@ -150,7 +150,10 @@ type Options<T> = {
     validationFields?: string[];
 };
 
-async function readJson<T>(filepath: string, { onData, onInvalidData, validationFields = [] }: Options<T> = {}): Promise<T[]> {
+async function readJson<T extends object>(
+    filepath: string,
+    { onData, onInvalidData, validationFields = [] }: Options<T> = {}
+): Promise<T[]> {
     log.info('Validating json file');
     const { isValid, errorMessage } = await validateJson(filepath);
     if (!isValid) {
