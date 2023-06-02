@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import prisma from '../prismaClient';
 import { expressApp } from '../main';
 import { dequeueAllFiles } from '../upload/fileProcessor';
-import { generateStreamHistories, generateStreamHistory } from './testUtils/recordGenerator';
+import { generateRawStreamHistory, generateStreamHistories, generateStreamHistory } from './testUtils/recordGenerator';
 
 let streamHistories: Omit<StreamHistory, 'id'>[] = [];
 let sortedHistories: Record<string, any>[] = [];
@@ -127,25 +127,32 @@ describe('Stream History', () => {
         });
     });
 
-    describe.skip('Performance', () => {
+    describe.skip('Upload performance', () => {
+        const numberOfRawFiles = 2;
+        const fileLength = 17_000;
+        const assetDir = `${__dirname}/assets/rawStreamHistory`;
+        const filePaths = [];
+
+        beforeAll(() => {
+            for (let i = 0; i < numberOfRawFiles; i++) {
+                const data = new Array(fileLength).fill(0).map(() => generateRawStreamHistory({ isSong: true }));
+                const filePath = `${assetDir}/endsong_${i}.json`;
+                filePaths.push(filePath);
+                fs.writeFileSync(`${assetDir}/endsong_${i}.json`, JSON.stringify(data));
+            }
+        });
+
         it(
             'uploads and dequeues many large files',
             async () => {
-                const basePath = JSON.parse(fs.readFileSync(`${__dirname}/config.json`, 'utf8')).exampleDataPath;
-                if (!basePath) {
-                    throw new Error('exampleDataPath not set in config.json. Please set it to a valid path.');
-                }
-
-                const files = new Array(11).fill(0).map((_, i) => basePath + 'endsong_' + i + '.json');
-
                 // Upload files
-                const responses = await Promise.all(files.map(filename => request(app).post('/api/upload').attach('file', filename)));
+                const responses = await Promise.all(filePaths.map(filename => request(app).post('/api/upload').attach('file', filename)));
                 for (const response of responses) {
                     expect(response.status).toBe(200);
                 }
 
                 const uploadQueue = await prisma.uploadFileQueue.findMany();
-                expect(uploadQueue.length).toBe(11);
+                expect(uploadQueue.length).toBe(numberOfRawFiles);
 
                 // Check dequeue perf
                 const t1 = performance.now();
@@ -159,6 +166,17 @@ describe('Stream History', () => {
                         (uploadQueue.reduce((prev, curr) => prev + curr.size / uploadQueue.length, 0) / (1000 * 1000)).toLocaleString() +
                         'Mb each',
                 });
+
+                const statsResponse = await request(app)
+                    .get('/api/history/stats')
+                    .expect(200)
+                    .expect('Content-Type', /json/)
+
+                    .catch(err => {
+                        throw err;
+                    });
+
+                expect(statsResponse.body.trackCount).toBe(numberOfRawFiles * fileLength);
 
                 /**
                  * Process each file in sequence:
