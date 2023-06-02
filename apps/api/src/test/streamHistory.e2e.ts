@@ -28,13 +28,7 @@ describe('Stream History', () => {
     describe('Get History', () => {
         beforeAll(async () => {
             streamHistories = [...Array(numberOfStreams)].map(() => generateStreamHistory());
-            await Promise.all(
-                streamHistories.map(history =>
-                    prisma.streamHistory.create({
-                        data: history,
-                    })
-                )
-            );
+            await insertHistory(streamHistories);
 
             sortedHistories = [...streamHistories]
                 .sort((a, b) => b.datePlayed.getTime() - a.datePlayed.getTime())
@@ -84,8 +78,6 @@ describe('Stream History', () => {
             { count: 3, name: 'Test Artist' },
             { count: 1, name: 'Test Artist 2' },
         ]);
-
-        expect(res.body[0]).toMatchObject({ count: expect.any(Number), name: expect.any(String) });
     });
 
     it.skip('/api/top-tracks (GET) - returns top tracks', async () => {
@@ -105,11 +97,21 @@ describe('Stream History', () => {
             { count: 3, name: 'Test Artist' },
             { count: 1, name: 'Test Artist 2' },
         ]);
-
-        expect(res.body[0]).toMatchObject({ count: expect.any(Number), name: expect.any(String) });
     });
 
     it('/api/top-tracks (GET) - returns stats', async () => {
+        await prisma.streamHistory.deleteMany({});
+        const isSong = true;
+        await insertHistory(
+            generateStreamHistories({ isSong, trackName: 'Test Track', spotifyTrackUri: '1', artistName: 'artist 1', msPlayed: 100 }, 3)
+        );
+        await insertHistory(
+            generateStreamHistories({ isSong, trackName: 'Test Track 2', spotifyTrackUri: '2', artistName: 'artist 2', msPlayed: 200 }, 1)
+        );
+        await insertHistory(
+            generateStreamHistories({ isSong, trackName: 'Test Track', spotifyTrackUri: '3', artistName: 'artist 3', msPlayed: 0 }, 1)
+        );
+
         const res = await request(app)
             .get('/api/history/stats')
             .expect(200)
@@ -118,16 +120,11 @@ describe('Stream History', () => {
             });
 
         expect(res.body).toStrictEqual({
-            totalPlaytime: expect.any(Number),
-            uniqueArtistCount: expect.any(Number),
-            uniqueTrackCount: expect.any(Number),
-            trackCount: expect.any(Number),
+            totalPlaytime: 300 + 200,
+            uniqueArtistCount: 3,
+            uniqueTrackCount: 3,
+            trackCount: 3 + 1 + 1,
         });
-
-        expect(res.body.totalPlaytime).toBeGreaterThan(0);
-        expect(res.body.uniqueArtistCount).toBeGreaterThan(0);
-        expect(res.body.uniqueTrackCount).toBeGreaterThan(0);
-        expect(res.body.trackCount).toBeGreaterThan(0);
     });
 
     describe.skip('Performance', () => {
