@@ -10,11 +10,11 @@ export interface ParsedBodyResponse<T> extends Response {
     locals: Record<string, any> & { parsedBody?: T };
 }
 
-export function isType<T>(item: unknown, fields: string[]): item is T {
+export function isType<T extends object>(item: object, fields: string[]): item is T {
     if (Array.isArray(item)) return false;
 
     for (const field of fields) {
-        if (!item[field]) {
+        if (!Object.hasOwn(item as object, field)) {
             return false;
         }
     }
@@ -22,12 +22,12 @@ export function isType<T>(item: unknown, fields: string[]): item is T {
     return true;
 }
 
-export function isArrayType<T>(items: unknown, fields: string[]): items is T[] {
+export function isArrayType<T extends object>(items: object, fields: string[]): items is T[] {
     if (!Array.isArray(items)) return false;
 
-    for (const track of items) {
+    for (const item of items) {
         for (const field of fields) {
-            if (!track[field]) {
+            if (!Object.hasOwn(item as object, field)) {
                 return false;
             }
         }
