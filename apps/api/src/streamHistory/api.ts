@@ -117,7 +117,7 @@ export async function getStats() {
     const [totalPlaytime, uniqueArtistCount, uniqueTrackCount, trackCount] = await Promise.all([
         prisma.streamHistory.aggregate({ _sum: { msPlayed: true }, where: { isSong: true } }),
         prisma.$queryRaw`SELECT COUNT(DISTINCT ArtistName) as total FROM StreamHistory WHERE IsSong`,
-        prisma.$queryRaw`SELECT COUNT(DISTINCT TrackName) as total FROM StreamHistory WHERE IsSong`,
+        prisma.$queryRaw`SELECT COUNT(DISTINCT spotifyTrackUri) as total FROM StreamHistory WHERE IsSong`,
         prisma.$queryRaw`SELECT COUNT(*) as total FROM StreamHistory WHERE IsSong`,
     ]);
 
