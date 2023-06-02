@@ -16,7 +16,7 @@ export async function setComplete(id: number) {
 }
 
 export async function setFailed(id: number) {
-    return prisma.uploadFileQueue
+    await prisma.uploadFileQueue
         .update({
             where: { id },
             data: { status: JOB_STATUS.FAILED },
