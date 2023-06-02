@@ -2,7 +2,7 @@ import { StreamHistory } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
 export function generateStreamHistory(properties: Partial<StreamHistory> = {}): Omit<StreamHistory, 'id'> {
-    const isSong = faker.datatype.boolean();
+    const isSong = properties?.isSong ?? faker.datatype.boolean();
     if (isSong) {
         return {
             trackName: properties?.trackName ?? faker.music.songName(),
@@ -12,7 +12,7 @@ export function generateStreamHistory(properties: Partial<StreamHistory> = {}): 
             datePlayed: properties?.datePlayed ?? faker.date.past(),
             platform: properties?.platform ?? 'platform',
             spotifyTrackUri: properties?.spotifyTrackUri ?? 'spotifyTrackUri',
-            isSong: properties?.isSong ?? true,
+            isSong,
             episodeName: properties?.episodeName ?? null,
             episodeShowName: properties?.episodeShowName ?? null,
             spotifyShowUri: properties?.spotifyShowUri ?? null,
@@ -33,7 +33,7 @@ export function generateStreamHistory(properties: Partial<StreamHistory> = {}): 
         datePlayed: properties?.datePlayed ?? faker.date.past(),
         platform: properties?.platform ?? 'platform',
         spotifyTrackUri: properties?.spotifyTrackUri ?? null,
-        isSong: properties?.isSong ?? false,
+        isSong,
         episodeName: properties?.episodeName ?? faker.music.songName(),
         episodeShowName: properties?.episodeShowName ?? faker.music.songName(),
         spotifyShowUri: properties?.spotifyShowUri ?? 'spotifyTrackUri',
