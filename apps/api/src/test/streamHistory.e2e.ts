@@ -128,7 +128,7 @@ describe('Stream History', () => {
     });
 
     describe.skip('Upload performance', () => {
-        const numberOfRawFiles = 2;
+        const numberOfRawFiles = 6;
         const fileLength = 17_000;
         const assetDir = `${__dirname}/assets/rawStreamHistory`;
         const filePaths = [];
