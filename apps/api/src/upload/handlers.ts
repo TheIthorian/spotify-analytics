@@ -7,6 +7,7 @@ const log = makeLogger(module);
 export const getUploadHandler: RequestHandler[] = [
     async (req, res, next) => {
         log.info('(getUploadHandler)');
+
         try {
             const uploads = await uploadApi.getUploads();
             res.status(200);
@@ -15,6 +16,7 @@ export const getUploadHandler: RequestHandler[] = [
             log.error(err, 'getUploadHandler');
             res.sendStatus(500);
         }
+
         next();
     },
 ];
@@ -26,11 +28,17 @@ export const postUploadHandler: RequestHandler[] = [
         if (!req.files || !Object.keys(req.files).length) {
             res.status(400);
             res.send('No files uploaded');
-        } else {
+            next();
+        }
+
+        try {
             const allFiles = Object.values(req.files);
             await uploadApi.saveFiles(allFiles);
             res.status(200);
             res.json({ message: 'File uploaded', status: 'Processing' });
+        } catch (err) {
+            log.error(err, 'postUploadHandler');
+            res.sendStatus(500);
         }
 
         next();
