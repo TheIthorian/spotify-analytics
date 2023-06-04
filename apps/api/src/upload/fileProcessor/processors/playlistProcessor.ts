@@ -19,4 +19,8 @@ export class PlaylistProcessor implements FileProcessor {
     async process() {
         this.log.info({ file: this.source }, `${PlaylistProcessor.name}.(${this.process.name}) - Processing upload file`);
     }
+
+    async processAsync() {
+        this.log.info({ file: this.source }, `${PlaylistProcessor.name}.(${this.process.name}) - Processing upload file (async)`);
+    }
 }

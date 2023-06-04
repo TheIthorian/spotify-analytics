@@ -32,7 +32,12 @@ class UnknownFile implements FileProcessor {
     }
 
     async process() {
-        log.info({ file: this.source }, `${UnknownFile.name}.(${this.process.name}) - Processing upload file`);
+        log.info({ file: this.source }, `${UnknownFile.name}.(${this.process.name}) - Processing upload file (stream)`);
+        await setIgnored(this.source.id);
+    }
+
+    async processAsync() {
+        log.info({ file: this.source }, `${UnknownFile.name}.(${this.process.name}) - Processing upload file (async)`);
         await setIgnored(this.source.id);
     }
 }

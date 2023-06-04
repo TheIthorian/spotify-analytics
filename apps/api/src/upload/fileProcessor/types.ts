@@ -31,5 +31,16 @@ export enum FileType {
 export interface FileProcessor {
     type: FileType;
     setSource: (source: UploadFileQueue) => void;
-    process: () => Promise<void>;
+    process: (validateFields?: boolean) => Promise<void>;
+    processAsync: (validateFields?: boolean) => Promise<void>;
+}
+
+export enum ReadStrategy {
+    ReadFileAsync = 'ReadFileAsync',
+    StreamFile = 'StreamFile',
+}
+
+export enum ValidationStrategy {
+    ValidateFields = 'ValidateFields',
+    NoValidation = 'NoValidation',
 }

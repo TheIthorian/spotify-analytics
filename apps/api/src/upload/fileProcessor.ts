@@ -4,10 +4,22 @@ import { JOB_STATUS } from './constants';
 import { deleteTempFile } from '../util/file';
 
 import { getFileProcessorType } from './fileProcessor/index';
+import { ReadStrategy } from './fileProcessor/types';
+import * as memLog from '../logger/memoryLogger';
 
 const log = makeLogger(module);
 
-export async function dequeueAllFiles(batchSize = 10) {
+/**
+ * Dequeues all files in the UploadFileQueue and processes them.
+ * @param batchSize - How many concurrent files to process (read and insert from)
+ */
+export async function dequeueAllFiles(
+    batchSize = 10,
+    { validateFields, readStrategy }: { validateFields: boolean; readStrategy: ReadStrategy } = {
+        validateFields: false,
+        readStrategy: ReadStrategy.ReadFileAsync,
+    }
+) {
     log.info(`(${dequeueAllFiles.name})`);
 
     let numberOfFilesProcessed = 0;
@@ -28,13 +40,16 @@ export async function dequeueAllFiles(batchSize = 10) {
         await Promise.all(
             uploads.map(async uploadFile => {
                 const fileProcessor = getFileProcessorType(uploadFile.filename);
-                console.log('fileType', fileProcessor.type);
                 fileProcessor.setSource(uploadFile);
-                await fileProcessor.process();
+
+                memLog.log('dequeueAllFiles', { fileId: uploadFile.id, filename: uploadFile.filename });
+                if (readStrategy === ReadStrategy.ReadFileAsync) await fileProcessor.processAsync(validateFields);
+                else await fileProcessor.process(validateFields);
             })
         );
 
         await Promise.all(uploads.map(async uploadFile => await deleteTempFile(uploadFile.filePath)));
+        memLog.log('dequeueAllFiles.deleteFiles');
 
         numberOfFilesProcessed = uploads.length;
         loopIndex++;
