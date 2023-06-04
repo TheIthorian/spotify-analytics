@@ -1,11 +1,14 @@
-import { StreamHistory } from '@prisma/client';
+import { StreamHistory, UploadFileQueue } from '@prisma/client';
 import * as request from 'supertest';
 import * as fs from 'fs';
+import * as memLog from '../logger/memoryLogger';
 
 import prisma from '../prismaClient';
 import { expressApp } from '../main';
 import { dequeueAllFiles } from '../upload/fileProcessor';
 import { generateRawStreamHistory, generateStreamHistories, generateStreamHistory } from './testUtils/recordGenerator';
+import { ReadStrategy } from '../upload/fileProcessor/types';
+import { JOB_STATUS } from '../upload/constants';
 
 let streamHistories: Omit<StreamHistory, 'id'>[] = [];
 let sortedHistories: Record<string, any>[] = [];
@@ -128,13 +131,13 @@ describe('Stream History', () => {
     });
 
     describe.skip('Upload performance', () => {
-        const numberOfRawFiles = 6;
-        const fileLength = 17_000;
-        const batchSize = 1;
+        const numberOfRawFiles = 10;
+        const fileLength = 15_000;
         const assetDir = `${__dirname}/assets/rawStreamHistory`;
         const filePaths = [];
 
         beforeAll(() => {
+            // Generate files
             for (let i = 0; i < numberOfRawFiles; i++) {
                 const data = new Array(fileLength).fill(0).map(() => generateRawStreamHistory({ isSong: true }));
                 const filePath = `${assetDir}/endsong_${i}.json`;
@@ -143,60 +146,70 @@ describe('Stream History', () => {
             }
         });
 
+        function getPerformanceLog(startTime: number, uploadQueue: UploadFileQueue[] = [], options: Record<string, any> = {}) {
+            const endTime = performance.now();
+            const data = {
+                numberOfRawFiles,
+                fileLength,
+                time: ((endTime - startTime) / 1000).toLocaleString() + 's',
+                sizeOfFiles:
+                    (uploadQueue.reduce((prev, curr) => prev + curr.size / uploadQueue.length, 0) / (1000 * 1000)).toLocaleString() +
+                    'Mb each',
+                database: process.env.DATABASE_URL?.split(':')[0],
+                date: new Date().toLocaleString(),
+                ...options,
+            };
+            return data;
+        }
+
+        async function writeToPerformanceFile(runs: any[]) {
+            const existingData = JSON.parse(
+                await fs.promises.readFile(__dirname + `/performance.json`, { encoding: 'utf-8' }).catch(() => '[]')
+            );
+            existingData.push(...runs);
+            fs.writeFileSync(__dirname + `/performance.json`, JSON.stringify(existingData, null, 2), { encoding: 'utf-8', flag: 'w' });
+        }
+
+        async function uploadAllFiles() {
+            const responses = await Promise.all(filePaths.map(filename => request(app).post('/api/upload').attach('file', filename)));
+            for (const response of responses) {
+                expect(response.status).toBe(200);
+            }
+
+            const uploadQueue = await prisma.uploadFileQueue.findMany({ where: { status: JOB_STATUS.WAITING } });
+            expect(uploadQueue.length).toBe(numberOfRawFiles);
+
+            return uploadQueue;
+        }
+
+        const validateFieldsOptions = [true, false];
+        const readStrategyOptions = [ReadStrategy.ReadFileAsync, ReadStrategy.StreamFile];
+        const batchSizes = [1, 5, 20];
+
         it(
             'uploads and dequeues many large files',
             async () => {
                 // Upload files
-                const responses = await Promise.all(filePaths.map(filename => request(app).post('/api/upload').attach('file', filename)));
-                for (const response of responses) {
-                    expect(response.status).toBe(200);
+                const runs = [];
+
+                for (const readStrategy of readStrategyOptions) {
+                    for (const batchSize of batchSizes) {
+                        for (const validateFields of validateFieldsOptions) {
+                            memLog.reset();
+                            const uploadQueue = await uploadAllFiles();
+                            const options = { validateFields, readStrategy, error: false };
+                            const startTime = performance.now();
+                            await dequeueAllFiles(batchSize, options).catch(err => {
+                                options.error = true;
+                            });
+                            await writeToPerformanceFile([
+                                getPerformanceLog(startTime, uploadQueue, { ...options, batchSize, memLog: memLog.get() }),
+                            ]).catch(err => console.error(err));
+                        }
+                    }
                 }
-
-                const uploadQueue = await prisma.uploadFileQueue.findMany();
-                expect(uploadQueue.length).toBe(numberOfRawFiles);
-
-                // Check dequeue perf
-                const t1 = performance.now();
-                await dequeueAllFiles(batchSize);
-                const t2 = performance.now();
-
-                console.log('Timing complete: ', {
-                    time: ((t2 - t1) / 1000).toLocaleString() + 's',
-                    numberOfFileProcessed: uploadQueue.length,
-                    sizeOfFiles:
-                        (uploadQueue.reduce((prev, curr) => prev + curr.size / uploadQueue.length, 0) / (1000 * 1000)).toLocaleString() +
-                        'Mb each',
-                    batchSize,
-                });
-
-                const statsResponse = await request(app)
-                    .get('/api/history/stats')
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-
-                    .catch(err => {
-                        throw err;
-                    });
-
-                expect(statsResponse.body.trackCount).toBe(numberOfRawFiles * fileLength);
-
-                /**
-                 * Process each file in sequence:
-                {
-                    time: '73.304s',
-                    numberOfFileProcessed: 11,
-                    sizeOfFiles: '10.524Mb each',
-                };
-
-                With streams:
-                Timing complete:  {
-                    time: '15.762s',
-                    numberOfFileProcessed: 11,
-                    sizeOfFiles: '10.524Mb each'
-                };
-                 */
             },
-            200 * 1000
+            200 * 1000 * 1000
         );
     });
 });
