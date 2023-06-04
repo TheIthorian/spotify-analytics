@@ -130,6 +130,7 @@ describe('Stream History', () => {
     describe.skip('Upload performance', () => {
         const numberOfRawFiles = 6;
         const fileLength = 17_000;
+        const batchSize = 1;
         const assetDir = `${__dirname}/assets/rawStreamHistory`;
         const filePaths = [];
 
@@ -156,7 +157,7 @@ describe('Stream History', () => {
 
                 // Check dequeue perf
                 const t1 = performance.now();
-                await dequeueAllFiles();
+                await dequeueAllFiles(batchSize);
                 const t2 = performance.now();
 
                 console.log('Timing complete: ', {
@@ -165,6 +166,7 @@ describe('Stream History', () => {
                     sizeOfFiles:
                         (uploadQueue.reduce((prev, curr) => prev + curr.size / uploadQueue.length, 0) / (1000 * 1000)).toLocaleString() +
                         'Mb each',
+                    batchSize,
                 });
 
                 const statsResponse = await request(app)
