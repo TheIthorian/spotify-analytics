@@ -1,15 +1,14 @@
-import { FileProcessor } from './fileProcessor/index';
 import prisma from '../prismaClient';
 import { makeLogger } from '../logger';
 import { JOB_STATUS } from './constants';
 import { deleteTempFile } from '../util/file';
 
+import { getFileProcessorType } from './fileProcessor/index';
+
 const log = makeLogger(module);
 
 export async function dequeueAllFiles(batchSize = 10) {
     log.info(`(${dequeueAllFiles.name})`);
-
-    const fileProcessor = new FileProcessor();
 
     let numberOfFilesProcessed = 0;
     let loopIndex = 0;
@@ -28,10 +27,10 @@ export async function dequeueAllFiles(batchSize = 10) {
 
         await Promise.all(
             uploads.map(async uploadFile => {
-                const fileType = fileProcessor.getFileType(uploadFile.filename);
-                console.log('fileType', fileType.type);
-                fileType.setSource(uploadFile);
-                await fileType.process();
+                const fileProcessor = getFileProcessorType(uploadFile.filename);
+                console.log('fileType', fileProcessor.type);
+                fileProcessor.setSource(uploadFile);
+                await fileProcessor.process();
             })
         );
 
@@ -40,4 +39,6 @@ export async function dequeueAllFiles(batchSize = 10) {
         numberOfFilesProcessed = uploads.length;
         loopIndex++;
     } while (numberOfFilesProcessed >= batchSize && loopIndex < dequeueLimit);
+
+    log.info({ numberOfFilesProcessed }, `(${dequeueAllFiles.name}) - Finished dequeuing uploads`);
 }

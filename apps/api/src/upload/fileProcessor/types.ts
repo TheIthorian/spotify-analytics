@@ -1,3 +1,5 @@
+import { UploadFileQueue } from '@prisma/client';
+
 export type JsonStreamHistoryRecord = {
     ts: string;
     username: string;
@@ -18,3 +20,16 @@ export type JsonStreamHistoryRecord = {
     offline_timestamp: number;
     incognito_mode: boolean;
 };
+
+export enum FileType {
+    SimpleStreamingHistory = 'SimpleStreamingHistory',
+    Playlist = 'Playlist',
+    StreamingHistory = 'StreamingHistory',
+    Unknown = 'Unknown',
+}
+
+export interface FileProcessor {
+    type: FileType;
+    setSource: (source: UploadFileQueue) => void;
+    process: () => Promise<void>;
+}

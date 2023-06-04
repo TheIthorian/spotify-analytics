@@ -12,7 +12,7 @@ interface LogFunction {
     (msg: string, ...args: any[]): void;
 }
 
-interface Logger {
+export interface Logger {
     fatal: LogFunction;
     error: LogFunction;
     warn: LogFunction;
