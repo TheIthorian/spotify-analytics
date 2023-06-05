@@ -57,3 +57,5 @@ export async function dequeueAllFiles(
 
     log.info({ numberOfFilesProcessed }, `(${dequeueAllFiles.name}) - Finished dequeuing uploads`);
 }
+
+dequeueAllFiles.ReadStrategy = ReadStrategy;

@@ -51,31 +51,29 @@ export async function insertSimpleHistory(history: SimpleStreamHistory[]) {
 }
 
 export async function insertStreamHistory(history: JsonStreamHistoryRecord[]) {
-    await prisma
-        .$transaction(
-            history.map(track => {
-                return prisma.streamHistory.create({
-                    data: {
-                        trackName: track.master_metadata_track_name,
-                        albumName: track.master_metadata_album_album_name,
-                        artistName: track.master_metadata_album_artist_name,
-                        msPlayed: track.ms_played,
-                        datePlayed: new Date(track.ts),
-                        platform: track.platform,
-                        spotifyTrackUri: track.spotify_track_uri,
-                        isSong: track.episode_name === null,
-                        episodeName: track.episode_name,
-                        episodeShowName: track.episode_show_name,
-                        spotifyShowUri: track.spotify_episode_uri,
-                        shuffle: track.shuffle,
-                        skipped: track.skipped,
-                        offline: track.offline,
-                        reasonStart: track.reason_start,
-                        reasonEnd: track.reason_end,
-                        incognitoMode: track.incognito_mode,
-                    },
-                });
-            })
-        )
-        .catch(err => log.error({ err }, 'Error inserting streaming history'));
+    await prisma.$transaction(
+        history.map(track => {
+            return prisma.streamHistory.create({
+                data: {
+                    trackName: track.master_metadata_track_name,
+                    albumName: track.master_metadata_album_album_name,
+                    artistName: track.master_metadata_album_artist_name,
+                    msPlayed: track.ms_played,
+                    datePlayed: new Date(track.ts),
+                    platform: track.platform,
+                    spotifyTrackUri: track.spotify_track_uri,
+                    isSong: track.episode_name === null,
+                    episodeName: track.episode_name,
+                    episodeShowName: track.episode_show_name,
+                    spotifyShowUri: track.spotify_episode_uri,
+                    shuffle: track.shuffle,
+                    skipped: track.skipped,
+                    offline: track.offline,
+                    reasonStart: track.reason_start,
+                    reasonEnd: track.reason_end,
+                    incognitoMode: track.incognito_mode,
+                },
+            });
+        })
+    );
 }

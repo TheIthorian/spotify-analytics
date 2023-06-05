@@ -120,7 +120,7 @@ describe('dequeueAllFiles', () => {
         prismaMock.uploadFileQueue.findMany.mockResolvedValue(fileUploadQueue);
 
         // When
-        await dequeueAllFiles();
+        await dequeueAllFiles(10, { validateFields: true, readStrategy: dequeueAllFiles.ReadStrategy.ReadFileAsync });
 
         // Then
         expect(prismaMock.streamHistory.create).not.toHaveBeenCalled();
