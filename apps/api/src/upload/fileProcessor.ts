@@ -12,7 +12,10 @@ const log = makeLogger(module);
 /**
  * Dequeues all files in the UploadFileQueue and processes them.
  * @param batchSize - How many concurrent files to process (read and insert from)
- */
+ * @param validateFields - When `true`, tracks will be validated before insert. Any that fail the validation will not be inserted.
+ * @param readStrategy - When `ReadStrategy.ReadFileAsync`, the file will be read asynchronously. When `ReadStrategy.StreamFile`, the file will be read as a stream.
+ * Streams are more memory efficient, but use more database connections and so cannot be used with sqlite which is limited to 1 write connection at a time.
+ * */
 export async function dequeueAllFiles(
     batchSize = 10,
     { validateFields, readStrategy }: { validateFields: boolean; readStrategy: ReadStrategy } = {
