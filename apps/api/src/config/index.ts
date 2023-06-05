@@ -15,6 +15,6 @@ switch (process.env.NODE_ENV?.toLowerCase() ?? 'local') {
         config = { ...base, ...local };
 }
 
-console.log(config);
+process.stdout.write(JSON.stringify(config, null, 2) + '\n');
 
 export default config;

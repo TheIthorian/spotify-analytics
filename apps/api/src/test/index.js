@@ -36,7 +36,7 @@ function dropTestDatabase() {
     const path = require('path');
 
     const directory = '../../prisma';
-    const filename = 'dev_test.db';
+    const filename = DATABASE_URL.split(':./').pop();
 
     // Get the absolute path of the code file
     const codeFilePath = module.filename;
