@@ -33,7 +33,6 @@ export async function readJsonWithStream<T extends object>(
 
     const filename = filepath.split('\\').pop() || filepath.split('/').pop();
     memLog.log('readJsonWithStream.validateJson', { filename });
-    // Get filename from filepath
 
     const { isValid, errorMessage } = await validateJson(filepath);
     if (!isValid) {
