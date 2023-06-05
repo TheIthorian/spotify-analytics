@@ -1,13 +1,21 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const concurrently = require('concurrently');
+const dotEnv = require('dotenv');
 
 // prisma generate && concurrently \"npm run start:api\"  \"jest --config jest.json \" -s=\"last\"
 
-const DATABASE_URL = 'file:./dev_test.db';
+DATABASE_URL = process.env.E2E_DATABASE_URL ?? dotEnv.config().E2E_DATABASE_URL;
+
+console.log('DATABASE_URL', process.env.E2E_DATABASE_URL, dotEnv.config().E2E_DATABASE_URL);
+
 // https://dev.to/tylerlwsmith/exiting-node-js-when-programmatically-using-concurrently-to-run-multiple-scripts-1o78
 concurrently(
     [
-        { command: 'npx prisma db push && npm run start:api', name: 'api setup', env: { DATABASE_URL, INTEGRATION_TEST: 'TRUE' } },
+        {
+            command: 'npx prisma db push && npm run start:api',
+            name: 'api setup',
+            env: { DATABASE_URL, INTEGRATION_TEST: 'TRUE', NODE_ENV: 'test' },
+        },
         { command: 'npx jest --config jest.json', name: 'jest', env: { DATABASE_URL } },
     ],
     {
@@ -34,7 +42,7 @@ function dropTestDatabase() {
     const path = require('path');
 
     const directory = '../../prisma';
-    const filename = 'dev_test.db';
+    const filename = DATABASE_URL.split(':./').pop();
 
     // Get the absolute path of the code file
     const codeFilePath = module.filename;

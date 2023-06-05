@@ -1,31 +1,11 @@
 import { prismaMock } from '../../__mocks__/prismaClient';
 import { getStreamHistory, getTopArtist } from '../api';
+import { generateStreamHistories } from '../../test/testUtils/recordGenerator';
 
 describe('stream history api', () => {
     describe('getStreamHistory', () => {
         const totalRecords = 109;
-        const queryResult = [
-            {
-                id: '1',
-                trackName: 'trackName',
-                albumName: 'albumName',
-                artistName: 'artistName',
-                msPlayed: 100,
-                datePlayed: new Date(2021, 1, 10),
-                platform: 'platform',
-                spotifyTrackUri: 'spotifyTrackUri',
-                isSong: true,
-                episodeName: null,
-                episodeShowName: null,
-                spotifyShowUri: null,
-                shuffle: false,
-                skipped: false,
-                offline: false,
-                reasonStart: 'unknown',
-                reasonEnd: 'unknown',
-                incognitoMode: false,
-            },
-        ];
+        const queryResult = generateStreamHistories({ isSong: true }, 1);
 
         beforeEach(() => {
             jest.resetAllMocks();

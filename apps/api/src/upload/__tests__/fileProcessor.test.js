@@ -64,6 +64,7 @@ describe('dequeueAllFiles', () => {
         ];
 
         prismaMock.uploadFileQueue.findMany.mockResolvedValue(fileUploadQueue);
+        prismaMock.uploadFileQueue.update.mockResolvedValue();
     });
 
     it('does nothing if no files are found', async () => {
@@ -119,12 +120,9 @@ describe('dequeueAllFiles', () => {
         prismaMock.uploadFileQueue.findMany.mockResolvedValue(fileUploadQueue);
 
         // When
-        let error;
-        await dequeueAllFiles().catch(e => (error = e));
+        await dequeueAllFiles(10, { validateFields: true, readStrategy: dequeueAllFiles.ReadStrategy.ReadFileAsync });
 
         // Then
-        expect(error).toBeInstanceOf(TypeError);
-        expect(error.message).toBe('Invalid file format: tracks are not valid');
         expect(prismaMock.streamHistory.create).not.toHaveBeenCalled();
     });
 });

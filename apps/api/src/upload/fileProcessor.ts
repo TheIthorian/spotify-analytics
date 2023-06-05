@@ -1,15 +1,28 @@
-import { readFile } from 'fs/promises';
-
 import prisma from '../prismaClient';
 import { makeLogger } from '../logger';
 import { JOB_STATUS } from './constants';
-import { SimpleStreamHistory, UploadFileQueue } from '@prisma/client';
 import { deleteTempFile } from '../util/file';
-import { isArrayType } from '../util/typescript';
+
+import { getFileProcessorType } from './fileProcessor/index';
+import { ReadStrategy } from './fileProcessor/types';
+import * as memLog from '../logger/memoryLogger';
 
 const log = makeLogger(module);
 
-export async function dequeueAllFiles(batchSize = 10) {
+/**
+ * Dequeues all files in the UploadFileQueue and processes them.
+ * @param batchSize - How many concurrent files to process (read and insert from)
+ * @param validateFields - When `true`, tracks will be validated before insert. Any that fail the validation will not be inserted.
+ * @param readStrategy - When `ReadStrategy.ReadFileAsync`, the file will be read asynchronously. When `ReadStrategy.StreamFile`, the file will be read as a stream.
+ * Streams are more memory efficient, but use more database connections and so cannot be used with sqlite which is limited to 1 write connection at a time.
+ * */
+export async function dequeueAllFiles(
+    batchSize = 10,
+    { validateFields, readStrategy }: { validateFields: boolean; readStrategy: ReadStrategy } = {
+        validateFields: false,
+        readStrategy: ReadStrategy.ReadFileAsync,
+    }
+) {
     log.info(`(${dequeueAllFiles.name})`);
 
     let numberOfFilesProcessed = 0;
@@ -27,174 +40,25 @@ export async function dequeueAllFiles(batchSize = 10) {
             return;
         }
 
-        for (const uploadFile of uploads) {
-            await processFile(uploadFile);
-        }
+        await Promise.all(
+            uploads.map(async uploadFile => {
+                const fileProcessor = getFileProcessorType(uploadFile.filename);
+                fileProcessor.setSource(uploadFile);
+
+                memLog.log('dequeueAllFiles', { fileId: uploadFile.id, filename: uploadFile.filename });
+                if (readStrategy === ReadStrategy.ReadFileAsync) await fileProcessor.processAsync(validateFields);
+                else await fileProcessor.process(validateFields);
+            })
+        );
+
+        await Promise.all(uploads.map(async uploadFile => await deleteTempFile(uploadFile.filePath)));
+        memLog.log('dequeueAllFiles.deleteFiles');
 
         numberOfFilesProcessed = uploads.length;
         loopIndex++;
     } while (numberOfFilesProcessed >= batchSize && loopIndex < dequeueLimit);
+
+    log.info({ numberOfFilesProcessed }, `(${dequeueAllFiles.name}) - Finished dequeuing uploads`);
 }
 
-async function processFile(file: UploadFileQueue) {
-    log.info({ id: file.id }, `${processFile.name}`);
-
-    if (file.filename && /^StreamingHistory*/.test(file.filename)) {
-        await insertSimpleStreamingHistory(file);
-    } else if (file.filename && /^Playlist*/.test(file.filename)) {
-        await markAsIgnored(file); // Mark as ignored for now. TODO - Process playlist
-    } else if (file.filename && /^endsong*/.test(file.filename)) {
-        await insertStreamingHistory(file);
-    } else {
-        log.info('This is an unknown file: ' + file.filename);
-        await markAsIgnored(file);
-    }
-
-    void deleteTempFile(file.filePath);
-}
-
-async function insertSimpleStreamingHistory(file: UploadFileQueue) {
-    log.info({ file }, `(${insertSimpleStreamingHistory.name})`);
-
-    const fileData = await readFile(file.filePath);
-    const tracks = JSON.parse(fileData.toString());
-
-    if (!isArrayType<SimpleStreamHistory>(tracks, ['trackName', 'artistName', 'endTime', 'msPlayed'])) {
-        throw TypeError('Invalid file format: tracks are not valid');
-    }
-
-    try {
-        await prisma.$transaction(
-            tracks.map(track =>
-                prisma.simpleStreamHistory.create({
-                    data: {
-                        trackName: track.trackName,
-                        artistName: track.artistName,
-                        msPlayed: track.msPlayed,
-                        endTime: new Date(track.endTime),
-                    },
-                })
-            )
-        );
-
-        await prisma.uploadFileQueue.update({
-            where: { id: file.id },
-            data: { status: JOB_STATUS.COMPLETE },
-        });
-    } catch (err) {
-        log.error(err, 'Error creating simple streaming history');
-
-        await prisma.uploadFileQueue.update({
-            where: { id: file.id },
-            data: { status: JOB_STATUS.FAILED },
-        });
-    }
-}
-
-async function insertPlaylist(file: UploadFileQueue) {
-    log.info({ file }, 'Inserting playlist');
-}
-
-async function markAsIgnored(file: UploadFileQueue) {
-    try {
-        await prisma.uploadFileQueue.update({
-            where: { id: file.id },
-            data: { status: JOB_STATUS.IGNORED },
-        });
-    } catch (err) {
-        log.error({ err, file }, 'Error marking file as ignored');
-    }
-}
-
-async function insertStreamingHistory(file: UploadFileQueue) {
-    log.info({ file }, `(${insertStreamingHistory.name})`);
-
-    const fileData = await readFile(file.filePath);
-    const tracks = JSON.parse(fileData.toString());
-
-    type JsonStreamHistoryRecord = {
-        ts: string;
-        username: string;
-        platform: string;
-        ms_played: number;
-        master_metadata_track_name: string;
-        master_metadata_album_artist_name: string;
-        master_metadata_album_album_name: string;
-        spotify_track_uri: string;
-        episode_name: string;
-        episode_show_name: string;
-        spotify_episode_uri: string;
-        reason_start: string;
-        reason_end: string;
-        shuffle: boolean;
-        skipped: boolean;
-        offline: boolean;
-        offline_timestamp: number;
-        incognito_mode: boolean;
-    };
-
-    if (
-        !isArrayType<JsonStreamHistoryRecord>(tracks, [
-            'ts',
-            'username',
-            'platform',
-            'ms_played',
-            'master_metadata_track_name',
-            'master_metadata_album_artist_name',
-            'master_metadata_album_album_name',
-            'spotify_track_uri',
-            'episode_name',
-            'episode_show_name',
-            'spotify_episode_uri',
-            'reason_start',
-            'reason_end',
-            'shuffle',
-            'skipped',
-            'offline',
-            'offline_timestamp',
-            'incognito_mode',
-        ])
-    ) {
-        throw TypeError('Invalid file format: tracks are not valid');
-    }
-
-    try {
-        await prisma.$transaction(
-            tracks.map(track => {
-                return prisma.streamHistory.create({
-                    data: {
-                        trackName: track.master_metadata_track_name,
-                        albumName: track.master_metadata_album_album_name,
-                        artistName: track.master_metadata_album_artist_name,
-                        msPlayed: track.ms_played,
-                        datePlayed: new Date(track.ts),
-                        platform: track.platform,
-                        spotifyTrackUri: track.spotify_track_uri,
-                        isSong: track.episode_name === null,
-                        episodeName: track.episode_name,
-                        episodeShowName: track.episode_show_name,
-                        spotifyShowUri: track.spotify_episode_uri,
-                        shuffle: track.shuffle,
-                        skipped: track.skipped,
-                        offline: track.offline,
-                        reasonStart: track.reason_start,
-                        reasonEnd: track.reason_end,
-                        incognitoMode: track.incognito_mode,
-                    },
-                });
-            })
-        );
-
-        await prisma.uploadFileQueue.update({
-            where: { id: file.id },
-            data: { status: JOB_STATUS.COMPLETE },
-        });
-    } catch (err) {
-        log.error(err, 'Error creating streaming history');
-
-        await prisma.uploadFileQueue.update({
-            where: { id: file.id },
-            data: { status: JOB_STATUS.FAILED },
-        });
-    }
-}
+dequeueAllFiles.ReadStrategy = ReadStrategy;
