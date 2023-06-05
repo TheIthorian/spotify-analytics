@@ -158,7 +158,7 @@ describe('Stream History', () => {
             const data = {
                 numberOfRawFiles,
                 fileLength,
-                time: ((endTime - startTime) / 1000).toLocaleString() + 's',
+                time: ((endTime - startTime) / 1000).toLocaleString(),
                 sizeOfFiles:
                     (uploadQueue.reduce((prev, curr) => prev + curr.size / uploadQueue.length, 0) / (1000 * 1000)).toLocaleString() +
                     'Mb each',
