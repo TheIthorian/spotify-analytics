@@ -4,7 +4,9 @@ const dotEnv = require('dotenv');
 
 // prisma generate && concurrently \"npm run start:api\"  \"jest --config jest.json \" -s=\"last\"
 
-DATABASE_URL = dotEnv.config().parsed.E2E_DATABASE_URL;
+DATABASE_URL = process.env.E2E_DATABASE_URL ?? dotEnv.config().E2E_DATABASE_URL;
+
+console.log('DATABASE_URL', process.env.E2E_DATABASE_URL, dotEnv.config().E2E_DATABASE_URL);
 
 // https://dev.to/tylerlwsmith/exiting-node-js-when-programmatically-using-concurrently-to-run-multiple-scripts-1o78
 concurrently(
