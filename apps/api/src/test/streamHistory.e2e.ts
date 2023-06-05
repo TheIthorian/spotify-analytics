@@ -163,8 +163,12 @@ describe('Stream History', () => {
         }
 
         async function writeToPerformanceFile(runs: any[]) {
+            if (!fs.existsSync(__dirname + `/performanceTesting`)) {
+                fs.mkdirSync(__dirname + `/performanceTesting`);
+            }
+
             const existingData = JSON.parse(
-                await fs.promises.readFile(__dirname + `/performance.json`, { encoding: 'utf-8' }).catch(() => '[]')
+                await fs.promises.readFile(__dirname + `/performanceTesting/performance.json`, { encoding: 'utf-8' }).catch(() => '[]')
             );
             existingData.push(...runs);
             fs.writeFileSync(__dirname + `/performance.json`, JSON.stringify(existingData, null, 2), { encoding: 'utf-8', flag: 'w' });
