@@ -4,10 +4,16 @@ import prisma from '../prismaClient';
 import { makeLogger } from '../logger';
 import { JOB_STATUS, STATUS_BY_ID } from './constants';
 import { deleteTempFile } from '../util/file';
-import { UploadFileQueue } from '@prisma/client';
+import { Prisma, UploadFileQueue } from '@prisma/client';
 
 const log = makeLogger(module);
 
+/**
+ * Stores the upload files and adds a upload job to the queue.
+ * Existing files will be skipped.
+ * @param files - files to be saved
+ * @returns the uploads that may be processed
+ */
 export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]) {
     const filesArray = [files].flat(3);
     const uploads = await Promise.all(filesArray.map(file => saveFile(file)));
@@ -45,8 +51,11 @@ async function saveFile(file: UploadedFile) {
     return upload;
 }
 
+/**
+ * Gets all uploads with the given ids. If no ids are given, the last 100 uploads are returned.
+ */
 export async function getUploads(ids: number[] = null) {
-    const uploads = await prisma.uploadFileQueue.findMany({
+    const selector: Prisma.UploadFileQueueFindManyArgs = {
         select: {
             id: true,
             status: true,
@@ -55,9 +64,13 @@ export async function getUploads(ids: number[] = null) {
             size: true,
             md5: true,
         },
-        ...(ids ? { where: { id: { in: ids } } } : {}),
+        take: 100,
         orderBy: { id: 'desc' },
-    });
+    };
+
+    if (ids) selector.where = { id: { in: ids } };
+
+    const uploads = await prisma.uploadFileQueue.findMany(selector);
 
     for (const upload of uploads) {
         upload.status = STATUS_BY_ID[upload.status];
