@@ -2,6 +2,7 @@ import dev from './dev';
 import prod from './prod';
 import local from './local';
 import base from './base';
+import test from './test';
 
 let config = base;
 switch (process.env.NODE_ENV?.toLowerCase() ?? 'local') {
@@ -10,6 +11,9 @@ switch (process.env.NODE_ENV?.toLowerCase() ?? 'local') {
         break;
     case 'dev':
         config = { ...base, ...dev };
+        break;
+    case 'test':
+        config = { ...base, ...test };
         break;
     default:
         config = { ...base, ...local };

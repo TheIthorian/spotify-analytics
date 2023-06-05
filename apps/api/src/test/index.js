@@ -9,7 +9,11 @@ DATABASE_URL = dotEnv.config().parsed.E2E_DATABASE_URL;
 // https://dev.to/tylerlwsmith/exiting-node-js-when-programmatically-using-concurrently-to-run-multiple-scripts-1o78
 concurrently(
     [
-        { command: 'npx prisma db push && npm run start:api', name: 'api setup', env: { DATABASE_URL, INTEGRATION_TEST: 'TRUE' } },
+        {
+            command: 'npx prisma db push && npm run start:api',
+            name: 'api setup',
+            env: { DATABASE_URL, INTEGRATION_TEST: 'TRUE', NODE_ENV: 'test' },
+        },
         { command: 'npx jest --config jest.json', name: 'jest', env: { DATABASE_URL } },
     ],
     {
