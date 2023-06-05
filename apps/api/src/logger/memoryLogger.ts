@@ -1,6 +1,9 @@
+import config from '../config';
+
 let memory = [];
 
 export function log(name: string, other: Record<string, any> = {}) {
+    if (!config.includeMemLog) return;
     const mem = process.memoryUsage();
     memory.push({ memory: mem, time: Date.now(), name, ...other });
 }
