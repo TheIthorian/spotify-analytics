@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import prisma from '../prismaClient';
 import { z } from 'zod';
 import { parseLimit } from '../util/schema';
+import config from '../config';
 
 const log = makeLogger(module);
 
@@ -114,12 +115,21 @@ async function getArtistsByPlayCount(queryArgs: TopArtistsListAggregateQueryOpti
 
 export async function getStats() {
     log.info(`(${getStats.name})`);
-    const [totalPlaytime, uniqueArtistCount, uniqueTrackCount, trackCount] = await Promise.all([
-        prisma.streamHistory.aggregate({ _sum: { msPlayed: true }, where: { isSong: true } }),
-        prisma.$queryRaw`SELECT COUNT(DISTINCT ArtistName) as total FROM StreamHistory WHERE IsSong`,
-        prisma.$queryRaw`SELECT COUNT(DISTINCT spotifyTrackUri) as total FROM StreamHistory WHERE IsSong`,
-        prisma.$queryRaw`SELECT COUNT(*) as total FROM StreamHistory WHERE IsSong`,
-    ]);
+
+    const [totalPlaytime, uniqueArtistCount, uniqueTrackCount, trackCount] =
+        config.databaseType === 'file'
+            ? await Promise.all([
+                  prisma.streamHistory.aggregate({ _sum: { msPlayed: true }, where: { isSong: true } }),
+                  prisma.$queryRaw`SELECT COUNT(DISTINCT ArtistName) as total FROM StreamHistory WHERE IsSong`,
+                  prisma.$queryRaw`SELECT COUNT(DISTINCT spotifyTrackUri) as total FROM StreamHistory WHERE IsSong`,
+                  prisma.$queryRaw`SELECT COUNT(*) as total FROM StreamHistory WHERE IsSong`,
+              ])
+            : await Promise.all([
+                  prisma.streamHistory.aggregate({ _sum: { msPlayed: true }, where: { isSong: true } }),
+                  prisma.$queryRaw`SELECT COUNT(DISTINCT "artistName") as total FROM public."StreamHistory" as SH WHERE "isSong";`,
+                  prisma.$queryRaw`SELECT COUNT(DISTINCT "spotifyTrackUri") as total FROM public."StreamHistory" as SH WHERE "isSong";`,
+                  prisma.$queryRaw`SELECT COUNT(*) as total FROM public."StreamHistory" WHERE "isSong";`,
+              ]);
 
     return {
         totalPlaytime: totalPlaytime._sum.msPlayed,

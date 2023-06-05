@@ -9,4 +9,5 @@ export default {
     maxUploadFileSize: 50 * 1024 * 1024, // 50 MB
 
     skipDuplicateUploads: true,
+    databaseType: process.env.DATABASE_URL?.split(':')?.[0],
 };
