@@ -178,7 +178,10 @@ describe('Stream History', () => {
                 await fs.promises.readFile(__dirname + `/performanceTesting/performance.json`, { encoding: 'utf-8' }).catch(() => '[]')
             );
             existingData.push(...runs);
-            fs.writeFileSync(__dirname + `/performance.json`, JSON.stringify(existingData, null, 2), { encoding: 'utf-8', flag: 'w' });
+            fs.writeFileSync(__dirname + `/performanceTesting/performance.json`, JSON.stringify(existingData, null, 2), {
+                encoding: 'utf-8',
+                flag: 'w',
+            });
         }
 
         async function uploadAllFiles() {
