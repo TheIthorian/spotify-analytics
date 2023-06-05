@@ -7,4 +7,6 @@ export default {
 
     includeMemLog: false,
     maxUploadFileSize: 50 * 1024 * 1024, // 50 MB
+
+    skipDuplicateUploads: true,
 };

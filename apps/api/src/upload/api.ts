@@ -5,12 +5,12 @@ import { makeLogger } from '../logger';
 import { JOB_STATUS, STATUS_BY_ID } from './constants';
 import { deleteTempFile } from '../util/file';
 import { Prisma, UploadFileQueue } from '@prisma/client';
+import config from '../config';
 
 const log = makeLogger(module);
 
 /**
  * Stores the upload files and adds a upload job to the queue.
- * Existing files will be skipped.
  * @param files - files to be saved
  * @returns the uploads that may be processed
  */
@@ -25,21 +25,27 @@ async function saveFile(file: UploadedFile) {
     const { name: filename, tempFilePath, mimetype, size, md5 } = file;
     log.info({ filename, mimetype, size, md5, tempFilePath }, `(${saveFile.name}) - Saving file`);
 
-    const existingFileUpload = await prisma.uploadFileQueue.findFirst({
-        where: { md5, status: { in: [JOB_STATUS.COMPLETE, JOB_STATUS.WAITING] } },
-    });
+    let isDuplicate = false;
 
-    if (existingFileUpload) {
-        log.info(existingFileUpload, 'File already exists. Skipping upload.');
-        void deleteTempFile(tempFilePath);
-        return;
+    // TODO - make a feature flag
+    if (config.skipDuplicateUploads) {
+        const existingFileUpload = await prisma.uploadFileQueue.findFirst({
+            where: { md5, status: { in: [JOB_STATUS.COMPLETE, JOB_STATUS.WAITING] } },
+        });
+
+        if (existingFileUpload) {
+            isDuplicate = true;
+            log.info(existingFileUpload, 'File already exists. Skipping upload.');
+            void deleteTempFile(tempFilePath);
+            return;
+        }
     }
 
     const upload = await prisma.uploadFileQueue
         .create({
             data: {
                 filePath: tempFilePath,
-                status: existingFileUpload ? JOB_STATUS.DUPLICATE : JOB_STATUS.WAITING,
+                status: isDuplicate ? JOB_STATUS.DUPLICATE : JOB_STATUS.WAITING,
                 filename,
                 mimetype,
                 size,

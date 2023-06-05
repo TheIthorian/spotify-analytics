@@ -9,6 +9,7 @@ import { dequeueAllFiles } from '../upload/fileProcessor';
 import { generateRawStreamHistory, generateStreamHistories, generateStreamHistory } from './testUtils/recordGenerator';
 import { ReadStrategy } from '../upload/fileProcessor/types';
 import { JOB_STATUS } from '../upload/constants';
+import config from '../config';
 
 let streamHistories: Omit<StreamHistory, 'id'>[] = [];
 let sortedHistories: Record<string, any>[] = [];
@@ -138,12 +139,18 @@ describe('Stream History', () => {
 
         beforeAll(() => {
             // Generate files
+            config.skipDuplicateUploads = false;
+
             for (let i = 0; i < numberOfRawFiles; i++) {
                 const data = new Array(fileLength).fill(0).map(() => generateRawStreamHistory({ isSong: true }));
                 const filePath = `${assetDir}/endsong_${i}.json`;
                 filePaths.push(filePath);
                 fs.writeFileSync(`${assetDir}/endsong_${i}.json`, JSON.stringify(data));
             }
+        });
+
+        afterAll(() => {
+            config.skipDuplicateUploads = true;
         });
 
         function getPerformanceLog(startTime: number, uploadQueue: UploadFileQueue[] = [], options: Record<string, any> = {}) {
@@ -175,7 +182,9 @@ describe('Stream History', () => {
         }
 
         async function uploadAllFiles() {
-            const responses = await Promise.all(filePaths.map(filename => request(app).post('/api/upload').attach('file', filename)));
+            const responses = await Promise.all(
+                filePaths.map(async filename => await request(app).post('/api/upload').attach('file', filename))
+            );
             for (const response of responses) {
                 expect(response.status).toBe(200);
             }
@@ -206,12 +215,14 @@ describe('Stream History', () => {
                             await dequeueAllFiles(batchSize, options).catch(err => {
                                 options.error = true;
                             });
-                            await writeToPerformanceFile([
-                                getPerformanceLog(startTime, uploadQueue, { ...options, batchSize, memLog: memLog.get() }),
-                            ]).catch(err => console.error(err));
+                            const perf = getPerformanceLog(startTime, uploadQueue, { ...options, batchSize, memLog: memLog.get() });
+                            runs.push(perf);
+                            await writeToPerformanceFile([perf]).catch(err => console.error(err));
                         }
                     }
                 }
+
+                console.log(runs);
             },
             200 * 1000 * 1000
         );
