@@ -15,7 +15,7 @@ concurrently(
         {
             command: 'npx prisma db push && npm run start:api',
             name: 'api setup',
-            env: { DATABASE_URL, INTEGRATION_TEST: 'TRUE', NODE_ENV: 'test' },
+            env: { DATABASE_URL, NODE_ENV: 'test', PORT: 4001 },
         },
         { command: 'npx jest --config jest.json', name: 'jest', env: { DATABASE_URL } },
     ],
