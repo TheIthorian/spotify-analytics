@@ -1,6 +1,7 @@
 import * as express from 'express';
 import { createServer, Server } from 'http';
 import * as fileUpload from 'express-fileupload';
+import * as expressStatusMonitor from 'express-status-monitor';
 
 import initialiseRoutes from './routes';
 import { makeLogger, requestLogger } from './logger';
@@ -17,6 +18,8 @@ export function expressApp(port: number) {
     const app = express();
 
     app.use(requestLogger);
+
+    app.use(expressStatusMonitor()); // `/status` to see stats
 
     app.use(allowCrossDomain);
 

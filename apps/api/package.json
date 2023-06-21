@@ -7,7 +7,7 @@
     "license": "Apache-2.0",
     "scripts": {
         "ts": "ts-node --files",
-        "build": "yarn tsc",
+        "build": "prisma db push",
         "start": "prisma generate && concurrently \"yarn start:api\" \"yarn start:jobs\"",
         "start:api": "yarn ts src/main.ts | pino-pretty",
         "start:jobs": "yarn ts-node src/upload/fileProcessor.ts | pino-pretty",
@@ -84,6 +84,7 @@
         "express": "^4.18.2",
         "express-fileupload": "^1.4.0",
         "express-promise-router": "^4.1.1",
+        "express-status-monitor": "^1.3.4",
         "node-cache": "^5.1.2",
         "node-cron": "^3.0.2",
         "node-fetch": "^2.6.9",
