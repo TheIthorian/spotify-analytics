@@ -15,6 +15,8 @@ const log = makeLogger(module);
  * @param validateFields - When `true`, tracks will be validated before insert. Any that fail the validation will not be inserted.
  * @param readStrategy - When `ReadStrategy.ReadFileAsync`, the file will be read asynchronously. When `ReadStrategy.StreamFile`, the file will be read as a stream.
  * Streams are more memory efficient, but use more database connections and so cannot be used with sqlite which is limited to 1 write connection at a time.
+ *
+ * TODO - Replace with queue
  * */
 export async function dequeueAllFiles(
     batchSize = 10,

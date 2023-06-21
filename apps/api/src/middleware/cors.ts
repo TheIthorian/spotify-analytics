@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 
 export function allowCrossDomain(req: Request, res: Response, next: NextFunction) {
     res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:3000');
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
     // res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'X-Requested-With');
 
