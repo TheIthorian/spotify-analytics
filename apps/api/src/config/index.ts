@@ -1,24 +1,15 @@
-import dev from './dev';
-import prod from './prod';
-import local from './local';
-import base from './base';
-import test from './test';
+import 'dotenv/config'; // Load .env file
 
-let config = base;
-switch (process.env.NODE_ENV?.toLowerCase() ?? 'local') {
-    case 'prod':
-        config = { ...base, ...prod };
-        break;
-    case 'dev':
-        config = { ...base, ...dev };
-        break;
-    case 'test':
-        config = { ...base, ...test };
-        break;
-    default:
-        config = { ...base, ...local };
-}
+export default {
+    databaseUrl: process.env.DATABASE_URL ?? 'file:./dev.db',
+    databaseType: process.env.DATABASE_URL?.split(':')?.[0],
 
-process.stdout.write(JSON.stringify(config, null, 2) + '\n');
+    host: process.env.HOST ?? '127.0.0.1',
 
-export default config;
+    port: Number(process.env.PORT ?? 3001),
+
+    includeMemLog: process.env.INCLUDE_MEMLOG ?? false,
+    maxUploadFileSize: 50 * 1024 * 1024, // 50 MB
+
+    skipDuplicateUploads: true,
+};
