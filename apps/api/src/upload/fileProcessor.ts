@@ -25,7 +25,7 @@ export async function dequeueAllFiles(
         readStrategy: ReadStrategy.ReadFileAsync,
     }
 ) {
-    log.info(`(${dequeueAllFiles.name})`);
+    log.info({ batchSize, validateFields, readStrategy }, `(${dequeueAllFiles.name})`);
 
     let numberOfFilesProcessed = 0;
     let loopIndex = 0;

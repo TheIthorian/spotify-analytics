@@ -1,4 +1,4 @@
-import config from 'config';
+import config from '../config';
 import { makeLogger } from '../logger';
 import { dequeueAllFiles } from '../upload/fileProcessor';
 
@@ -11,11 +11,12 @@ log.info({ interval: JOB_INTERVAL_SECONDS, start: new Date() }, 'Running file pr
 function dequeue() {
     log.info({ start: new Date() }, 'Processing batch');
 
-    const batchSize = 10;
+    const isSqlite = config.databaseType === 'file';
+
+    const batchSize = isSqlite ? 1 : 10;
     dequeueAllFiles(batchSize, {
         validateFields: false,
-        readStrategy:
-            config.databaseType === 'sqlite' ? dequeueAllFiles.ReadStrategy.ReadFileAsync : dequeueAllFiles.ReadStrategy.StreamFile,
+        readStrategy: isSqlite ? dequeueAllFiles.ReadStrategy.ReadFileAsync : dequeueAllFiles.ReadStrategy.StreamFile,
     })
         .then(() => log.info('Batch complete'))
         .catch(err => log.error(err));
