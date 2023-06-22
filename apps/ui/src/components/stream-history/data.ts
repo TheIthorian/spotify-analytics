@@ -12,18 +12,25 @@ export async function getStreamHistory({
     offset: number;
 }) {
     const query = new URLSearchParams();
-    query.append('dateFrom', dateFrom.toISOString());
-    query.append('dateTo', dateTo.toISOString());
+    // query.append('dateFrom', dateFrom.toISOString());
+    // query.append('dateTo', dateTo.toISOString());
     query.append('limit', limit.toString(10));
     query.append('offset', offset.toString(10));
 
-    const res = await fetch(CONFIG.API_BASE + '/history?' + query.toString(), {});
+    const res = await fetch(CONFIG.API_BASE + '/history?' + query.toString(), {
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    });
 
     if (!res.ok) {
         throw new Error('Error fetching data', { cause: await res.json() });
     }
 
+    const count = Number(res.headers.get('Count') ?? 100);
+    const total = Number(res.headers.get('Total') ?? 100);
+
     const streamHistory = await res.json();
 
-    return streamHistory;
+    console.log({ streamHistory, count, total });
+
+    return { streamHistory, count, total };
 }
