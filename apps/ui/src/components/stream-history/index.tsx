@@ -1,22 +1,55 @@
-import { ReactNode, useEffect, useState } from 'react';
+import * as React from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableFooter from '@mui/material/TableFooter';
+import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+
+import { TablePaginationActions } from '../table-pagination-action';
 import { getStreamHistory } from './data';
+import { TableHead } from '@mui/material';
+
+const DEFAULT_ROWS_PER_PAGE = 5;
 
 export function StreamHistory() {
-    const [streamHistoryData, setStreamHistoryData] = useState([]);
-    const [error, setError] = useState<String>();
-    const [errorCause, setErrorCause] = useState<String>();
-    const [loading, setLoading] = useState(true);
+    const [page, setPage] = React.useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
+    const [totalNumberOfRecords, setTotalNumberOfRecords] = React.useState(0);
 
-    useEffect(() => {
-        getStreamHistory({ dateFrom: new Date(2020, 0, 1), dateTo: new Date(2023, 0, 1), limit: 10, offset: 0 })
-            .then(setStreamHistoryData)
+    const [streamHistoryData, setStreamHistoryData] = React.useState([]);
+    const [error, setError] = React.useState<String>();
+    const [errorCause, setErrorCause] = React.useState<String>();
+    const [loading, setLoading] = React.useState(true);
+
+    // Avoid a layout jump when reaching the last page with empty rows.
+    // const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - totalNumberOfRecords) : 0;
+    const emptyRows = 0;
+
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    React.useEffect(() => {
+        getStreamHistory({ dateFrom: null, dateTo: null, limit: rowsPerPage, offset: page })
+            .then(({ streamHistory, count, total }) => {
+                setStreamHistoryData(streamHistory);
+                setTotalNumberOfRecords(total);
+            })
             .catch(err => {
                 console.error(err);
                 setErrorCause(JSON.stringify(err.cause, null, 2));
                 setError(err.message);
             })
             .finally(() => setLoading(false));
-    }, []);
+    }, [rowsPerPage, page]);
 
     if (loading) {
         return <span>Loading...</span>;
@@ -32,52 +65,63 @@ export function StreamHistory() {
         );
     }
 
+    console.table(streamHistoryData);
+
     return (
-        <div className='p-3 max-w-full overflow-x-auto'>
-            <table className='border-solid border-4 border-gray-800 table-fixed w-full'>
-                <tbody>
-                    <tr className='border-b-2 border-solid border-gray-800'>
-                        <Th>Track Name</Th>
-                        <Th>Artist Name</Th>
-                        <Th>Seconds Played</Th>
-                        <Th>End Time</Th>
-                    </tr>
-                    {streamHistoryData.map(item => streamHistoryDataRow(item))}
-                </tbody>
-            </table>
-        </div>
+        <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 500 }} aria-label='stream-history-table' stickyHeader>
+                <TableHead>
+                    <TableRow>
+                        <TableCell component='th' style={{ width: 400 }}>
+                            Track name
+                        </TableCell>
+                        <TableCell component='th'>Artist name</TableCell>
+                        <TableCell component='th' style={{ width: 160 }} align='right'>
+                            Song duration (s)
+                        </TableCell>
+                        <TableCell style={{ width: 160 }}>Date played</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {streamHistoryData.map(row => (
+                        <TableRow key={row.id}>
+                            <TableCell scope='row' style={{ width: 400 }}>
+                                {row.trackName}
+                            </TableCell>
+                            <TableCell>{row.artistName}</TableCell>
+                            <TableCell style={{ width: 160 }} align='right'>
+                                {(row.msPlayed / 1000).toFixed(0)}
+                            </TableCell>
+                            <TableCell style={{ width: 160 }}>{new Date(row.datePlayed).toLocaleDateString()}</TableCell>
+                        </TableRow>
+                    ))}
+                    {emptyRows > 0 && (
+                        <TableRow style={{ height: 53 * emptyRows }}>
+                            <TableCell colSpan={6} />
+                        </TableRow>
+                    )}
+                </TableBody>
+                <TableFooter>
+                    <TableRow>
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 25]}
+                            colSpan={3}
+                            count={totalNumberOfRecords}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            SelectProps={{
+                                inputProps: {
+                                    'aria-label': 'rows per page',
+                                },
+                                native: true,
+                            }}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            ActionsComponent={TablePaginationActions}
+                        />
+                    </TableRow>
+                </TableFooter>
+            </Table>
+        </TableContainer>
     );
-}
-
-function streamHistoryDataRow({
-    endTime,
-    id,
-    trackName,
-    artistName,
-    msPlayed,
-}: {
-    endTime: Date;
-    id: number;
-    trackName: string;
-    artistName: string;
-    msPlayed: number;
-}) {
-    return (
-        <tr key={id} className='p-2 border-b border-solid border-gray-800 odd:bg-gray-200 hover:bg-stone-100'>
-            <Td>{trackName}</Td>
-            <Td>{artistName}</Td>
-            <Td>{(msPlayed / 1000).toFixed(0)}</Td>
-            <Td>{new Date(endTime).toLocaleDateString()}</Td>
-        </tr>
-    );
-}
-
-function Th({ children }: { children: ReactNode }) {
-    // return <th className='p-1 text-left border-r border-gray-800'>{children}</th>;
-    return <th className='p-1 border-r border-gray-800'>{children}</th>;
-}
-
-function Td({ children }: { children: ReactNode }) {
-    // return <td className='p-1 text-left align-top border-r border-gray-800'>{children}</td>;
-    return <td className='p-1 border-r border-gray-800'>{children}</td>;
 }
