@@ -7,10 +7,10 @@ import TableFooter from '@mui/material/TableFooter';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { TableHead } from '@mui/material';
 
 import { TablePaginationActions } from '../table-pagination-action';
 import { getStreamHistory } from './data';
-import { TableHead } from '@mui/material';
 
 const DEFAULT_ROWS_PER_PAGE = 5;
 

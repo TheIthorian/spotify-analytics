@@ -25,8 +25,8 @@ export async function getStreamHistory({
         throw new Error('Error fetching data', { cause: await res.json() });
     }
 
-    const count = Number(res.headers.get('Count') ?? 100);
-    const total = Number(res.headers.get('Total') ?? 100);
+    const count = Number(res.headers.get('Count'));
+    const total = Number(res.headers.get('Total'));
 
     const streamHistory = await res.json();
 
