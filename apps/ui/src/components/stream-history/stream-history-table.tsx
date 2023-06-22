@@ -12,10 +12,12 @@ import { TablePaginationActions } from '../table-pagination-action';
 import { getStreamHistory } from './data';
 import { TableHead } from '@mui/material';
 
+const DEFAULT_ROWS_PER_PAGE = 5;
+
 export default function CustomPaginationActionsTable() {
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    const [totalNumberOfRecords, setTotalNumberOfRecords] = React.useState(100);
+    const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
+    const [totalNumberOfRecords, setTotalNumberOfRecords] = React.useState(0);
 
     const [streamHistoryData, setStreamHistoryData] = React.useState([]);
     const [error, setError] = React.useState<String>();
@@ -23,7 +25,8 @@ export default function CustomPaginationActionsTable() {
     const [loading, setLoading] = React.useState(true);
 
     // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - streamHistoryData.length) : 0;
+    // const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - totalNumberOfRecords) : 0;
+    const emptyRows = 0;
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
         setPage(newPage);
@@ -35,7 +38,7 @@ export default function CustomPaginationActionsTable() {
     };
 
     React.useEffect(() => {
-        getStreamHistory({ dateFrom: null, dateTo: null, limit: rowsPerPage, offset: page * rowsPerPage })
+        getStreamHistory({ dateFrom: null, dateTo: null, limit: rowsPerPage, offset: page })
             .then(({ streamHistory, count, total }) => {
                 setStreamHistoryData(streamHistory);
                 setTotalNumberOfRecords(total);
@@ -69,7 +72,7 @@ export default function CustomPaginationActionsTable() {
             <Table sx={{ minWidth: 500 }} aria-label='stream-history-table' stickyHeader>
                 <TableHead>
                     <TableRow>
-                        <TableCell component='th' scope='row'>
+                        <TableCell component='th' style={{ width: 400 }}>
                             Track name
                         </TableCell>
                         <TableCell component='th'>Artist name</TableCell>
@@ -80,12 +83,11 @@ export default function CustomPaginationActionsTable() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {(rowsPerPage > 0
-                        ? streamHistoryData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        : streamHistoryData
-                    ).map(row => (
+                    {streamHistoryData.map(row => (
                         <TableRow key={row.id}>
-                            <TableCell scope='row'>{row.trackName}</TableCell>
+                            <TableCell scope='row' style={{ width: 400 }}>
+                                {row.trackName}
+                            </TableCell>
                             <TableCell>{row.artistName}</TableCell>
                             <TableCell style={{ width: 160 }} align='right'>
                                 {(row.msPlayed / 1000).toFixed(0)}
