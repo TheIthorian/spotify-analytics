@@ -6,6 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableFooter from '@mui/material/TableFooter';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { TableHead } from '@mui/material';
 
@@ -68,60 +69,65 @@ export function StreamHistory() {
     console.table(streamHistoryData);
 
     return (
-        <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 500 }} aria-label='stream-history-table' stickyHeader>
-                <TableHead>
-                    <TableRow>
-                        <TableCell component='th' style={{ width: 400 }}>
-                            Track name
-                        </TableCell>
-                        <TableCell component='th'>Artist name</TableCell>
-                        <TableCell component='th' style={{ width: 160 }} align='right'>
-                            Song duration (s)
-                        </TableCell>
-                        <TableCell style={{ width: 160 }}>Date played</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {streamHistoryData.map(row => (
-                        <TableRow key={row.id}>
-                            <TableCell scope='row' style={{ width: 400 }}>
-                                {row.trackName}
+        <>
+            <Typography gutterBottom variant='h5' sx={{ marginLeft: 1.5 }}>
+                Stream history
+            </Typography>
+            <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 500 }} aria-label='stream-history-table' stickyHeader>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell component='th' style={{ width: 400 }}>
+                                Track name
                             </TableCell>
-                            <TableCell>{row.artistName}</TableCell>
-                            <TableCell style={{ width: 160 }} align='right'>
-                                {(row.msPlayed / 1000).toFixed(0)}
+                            <TableCell component='th'>Artist name</TableCell>
+                            <TableCell component='th' style={{ width: 160 }} align='right'>
+                                Song duration (s)
                             </TableCell>
-                            <TableCell style={{ width: 160 }}>{new Date(row.datePlayed).toLocaleDateString()}</TableCell>
+                            <TableCell style={{ width: 160 }}>Date played</TableCell>
                         </TableRow>
-                    ))}
-                    {emptyRows > 0 && (
-                        <TableRow style={{ height: 53 * emptyRows }}>
-                            <TableCell colSpan={6} />
+                    </TableHead>
+                    <TableBody>
+                        {streamHistoryData.map(row => (
+                            <TableRow key={row.id}>
+                                <TableCell scope='row' style={{ width: 400 }}>
+                                    {row.trackName}
+                                </TableCell>
+                                <TableCell>{row.artistName}</TableCell>
+                                <TableCell style={{ width: 160 }} align='right'>
+                                    {(row.msPlayed / 1000).toFixed(0)}
+                                </TableCell>
+                                <TableCell style={{ width: 160 }}>{new Date(row.datePlayed).toLocaleDateString()}</TableCell>
+                            </TableRow>
+                        ))}
+                        {emptyRows > 0 && (
+                            <TableRow style={{ height: 53 * emptyRows }}>
+                                <TableCell colSpan={6} />
+                            </TableRow>
+                        )}
+                    </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TablePagination
+                                rowsPerPageOptions={[5, 10, 25]}
+                                colSpan={3}
+                                count={totalNumberOfRecords}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                SelectProps={{
+                                    inputProps: {
+                                        'aria-label': 'rows per page',
+                                    },
+                                    native: true,
+                                }}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                ActionsComponent={TablePaginationActions}
+                            />
                         </TableRow>
-                    )}
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25]}
-                            colSpan={3}
-                            count={totalNumberOfRecords}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            SelectProps={{
-                                inputProps: {
-                                    'aria-label': 'rows per page',
-                                },
-                                native: true,
-                            }}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
-                            ActionsComponent={TablePaginationActions}
-                        />
-                    </TableRow>
-                </TableFooter>
-            </Table>
-        </TableContainer>
+                    </TableFooter>
+                </Table>
+            </TableContainer>
+        </>
     );
 }
