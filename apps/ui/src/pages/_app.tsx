@@ -24,7 +24,8 @@ const lightTheme = createTheme({});
 export default function App({ Component, pageProps }: AppProps) {
     return (
         <Provider store={store}>
-            <ThemeProvider theme={lightTheme}>
+            <ThemeProvider theme={darkTheme}>
+                {/* <ThemeProvider theme={lightTheme}> */}
                 <CssBaseline />
                 <Component {...pageProps} />{' '}
             </ThemeProvider>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getStats } from './data';
-import { Card, CardContent, Paper, Stack, Typography } from '@mui/material';
+import { CardContent, Grid, Paper, Stack, Typography, styled } from '@mui/material';
 
 type Stats = {
     totalPlaytime: number;
@@ -43,22 +43,31 @@ export function StreamHistoryStats() {
     }
 
     return (
-        <Stack direction={{ sm: 'column', md: 'row' }} spacing={{ xs: 1, sm: 2, md: 4 }} justifyContent='space-between'>
+        <Grid container spacing={2}>
             <StatsCard title='Total Playtime' value={Math.round(statsData.totalPlaytime / (1000 * 60 * 60)).toLocaleString() + ' hours'} />
             <StatsCard title='Unique Artists' value={Math.round(statsData.uniqueArtistCount).toLocaleString()} />
             <StatsCard title='Unique Tracks' value={Math.round(statsData.uniqueTrackCount).toLocaleString()} />
             <StatsCard title='Tracks Played' value={Math.round(statsData.trackCount).toLocaleString()} />
-        </Stack>
+        </Grid>
     );
 }
 
+const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    color: theme.palette.text.secondary,
+}));
+
 function StatsCard({ title, value }: { title: string; value: string | number }) {
     return (
-        <Card component={Paper} variant='outlined'>
-            <CardContent>
-                <Typography variant='h6'>{title}</Typography>
-                <Typography variant='subtitle1'>{value}</Typography>
-            </CardContent>
-        </Card>
+        <Grid item xs={12} sm={6} md={3} key={title}>
+            <Item>
+                <CardContent>
+                    <Typography variant='h6'>{title}</Typography>
+                    <Typography variant='subtitle1'>{value}</Typography>
+                </CardContent>
+            </Item>
+        </Grid>
     );
 }
