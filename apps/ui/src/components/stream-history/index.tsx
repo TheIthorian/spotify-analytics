@@ -9,6 +9,7 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { Card, TableHead } from '@mui/material';
+import Divider from '@mui/material/Divider';
 
 import { TablePaginationActions } from '../table-pagination-action';
 import { getStreamHistory } from './data';
@@ -68,9 +69,10 @@ export function StreamHistory() {
 
     return (
         <Card variant='outlined'>
-            <Typography gutterBottom variant='h5' sx={{ marginLeft: 1.5 }}>
-                Stream history
+            <Typography variant='h5' sx={{ margin: 1.5 }}>
+                Stream History
             </Typography>
+            <Divider />
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 500 }} aria-label='stream-history-table' stickyHeader>
                     <TableHead>
