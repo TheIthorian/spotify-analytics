@@ -29,6 +29,7 @@ export const postUploadHandler: RequestHandler[] = [
             res.status(400);
             res.send('No files uploaded');
             next();
+            return;
         }
 
         try {
