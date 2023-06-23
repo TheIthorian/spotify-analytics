@@ -8,7 +8,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import { TableHead } from '@mui/material';
+import { Card, TableHead } from '@mui/material';
 
 import { TablePaginationActions } from '../table-pagination-action';
 import { getStreamHistory } from './data';
@@ -66,10 +66,8 @@ export function StreamHistory() {
         );
     }
 
-    console.table(streamHistoryData);
-
     return (
-        <>
+        <Card variant='outlined'>
             <Typography gutterBottom variant='h5' sx={{ marginLeft: 1.5 }}>
                 Stream history
             </Typography>
@@ -128,6 +126,6 @@ export function StreamHistory() {
                     </TableFooter>
                 </Table>
             </TableContainer>
-        </>
+        </Card>
     );
 }
