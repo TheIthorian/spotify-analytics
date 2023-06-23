@@ -14,6 +14,7 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
+import { Empty } from 'c/empty';
 
 import { TablePaginationActions } from '../table-pagination-action';
 import { getStreamHistory } from './data';
@@ -69,6 +70,10 @@ export function StreamHistory() {
                 <pre>{errorCause}</pre>
             </div>
         );
+    }
+
+    if (streamHistoryData.length === 0 || totalNumberOfRecords === 0) {
+        return <Empty />;
     }
 
     return (
