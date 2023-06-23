@@ -1,14 +1,25 @@
 import * as React from 'react';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+
+import {
+    AppBar,
+    Box,
+    Button,
+    Divider,
+    Drawer,
+    IconButton,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
+    Toolbar,
+    Typography,
+} from '@mui/material';
+import { Upload } from '@mui/icons-material';
 
 const i18n = {
     login: 'Login',
@@ -26,9 +37,8 @@ export function Nav() {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position='static'>
                 <Toolbar>
-                    <IconButton size='large' edge='start' color='inherit' aria-label='menu' sx={{ mr: 2 }}>
-                        <MenuIcon />
-                    </IconButton>
+                    <NavigationDrawer />
+
                     <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
                         {i18n.appTitle}
                     </Typography>
@@ -94,5 +104,40 @@ function UserProfileButton({ auth, handleLogin }: { auth: boolean; handleLogin: 
                 <MenuItem onClick={() => handleLogout()}>Log out</MenuItem>
             </Menu>
         </div>
+    );
+}
+
+function NavigationDrawer() {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+        if (event.type === 'keydown' && ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')) {
+            return;
+        }
+
+        setIsOpen(open);
+    };
+
+    return (
+        <>
+            <Button onClick={toggleDrawer(true)}>{<MenuIcon />}</Button>
+            <Drawer anchor='left' open={isOpen} onClose={toggleDrawer(false)}>
+                <Box sx={{ width: 250 }} role='presentation' onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+                    <List>
+                        <ListItem key='upload' disablePadding>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <IconButton size='large' edge='start' color='inherit' aria-label='menu' sx={{ mr: 2 }}>
+                                        <Upload />
+                                    </IconButton>
+                                </ListItemIcon>
+                                <ListItemText primary='upload' />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                    <Divider />
+                </Box>
+            </Drawer>
+        </>
     );
 }
