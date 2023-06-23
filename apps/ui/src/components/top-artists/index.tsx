@@ -62,5 +62,9 @@ export function TopArtists() {
         );
     }
 
-    return <Bar options={CHART_OPTIONS} data={data} />;
+    return (
+        <Card variant='outlined'>
+            <Bar title='Top Artists By Playtime' options={CHART_OPTIONS} data={data} />
+        </Card>
+    );
 }
