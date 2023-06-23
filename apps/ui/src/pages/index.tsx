@@ -35,8 +35,6 @@ export default function Home() {
             });
     }, []);
 
-    console.log(userDetails);
-
     if (!userDetails) {
         return (
             <HomeLayout>
