@@ -38,8 +38,7 @@ export function Nav() {
             <AppBar position='static'>
                 <Toolbar>
                     <NavigationDrawer />
-
-                    <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
+                    <Typography variant='h6' component='div' sx={{ flexGrow: 1, marginLeft: 1 }}>
                         {i18n.appTitle}
                     </Typography>
                     <UserProfileButton auth={auth} handleLogin={handleLogin} />
@@ -124,14 +123,14 @@ function NavigationDrawer() {
             <Drawer anchor='left' open={isOpen} onClose={toggleDrawer(false)}>
                 <Box sx={{ width: 250 }} role='presentation' onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
                     <List>
-                        <ListItem key='upload' disablePadding>
+                        <ListItem key='Uploads' disablePadding>
                             <ListItemButton>
                                 <ListItemIcon>
                                     <IconButton size='large' edge='start' color='inherit' aria-label='menu' sx={{ mr: 2 }}>
                                         <Upload />
                                     </IconButton>
                                 </ListItemIcon>
-                                <ListItemText primary='upload' />
+                                <ListItemText primary='Uploads' />
                             </ListItemButton>
                         </ListItem>
                     </List>
