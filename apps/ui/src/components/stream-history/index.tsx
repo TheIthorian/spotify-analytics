@@ -1,15 +1,19 @@
 import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableFooter from '@mui/material/TableFooter';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import { Card, TableHead } from '@mui/material';
-import Divider from '@mui/material/Divider';
+
+import {
+    Card,
+    Divider,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableFooter,
+    TableHead,
+    TablePagination,
+    TableRow,
+    Typography,
+} from '@mui/material';
 
 import { TablePaginationActions } from '../table-pagination-action';
 import { getStreamHistory } from './data';

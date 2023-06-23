@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getStats } from './data';
-import { CardContent, Grid, Paper, Stack, Typography, styled } from '@mui/material';
+import { CardContent, Grid, Paper, Typography, styled } from '@mui/material';
 
 type Stats = {
     totalPlaytime: number;
