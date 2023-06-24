@@ -18,13 +18,17 @@ describe.skip('Upload performance', () => {
     const assetDir = `${__dirname}/assets/rawStreamHistory`;
     const filePaths: string[] = [];
 
-    const { app, server } = start(config.port);
+    let app, server;
 
     afterAll(async () => {
         await stop(server);
     });
 
     beforeAll(async () => {
+        const { app: _app, server: _server } = start(config.port);
+        app = _app;
+        server = _server;
+
         await prisma.streamHistory.deleteMany();
 
         // Generate files

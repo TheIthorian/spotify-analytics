@@ -22,7 +22,13 @@ async function insertHistory(histories: Omit<StreamHistory, 'id'>[]) {
 }
 
 describe('Stream History', () => {
-    const { app, server } = start(config.port);
+    let app, server;
+
+    beforeAll(async () => {
+        const { app: _app, server: _server } = start(config.port);
+        app = _app;
+        server = _server;
+    });
 
     afterAll(async () => {
         await stop(server);

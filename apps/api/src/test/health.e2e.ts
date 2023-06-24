@@ -3,7 +3,13 @@ import { start, stop } from '../main';
 import config from '../config';
 
 describe('Health', () => {
-    const { app, server } = start(config.port);
+    let app, server;
+
+    beforeAll(async () => {
+        const { app: _app, server: _server } = start(config.port);
+        app = _app;
+        server = _server;
+    });
 
     afterAll(async () => {
         await stop(server);
