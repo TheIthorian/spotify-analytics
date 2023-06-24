@@ -32,6 +32,29 @@ const streamHistoryFileData = [
         offline_timestamp: 0,
         incognito_mode: false,
     },
+    {
+        ts: '2014-12-29T23:35:17Z',
+        username: 'username',
+        platform: 'platform',
+        ms_played: 5665,
+        conn_country: 'GB',
+        ip_addr_decrypted: 'ip_addr_decrypted',
+        user_agent_decrypted: 'unknown',
+        master_metadata_track_name: 'master_metadata_track_name',
+        master_metadata_album_artist_name: 'master_metadata_album_artist_name',
+        master_metadata_album_album_name: 'master_metadata_album_album_name',
+        spotify_track_uri: 'spotify:spotify_track_uri',
+        episode_name: null,
+        episode_show_name: null,
+        spotify_episode_uri: null,
+        reason_start: 'appload',
+        reason_end: 'appload',
+        shuffle: false,
+        skipped: true,
+        offline: false,
+        offline_timestamp: 1653238670452,
+        incognito_mode: false,
+    },
 ];
 
 const brokenStreamHistoryFileData = [{ ts: '2014-12-29T23:35:17Z', username: 'username' }];
@@ -81,7 +104,7 @@ describe('dequeueAllFiles', () => {
         await dequeueAllFiles();
 
         // Then
-        expect(prismaMock.streamHistory.create).toHaveBeenCalledTimes(1);
+        expect(prismaMock.streamHistory.create).toHaveBeenCalledTimes(2);
         expect(prismaMock.streamHistory.create).toHaveBeenCalledWith({
             data: {
                 trackName: streamHistoryFileData[0].master_metadata_track_name,
@@ -102,6 +125,12 @@ describe('dequeueAllFiles', () => {
                 reasonEnd: 'appload',
                 incognitoMode: false,
             },
+        });
+
+        expect(prismaMock.streamHistory.create).nthCalledWith(2, {
+            data: expect.objectContaining({
+                datePlayed: new Date('2022-05-22T16:57:50.452Z'),
+            }),
         });
     });
 
