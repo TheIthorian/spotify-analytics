@@ -5,8 +5,6 @@ Bug fixes and new features should include tests.
 
 ##### Checklist
 
-<!-- Remove items that do not appl. -->
-
 -   [ ] `yarn test && yarn test:e2e` passes
 -   [ ] commit message follows commit guidelines
 
