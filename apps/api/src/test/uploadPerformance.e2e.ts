@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as memLog from '../logger/memoryLogger';
 
 import prisma from '../prismaClient';
-import { expressApp } from '../main';
+import { start, stop } from '../main';
 import { dequeueAllFiles } from '../upload/fileProcessor';
 import { generateRawStreamHistory } from './testUtils/recordGenerator';
 import { ReadStrategy } from '../upload/fileProcessor/types';
@@ -18,7 +18,11 @@ describe.skip('Upload performance', () => {
     const assetDir = `${__dirname}/assets/rawStreamHistory`;
     const filePaths: string[] = [];
 
-    const app = expressApp(3001);
+    const { app, server } = start(config.port);
+
+    afterAll(async () => {
+        await stop(server);
+    });
 
     beforeAll(async () => {
         await prisma.streamHistory.deleteMany();
@@ -71,11 +75,8 @@ describe.skip('Upload performance', () => {
     }
 
     async function uploadAllFiles() {
-        const responses = await Promise.all(
-            filePaths.map(async filename => await request(app).post('/api/upload').attach('file', filename))
-        );
-
-        for (const response of responses) {
+        for (const filePath of filePaths) {
+            const response = await request(app).post('/api/upload').attach('file', filePath);
             expect(response.status).toBe(200);
         }
 

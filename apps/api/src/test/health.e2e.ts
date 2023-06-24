@@ -1,17 +1,15 @@
 import * as request from 'supertest';
-import { expressApp } from '../main';
+import { start, stop } from '../main';
+import config from '../config';
 
 describe('Health', () => {
-    const app = expressApp(3001);
+    const { app, server } = start(config.port);
+
+    afterAll(async () => {
+        await stop(server);
+    });
+
     it('/api/health (GET) - responds with ok', async () => {
-        await request(app)
-            .get('/api/health')
-            .expect(200)
-            .expect('ok')
-            .then()
-            .catch(err => {
-                console.error(err);
-                throw err;
-            });
+        await request(app).get('/api/health').expect(200).expect('ok').then();
     });
 });
