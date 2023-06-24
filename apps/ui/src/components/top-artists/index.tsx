@@ -65,8 +65,15 @@ export function TopArtists() {
         );
     }
 
+    // TODO - Make chart vertical on mobile
     return (
-        <Card variant='outlined'>
+        <Card
+            variant='outlined'
+            sx={{
+                padding: 2,
+                maxHeight: '100vh', // Prevent chart from overflowing on wide screens
+            }}
+        >
             <Bar title='Top Artists By Playtime' options={CHART_OPTIONS} data={data} />
         </Card>
     );

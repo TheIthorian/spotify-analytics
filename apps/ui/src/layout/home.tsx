@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import { ReactNode } from 'react';
 
 export function HomeLayout({ children }: { children: ReactNode }) {
@@ -6,8 +6,11 @@ export function HomeLayout({ children }: { children: ReactNode }) {
         <Box
             sx={{
                 width: '100%',
-                height: '100%',
+                minWidth: 250,
+                minHeight: '100vh',
             }}
+            id='home-layout'
+            position={'relative'} // To ensure setup fills page
         >
             {children}
         </Box>
