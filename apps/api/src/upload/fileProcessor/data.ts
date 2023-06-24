@@ -59,7 +59,7 @@ export async function insertStreamHistory(history: JsonStreamHistoryRecord[]) {
                     albumName: track.master_metadata_album_album_name,
                     artistName: track.master_metadata_album_artist_name,
                     msPlayed: track.ms_played,
-                    datePlayed: new Date(track.ts),
+                    datePlayed: getPlayedDateForTrackTime(track),
                     platform: track.platform,
                     spotifyTrackUri: track.spotify_track_uri,
                     isSong: track.episode_name === null,
@@ -76,4 +76,17 @@ export async function insertStreamHistory(history: JsonStreamHistoryRecord[]) {
             });
         })
     );
+}
+
+function getPlayedDateForTrackTime(track: JsonStreamHistoryRecord) {
+    if (track.offline_timestamp <= 1) {
+        return new Date(track.ts); // The offline timestamp is not set so default to the timestamp
+    }
+
+    if (track.offline_timestamp < 9999999999) {
+        // Sometimes spotify uses seconds instead of milliseconds for the timestamp resolution.
+        return new Date(track.offline_timestamp * 1_000);
+    }
+
+    return new Date(track.offline_timestamp);
 }
