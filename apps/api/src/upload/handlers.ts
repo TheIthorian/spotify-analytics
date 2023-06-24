@@ -28,7 +28,7 @@ export const postUploadHandler: RequestHandler[] = [
         if (!req.files || !Object.keys(req.files).length) {
             res.status(400);
             res.send('No files uploaded');
-            next();
+            return next();
         }
 
         try {

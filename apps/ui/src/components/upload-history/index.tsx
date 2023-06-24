@@ -17,16 +17,16 @@ import {
 import { Empty } from 'c/empty';
 
 import { TablePaginationActions } from '../table-pagination-action';
-import { getStreamHistory } from './data';
+import { getUploadHistory } from './data';
 
 const DEFAULT_ROWS_PER_PAGE = 5;
 
-export function StreamHistory() {
+export function UploadHistory() {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
     const [totalNumberOfRecords, setTotalNumberOfRecords] = React.useState(0);
 
-    const [streamHistoryData, setStreamHistoryData] = React.useState([]);
+    const [uploadHistoryData, setUploadHistoryData] = React.useState([]);
     const [error, setError] = React.useState<String>();
     const [errorCause, setErrorCause] = React.useState<String>();
     const [loading, setLoading] = React.useState(true);
@@ -43,10 +43,10 @@ export function StreamHistory() {
     };
 
     React.useEffect(() => {
-        getStreamHistory({ dateFrom: null, dateTo: null, limit: rowsPerPage, offset: page })
-            .then(({ streamHistory, count, total }) => {
-                setStreamHistoryData(streamHistory);
-                setTotalNumberOfRecords(total);
+        getUploadHistory()
+            .then(uploadHistory => {
+                setUploadHistoryData(uploadHistory);
+                setTotalNumberOfRecords(uploadHistory.length);
             })
             .catch(err => {
                 console.error(err);
@@ -70,41 +70,35 @@ export function StreamHistory() {
         );
     }
 
-    if (streamHistoryData.length === 0 || totalNumberOfRecords === 0) {
+    if (uploadHistoryData.length === 0 || totalNumberOfRecords === 0) {
         return <Empty />;
     }
 
     return (
         <Card variant='outlined'>
             <Typography variant='h5' sx={{ margin: 1.5 }}>
-                Stream History
+                Uploads
             </Typography>
             <Divider />
             <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 500 }} aria-label='stream-history-table' stickyHeader>
+                <Table sx={{ minWidth: 500 }} aria-label='upload-table' stickyHeader>
                     <TableHead>
                         <TableRow>
-                            <TableCell component='th' style={{ width: 400 }}>
-                                Track name
-                            </TableCell>
-                            <TableCell component='th'>Artist name</TableCell>
-                            <TableCell component='th' style={{ width: 160 }} align='right'>
-                                Song duration (s)
-                            </TableCell>
-                            <TableCell style={{ width: 160 }}>Date played</TableCell>
+                            <TableCell component='th'>Id</TableCell>
+                            <TableCell component='th'>File Name</TableCell>
+                            <TableCell component='th'>Size (Mb)</TableCell>
+                            <TableCell component='th'>Status</TableCell>
+                            <TableCell component='th'>Upload Date</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {streamHistoryData.map(row => (
+                        {uploadHistoryData.map(row => (
                             <TableRow key={row.id}>
-                                <TableCell scope='row' style={{ width: 400 }}>
-                                    {row.trackName}
-                                </TableCell>
-                                <TableCell>{row.artistName}</TableCell>
-                                <TableCell style={{ width: 160 }} align='right'>
-                                    {(row.msPlayed / 1000).toFixed(0)}
-                                </TableCell>
-                                <TableCell style={{ width: 160 }}>{new Date(row.datePlayed).toLocaleDateString()}</TableCell>
+                                <TableCell scope='row'>{row.id}</TableCell>
+                                <TableCell scope='row'>{row.filename}</TableCell>
+                                <TableCell scope='row'>{(row.size / (1024 * 1024)).toFixed(2)}</TableCell>
+                                <TableCell scope='row'>{row.status}</TableCell>
+                                <TableCell style={{ width: 160 }}>{new Date(row.uploadDate).toLocaleDateString()}</TableCell>
                             </TableRow>
                         ))}
                         {emptyRows > 0 && (

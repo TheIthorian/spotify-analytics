@@ -12,6 +12,11 @@
         "format": "prettier --write \"src/**/*.{ts,js,tsx}\""
     },
     "dependencies": {
+        "@emotion/react": "^11.11.1",
+        "@emotion/styled": "^11.11.0",
+        "@mui/icons-material": "^5.11.16",
+        "@mui/material": "^5.13.5",
+        "@reduxjs/toolkit": "^1.9.5",
         "@types/node": "18.15.11",
         "@types/react": "18.0.35",
         "@types/react-dom": "18.0.11",
@@ -24,6 +29,7 @@
         "react": "18.2.0",
         "react-chartjs-2": "^5.2.0",
         "react-dom": "18.2.0",
+        "react-redux": "^8.1.1",
         "spotify-analytics-ts-utils": "*",
         "tailwindcss": "3.3.1",
         "typescript": "5.0.4"

@@ -1,5 +1,6 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getStats } from './data';
+import { CardContent, Grid, Paper, Typography, styled } from '@mui/material';
 
 type Stats = {
     totalPlaytime: number;
@@ -42,25 +43,31 @@ export function StreamHistoryStats() {
     }
 
     return (
-        <div className='p-3'>
-            <div className='flex justify-between flex-wrap max-w-6xl'>
-                <StatsCard
-                    title='Total Playtime'
-                    value={Math.round(statsData.totalPlaytime / (1000 * 60 * 60)).toLocaleString() + ' hours'}
-                />
-                <StatsCard title='Unique Artists' value={Math.round(statsData.uniqueArtistCount).toLocaleString()} />
-                <StatsCard title='Unique Tracks' value={Math.round(statsData.uniqueTrackCount).toLocaleString()} />
-                <StatsCard title='Tracks Played ' value={Math.round(statsData.trackCount).toLocaleString()} />
-            </div>
-        </div>
+        <Grid container spacing={2}>
+            <StatsCard title='Total Playtime' value={Math.round(statsData.totalPlaytime / (1000 * 60 * 60)).toLocaleString() + ' hours'} />
+            <StatsCard title='Unique Artists' value={Math.round(statsData.uniqueArtistCount).toLocaleString()} />
+            <StatsCard title='Unique Tracks' value={Math.round(statsData.uniqueTrackCount).toLocaleString()} />
+            <StatsCard title='Tracks Played' value={Math.round(statsData.trackCount).toLocaleString()} />
+        </Grid>
     );
 }
 
+const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    color: theme.palette.text.secondary,
+}));
+
 function StatsCard({ title, value }: { title: string; value: string | number }) {
     return (
-        <div className='block m-2 w-full sm:w-60 p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700'>
-            <h5 className='mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white'>{title}</h5>
-            <p className='font-normal text-gray-700 dark:text-gray-400'>{value}</p>
-        </div>
+        <Grid item xs={12} sm={6} md={3} key={title}>
+            <Item>
+                <CardContent>
+                    <Typography variant='h6'>{title}</Typography>
+                    <Typography variant='subtitle1'>{value}</Typography>
+                </CardContent>
+            </Item>
+        </Grid>
     );
 }

@@ -1,8 +1,9 @@
 import * as request from 'supertest';
+
 import { start, stop } from '../main';
 import config from '../config';
 
-describe('Health', () => {
+describe('Account', () => {
     let app, server;
 
     beforeAll(async () => {
@@ -15,7 +16,13 @@ describe('Health', () => {
         await stop(server);
     });
 
-    it('/api/health (GET) - responds with ok', async () => {
-        await request(app).get('/api/health').expect(200).expect('ok').then();
+    it('/api/me (GET) - returns user details', async () => {
+        const res = await request(app).get('/api/me').expect(200);
+
+        expect(res.body).toMatchObject({
+            streamHistoryRecordCount: expect.any(Number),
+            id: expect.any(Number),
+            username: expect.any(String),
+        });
     });
 });

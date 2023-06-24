@@ -71,7 +71,9 @@ export class StreamHistoryProcessor implements FileProcessor {
                 validationFields: StreamHistoryProcessor.validationFields,
                 validateFields,
             });
+
             await insertStreamHistory(data);
+
             await setComplete(this.source.id);
         } catch (err) {
             this.log.error(err, 'Error creating streaming history');

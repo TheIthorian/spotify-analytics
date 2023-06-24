@@ -9,6 +9,8 @@ export function allowCrossDomain(req: Request, res: Response, next: NextFunction
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type,append,delete,entries,foreach,get,has,keys,set,values,Authorization');
 
+    res.header('Access-Control-Expose-Headers', 'Total,Count');
+
     if (req.method === 'OPTIONS') {
         res.status(200);
         res.send();
