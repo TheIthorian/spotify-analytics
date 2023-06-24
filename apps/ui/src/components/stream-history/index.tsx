@@ -31,8 +31,6 @@ export function StreamHistory() {
     const [errorCause, setErrorCause] = React.useState<String>();
     const [loading, setLoading] = React.useState(true);
 
-    // Avoid a layout jump when reaching the last page with empty rows.
-    // const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - totalNumberOfRecords) : 0;
     const emptyRows = 0;
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
