@@ -56,7 +56,7 @@ export function UploadFiles() {
                 {/* <Button variant='outlined' component='label'>
                 Upload File
             </Button> */}
-                <Input id='file-input' type='file' onChange={handleAddFile} />
+                <Input id='file-input' type='file' onChange={handleAddFile} inputProps={{ multiple: true }} />
                 <Button type='submit' variant='contained' onClick={handleSubmit} disabled={!selectedFiles.length}>
                     Submit
                 </Button>
