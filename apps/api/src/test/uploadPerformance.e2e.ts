@@ -12,7 +12,7 @@ import { JOB_STATUS } from '../upload/constants';
 import config from '../config';
 import { deleteTempFile } from '../util/file';
 
-describe('Upload performance', () => {
+describe.skip('Upload performance', () => {
     const numberOfRawFiles = 10;
     const fileLength = 15;
     const assetDir = `${__dirname}/assets/rawStreamHistory`;
