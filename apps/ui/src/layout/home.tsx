@@ -10,7 +10,6 @@ export function HomeLayout({ children }: { children: ReactNode }) {
                 minHeight: '100vh',
             }}
             id='home-layout'
-            position={'relative'} // To ensure setup fills page
         >
             {children}
         </Box>

@@ -65,38 +65,36 @@ function Analytics() {
 
 function GetStarted() {
     return (
-        <Box id='home-layout-stack' minHeight='100%' width='100%' position='absolute' top={0} bottom={0}>
-            <Card variant='outlined' sx={{ height: '100%' }}>
-                <Box
-                    display='flex'
-                    flexDirection='column'
-                    alignContent='center'
-                    justifyContent='center'
-                    alignItems='center'
-                    paddingY={10}
-                    paddingX={2}
-                    textAlign='center'
-                >
-                    <Box marginBottom={3} display='flex' flexDirection='column' alignItems='center' justifyContent='center'>
-                        <Typography variant='h2' sx={{}}>
-                            Get Started!
-                        </Typography>
-                        <Typography variant='body1' sx={{ margin: 1.5, maxWidth: 800 }}>
-                            Upload your stream history from Spotify.
-                            <br />
-                            We&apos;ll analyse your listening habits and show you some cool charts.
-                            <br />
-                        </Typography>
-                    </Box>
-                    <Box marginBottom={1}>
-                        <UploadFiles />
-                    </Box>
-                    <Typography variant='caption' sx={{ margin: 1.5, maxWidth: 800 }}>
-                        Not sure where to get this from? Read our guide on how to download your stream history from Spotify.
+        <Card variant='outlined' sx={{ height: '100%' }}>
+            <Box
+                display='flex'
+                flexDirection='column'
+                alignContent='center'
+                justifyContent='center'
+                alignItems='center'
+                paddingY={10}
+                paddingX={2}
+                textAlign='center'
+            >
+                <Box marginBottom={3} display='flex' flexDirection='column' alignItems='center' justifyContent='center'>
+                    <Typography variant='h2' sx={{}}>
+                        Get Started!
                     </Typography>
-                    <Typography variant='caption'>Read our privacy policy to learn more about how we use your data.</Typography>
+                    <Typography variant='body1' sx={{ margin: 1.5, maxWidth: 800 }}>
+                        Upload your stream history from Spotify.
+                        <br />
+                        We&apos;ll analyse your listening habits and show you some cool charts.
+                        <br />
+                    </Typography>
                 </Box>
-            </Card>
-        </Box>
+                <Box marginBottom={1}>
+                    <UploadFiles />
+                </Box>
+                <Typography variant='caption' sx={{ margin: 1.5, maxWidth: 800 }}>
+                    Not sure where to get this from? Read our guide on how to download your stream history from Spotify.
+                </Typography>
+                <Typography variant='caption'>Read our privacy policy to learn more about how we use your data.</Typography>
+            </Box>
+        </Card>
     );
 }
