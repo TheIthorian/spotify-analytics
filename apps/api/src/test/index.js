@@ -13,11 +13,10 @@ const DATABASE_URL = process.env.E2E_DATABASE_URL;
 concurrently(
     [
         {
-            command: 'npx prisma db push && npm run start:api',
-            name: 'api setup',
+            command: 'npx prisma db push && npx jest --config jest.json --runInBand --detectOpenHandles --forceExit',
+            name: 'jest',
             env: { DATABASE_URL, NODE_ENV: 'test', PORT: 4001 },
         },
-        { command: 'npx jest --config jest.json --runInBand', name: 'jest', env: { DATABASE_URL } },
     ],
     {
         killOthers: ['failure', 'success'],
