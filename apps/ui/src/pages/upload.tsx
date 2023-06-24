@@ -12,7 +12,9 @@ export default function Upload() {
                 <Card sx={{ padding: 2 }}>
                     <Typography variant='h6'>Upload Stream History</Typography>
                     <Typography variant='body1'>Upload more spotify stream history by adding files below.</Typography>
-                    <UploadFiles />
+                    <Box marginTop={2}>
+                        <UploadFiles />
+                    </Box>
                 </Card>
                 <UploadHistory />
             </Stack>
