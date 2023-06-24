@@ -19,7 +19,8 @@ import {
     Toolbar,
     Typography,
 } from '@mui/material';
-import { Upload } from '@mui/icons-material';
+import { Dashboard, Upload } from '@mui/icons-material';
+import Link from 'next/link';
 
 const i18n = {
     login: 'Login',
@@ -39,7 +40,7 @@ export function Nav() {
                 <Toolbar>
                     <NavigationDrawer />
                     <Typography variant='h6' component='div' sx={{ flexGrow: 1, marginLeft: 1 }}>
-                        {i18n.appTitle}
+                        <Link href='/'>{i18n.appTitle}</Link>
                     </Typography>
                     <UserProfileButton auth={auth} handleLogin={handleLogin} />
                 </Toolbar>
@@ -121,17 +122,32 @@ function NavigationDrawer() {
         <>
             <Button onClick={toggleDrawer(true)}>{<MenuIcon />}</Button>
             <Drawer anchor='left' open={isOpen} onClose={toggleDrawer(false)}>
-                <Box sx={{ width: 250 }} role='presentation' onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+                <Box role='presentation' onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+                    <Box height={50}></Box>
                     <List>
-                        <ListItem key='Uploads' disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <IconButton size='large' edge='start' color='inherit' aria-label='menu' sx={{ mr: 2 }}>
-                                        <Upload />
-                                    </IconButton>
-                                </ListItemIcon>
-                                <ListItemText primary='Uploads' />
-                            </ListItemButton>
+                        <ListItem key='Home'>
+                            <Link href='/'>
+                                <ListItemButton sx={{ paddingRight: 5 }}>
+                                    <ListItemIcon>
+                                        <IconButton size='large' edge='start' color='inherit' aria-label='menu' sx={{ mr: 2 }}>
+                                            <Dashboard />
+                                        </IconButton>
+                                    </ListItemIcon>
+                                    <ListItemText primary='Dashboard' />
+                                </ListItemButton>
+                            </Link>
+                        </ListItem>
+                        <ListItem key='Uploads'>
+                            <Link href='/upload'>
+                                <ListItemButton sx={{ paddingRight: 5 }}>
+                                    <ListItemIcon>
+                                        <IconButton size='large' edge='start' color='inherit' aria-label='menu' sx={{ mr: 2 }}>
+                                            <Upload />
+                                        </IconButton>
+                                    </ListItemIcon>
+                                    <ListItemText primary='Uploads' />
+                                </ListItemButton>
+                            </Link>
                         </ListItem>
                     </List>
                     <Divider />
