@@ -47,12 +47,24 @@ export function start(port: number) {
     server.listen(port);
 
     log.info(`App listening on http://${config.host}:${port}`);
+    process.stdout.write(`App listening on http://${config.host}:${port}\n`);
     return { app, server };
 }
 
 export async function stop(server: Server) {
-    server.close();
+    process.stdout.write('Stopping server\n');
+    const promise = new Promise<void>((resolve, reject) => {
+        server.close(err => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+
     await prisma.$disconnect();
+    return await promise;
 }
 
 if (require.main === module) {
