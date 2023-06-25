@@ -1,9 +1,11 @@
 import * as React from 'react';
 
 import {
+    Box,
     Card,
     Divider,
     Paper,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -18,6 +20,7 @@ import { Empty } from 'c/empty';
 
 import { TablePaginationActions } from '../table-pagination-action';
 import { getUploadHistory } from './data';
+import { UploadFiles } from '../upload-file';
 
 const DEFAULT_ROWS_PER_PAGE = 5;
 
@@ -31,8 +34,6 @@ export function UploadHistory() {
     const [errorCause, setErrorCause] = React.useState<String>();
     const [loading, setLoading] = React.useState(true);
 
-    const emptyRows = 0;
-
     function handleChangePage(event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) {
         setPage(newPage);
     }
@@ -42,7 +43,8 @@ export function UploadHistory() {
         setPage(0);
     }
 
-    React.useEffect(() => {
+    function fetchUploadHistory() {
+        console.log('fetchUploadHistory');
         getUploadHistory()
             .then(uploadHistory => {
                 setUploadHistoryData(uploadHistory);
@@ -54,6 +56,10 @@ export function UploadHistory() {
                 setError(err.message);
             })
             .finally(() => setLoading(false));
+    }
+
+    React.useEffect(() => {
+        fetchUploadHistory();
     }, [rowsPerPage, page]);
 
     if (loading) {
@@ -70,6 +76,30 @@ export function UploadHistory() {
         );
     }
 
+    return (
+        <Stack spacing={2} minHeight='100%' padding={2}>
+            <Card sx={{ padding: 2 }}>
+                <Typography variant='h6'>Upload Stream History</Typography>
+                <Typography variant='body1'>Upload more spotify stream history by adding files below.</Typography>
+                <Box marginTop={2}>
+                    <UploadFiles onSubmit={fetchUploadHistory} />
+                </Box>
+            </Card>
+            <UploadHistoryDataTable
+                {...{
+                    totalNumberOfRecords,
+                    uploadHistoryData,
+                    onRowsPerPageChange: handleChangeRowsPerPage,
+                    onPageChange: handleChangePage,
+                    page,
+                    rowsPerPage,
+                }}
+            />
+        </Stack>
+    );
+}
+
+function UploadHistoryDataTable({ totalNumberOfRecords, uploadHistoryData, onRowsPerPageChange, onPageChange, rowsPerPage, page }) {
     if (uploadHistoryData.length === 0 || totalNumberOfRecords === 0) {
         return <Empty />;
     }
@@ -101,11 +131,6 @@ export function UploadHistory() {
                                 <TableCell style={{ width: 160 }}>{new Date(row.uploadDate).toLocaleDateString()}</TableCell>
                             </TableRow>
                         ))}
-                        {emptyRows > 0 && (
-                            <TableRow style={{ height: 53 * emptyRows }}>
-                                <TableCell colSpan={6} />
-                            </TableRow>
-                        )}
                     </TableBody>
                     <TableFooter>
                         <TableRow>
@@ -121,8 +146,8 @@ export function UploadHistory() {
                                     },
                                     native: true,
                                 }}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                onPageChange={onPageChange}
+                                onRowsPerPageChange={onRowsPerPageChange}
                                 ActionsComponent={TablePaginationActions}
                             />
                         </TableRow>

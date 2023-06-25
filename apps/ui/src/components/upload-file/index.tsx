@@ -1,18 +1,6 @@
 import { CONFIG } from '@/config';
 import { Clear } from '@mui/icons-material';
-import {
-    Button,
-    Divider,
-    FormControl,
-    IconButton,
-    Input,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-    Stack,
-} from '@mui/material';
+import { Button, Divider, FormControl, IconButton, Input, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
 import React from 'react';
 
 async function uploadFile(files: File[]) {
@@ -33,9 +21,11 @@ async function uploadFile(files: File[]) {
     if (!response.ok) {
         throw new Error('Error uploading file', { cause: await response.json() });
     }
+
+    return await response.json();
 }
 
-export function UploadFiles() {
+export function UploadFiles({ onSubmit }: { onSubmit: () => void }) {
     const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
     const [progress, setProgress] = React.useState(0);
     const [message, setMessage] = React.useState('');
@@ -60,32 +50,39 @@ export function UploadFiles() {
         const newSelectedFiles = selectedFiles.filter(file => file.name !== filename);
         setSelectedFiles(newSelectedFiles);
 
-        console.log('newSelectedFiles', newSelectedFiles);
-
         const inputElement = fileInputRef.current?.firstElementChild as HTMLInputElement;
-        console.log('inputElement', inputElement);
-
         if (!inputElement?.files) return;
 
         const dt = new DataTransfer();
-        const { files } = inputElement;
-        console.log('files', files);
 
+        const { files } = inputElement;
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             if (file.name !== filename) dt.items.add(file); // here you exclude the file. thus removing it.
         }
 
-        console.log('new files', dt.files);
         inputElement.files = dt.files; // Assign the updates list
     }
 
+    function clearFileInput() {
+        const inputElement = fileInputRef.current?.firstElementChild as HTMLInputElement;
+        if (!inputElement) return;
+
+        inputElement.files = new DataTransfer().files;
+        setSelectedFiles([]);
+    }
+
     async function handleSubmit() {
+        console.log('handleSubmit.uploadFile');
         await uploadFile(selectedFiles).catch(() => {
             setProgress(0);
             setMessage('Could not upload the file!');
             setSelectedFiles([]);
         });
+
+        console.log('handleSubmit.onSubmit');
+        clearFileInput();
+        await onSubmit();
     }
 
     return (
@@ -112,8 +109,8 @@ function StagedFileList({ files, onRemoveItem }: { files: File[]; onRemoveItem: 
     return (
         <List sx={{ width: '100%' }} aria-label='contacts'>
             {files.map((file: File) => (
-                <>
-                    <ListItem disablePadding key={file.webkitRelativePath}>
+                <React.Fragment key={file.name}>
+                    <ListItem disablePadding>
                         <ListItemButton>
                             <ListItemText primary={file.name} />
                             <IconButton edge='end' aria-label='delete' onClick={() => onRemoveItem(file.name)}>
@@ -122,7 +119,7 @@ function StagedFileList({ files, onRemoveItem }: { files: File[]; onRemoveItem: 
                         </ListItemButton>
                     </ListItem>
                     <Divider />
-                </>
+                </React.Fragment>
             ))}
         </List>
     );
