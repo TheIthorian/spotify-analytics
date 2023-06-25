@@ -99,7 +99,21 @@ export function UploadHistory() {
     );
 }
 
-function UploadHistoryDataTable({ totalNumberOfRecords, uploadHistoryData, onRowsPerPageChange, onPageChange, rowsPerPage, page }) {
+function UploadHistoryDataTable({
+    onPageChange,
+    onRowsPerPageChange,
+    page,
+    rowsPerPage,
+    totalNumberOfRecords,
+    uploadHistoryData,
+}: {
+    onPageChange: (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => void;
+    onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    page: number;
+    rowsPerPage: number;
+    totalNumberOfRecords: number;
+    uploadHistoryData: any[];
+}) {
     if (uploadHistoryData.length === 0 || totalNumberOfRecords === 0) {
         return <Empty />;
     }
@@ -141,9 +155,7 @@ function UploadHistoryDataTable({ totalNumberOfRecords, uploadHistoryData, onRow
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 SelectProps={{
-                                    inputProps: {
-                                        'aria-label': 'rows per page',
-                                    },
+                                    inputProps: { 'aria-label': 'rows per page' },
                                     native: true,
                                 }}
                                 onPageChange={onPageChange}
