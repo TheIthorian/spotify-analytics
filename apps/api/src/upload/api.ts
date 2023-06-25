@@ -16,7 +16,7 @@ const log = makeLogger(module);
  */
 export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]) {
     const filesArray = [files].flat(3);
-    const uploads = await Promise.all(filesArray.map(file => saveFile(file)));
+    const uploads = await Promise.all(filesArray.map(async file => await saveFile(file)));
     log.info(uploads, 'Finished uploading files');
     return await getUploads(getUploadIds(uploads));
 }
@@ -50,6 +50,7 @@ async function saveFile(file: UploadedFile) {
                 mimetype,
                 size,
                 md5,
+                uploadDate: new Date(),
             },
         })
         .catch(err => log.error(err, 'Unable to push file to queue'));
@@ -69,6 +70,7 @@ export async function getUploads(ids: number[] = null) {
             mimetype: true,
             size: true,
             md5: true,
+            uploadDate: true,
         },
         take: 100,
         orderBy: { id: 'desc' },
