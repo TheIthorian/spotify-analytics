@@ -8,9 +8,9 @@ import { start, stop } from '../main';
 import { dequeueAllFiles } from '../upload/fileProcessor';
 import { generateRawStreamHistory } from './testUtils/recordGenerator';
 import { ReadStrategy } from '../upload/fileProcessor/types';
-import { JOB_STATUS } from '../upload/constants';
 import config from '../config';
 import { deleteTempFile } from '../util/file';
+import { JOB_STATUS } from 'spotify-analytics-types';
 
 describe.skip('Upload performance', () => {
     const numberOfRawFiles = 10;

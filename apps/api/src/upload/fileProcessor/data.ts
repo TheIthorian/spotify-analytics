@@ -1,8 +1,8 @@
 import { SimpleStreamHistory } from '@prisma/client';
 import prisma from '../../prismaClient';
-import { JOB_STATUS } from '../../upload/constants';
 import { JsonStreamHistoryRecord } from './types';
 import { makeLogger } from '../../logger';
+import { JOB_STATUS } from 'spotify-analytics-types';
 
 const log = makeLogger(module);
 
