@@ -50,7 +50,7 @@ export default function Home() {
     return (
         <HomeLayout>
             <Nav />
-            {userDetails.streamHistoryRecordCount > 0 ? <Analytics /> : <GetStarted />}
+            {userDetails.hasUploads || userDetails.hasStreamHistoryRecords ? <Analytics /> : <GetStarted />}
         </HomeLayout>
     );
 }
