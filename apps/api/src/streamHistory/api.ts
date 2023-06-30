@@ -1,22 +1,23 @@
-import { makeLogger } from '../logger';
 import { Prisma } from '@prisma/client';
+
+import {
+    GetStatsResponseData,
+    GetStreamHistoryOptions,
+    GetStreamHistoryResponseData,
+    GetTopArtistsOptions,
+    GetTopArtistsResponseData,
+} from 'spotify-analytics-types';
+
+import { makeLogger } from '../logger';
 import prisma from '../prismaClient';
-import { z } from 'zod';
 import { parseLimit } from '../util/schema';
 import config from '../config';
 
 const log = makeLogger(module);
 
-export const GetStreamHistoryOptionsSchema = z.object({
-    dateFrom: z.coerce.date().optional(),
-    dateTo: z.coerce.date().optional(),
-    limit: z.coerce.number().positive().optional(),
-    offset: z.coerce.number().nonnegative().optional(),
-});
-
-export type GetStreamHistoryOptions = z.infer<typeof GetStreamHistoryOptionsSchema>;
-
-export async function getStreamHistory(options: GetStreamHistoryOptions) {
+export async function getStreamHistory(
+    options: GetStreamHistoryOptions
+): Promise<{ streamHistory: GetStreamHistoryResponseData; recordCount: number }> {
     log.info({ options }, `(${getStreamHistory.name})`);
 
     const queryArgs: Prisma.StreamHistoryFindManyArgs = {};
@@ -46,26 +47,9 @@ export async function getStreamHistory(options: GetStreamHistoryOptions) {
     return { streamHistory, recordCount };
 }
 
-export const GetTopArtistsOptionsSchema = z.object({
-    dateFrom: z.coerce.date().optional(),
-    dateTo: z.coerce.date().optional(),
-    limit: z.coerce.number().positive().optional(),
-    groupBy: z
-        .union([z.literal('timePlayed'), z.literal('listenCount')])
-        .default('listenCount')
-        .optional(),
-});
-
-export type GetTopArtistsOptions = z.infer<typeof GetTopArtistsOptionsSchema>;
-
-type ArtistListenAmount = {
-    name: string;
-    count: number;
-};
-
 type TopArtistsListAggregateQueryOptions = { where: { datePlayed?: { gte?: Date; lte?: Date }; isSong: boolean } };
 
-export async function getTopArtist(options: GetTopArtistsOptions): Promise<ArtistListenAmount[]> {
+export async function getTopArtist(options: GetTopArtistsOptions): Promise<GetTopArtistsResponseData> {
     log.info({ options }, `(${getTopArtist.name})`);
 
     const queryArgs: TopArtistsListAggregateQueryOptions = { where: { isSong: true } };
@@ -113,7 +97,7 @@ async function getArtistsByPlayCount(queryArgs: TopArtistsListAggregateQueryOpti
     return queryResult.map(a => ({ count: a._count.id, name: a.artistName }));
 }
 
-export async function getStats() {
+export async function getStats(): Promise<GetStatsResponseData> {
     log.info(`(${getStats.name})`);
 
     const [totalPlaytime, uniqueArtistCount, uniqueTrackCount, trackCount] =

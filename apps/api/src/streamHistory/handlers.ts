@@ -1,3 +1,9 @@
+import {
+    GetStreamHistoryOptions,
+    GetStreamHistoryOptionsSchema,
+    GetTopArtistsOptions,
+    GetTopArtistsOptionsSchema,
+} from 'spotify-analytics-types';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { makeLogger } from '../logger';
@@ -9,8 +15,8 @@ import { cache } from '../util/cache';
 const log = makeLogger(module);
 
 export const getHistoryHandler: RequestHandler[] = [
-    QuerySchemaValidator(api.GetStreamHistoryOptionsSchema),
-    async (req: Request, res: ParsedQueryResponse<api.GetStreamHistoryOptions>, next: NextFunction) => {
+    QuerySchemaValidator(GetStreamHistoryOptionsSchema),
+    async (req: Request, res: ParsedQueryResponse<GetStreamHistoryOptions>, next: NextFunction) => {
         log.info({ url: req.url }, '(getStreamHistoryHandler)');
 
         try {
@@ -30,8 +36,8 @@ export const getHistoryHandler: RequestHandler[] = [
 ];
 
 export const getTopArtistHandler: RequestHandler[] = [
-    QuerySchemaValidator(api.GetTopArtistsOptionsSchema),
-    async (req: Request, res: ParsedQueryResponse<api.GetTopArtistsOptions>, next: NextFunction) => {
+    QuerySchemaValidator(GetTopArtistsOptionsSchema),
+    async (req: Request, res: ParsedQueryResponse<GetTopArtistsOptions>, next: NextFunction) => {
         log.info({ url: req.url }, '(getTopArtistHandler)');
 
         try {

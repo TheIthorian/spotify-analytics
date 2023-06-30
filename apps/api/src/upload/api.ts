@@ -1,10 +1,11 @@
 import { UploadedFile } from 'express-fileupload';
+import { Prisma, UploadFileQueue } from '@prisma/client';
+
+import { GetUploadResponseData, Upload, JOB_STATUS, STATUS_BY_ID } from 'spotify-analytics-types';
 
 import prisma from '../prismaClient';
 import { makeLogger } from '../logger';
-import { JOB_STATUS, STATUS_BY_ID } from './constants';
 import { deleteTempFile } from '../util/file';
-import { Prisma, UploadFileQueue } from '@prisma/client';
 import config from '../config';
 
 const log = makeLogger(module);
@@ -14,14 +15,14 @@ const log = makeLogger(module);
  * @param files - files to be saved
  * @returns the uploads that may be processed
  */
-export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]) {
+export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]): Promise<GetUploadResponseData> {
     const filesArray = [files].flat(3);
     const uploads = await Promise.all(filesArray.map(async file => await saveFile(file)));
     log.info(uploads, 'Finished uploading files');
     return await getUploads(getUploadIds(uploads));
 }
 
-async function saveFile(file: UploadedFile) {
+async function saveFile(file: UploadedFile): Promise<Upload | void> {
     const { name: filename, tempFilePath, mimetype, size, md5 } = file;
     log.info({ filename, mimetype, size, md5, tempFilePath }, `(${saveFile.name}) - Saving file`);
 
@@ -61,7 +62,7 @@ async function saveFile(file: UploadedFile) {
 /**
  * Gets all uploads with the given ids. If no ids are given, the last 100 uploads are returned.
  */
-export async function getUploads(ids: number[] = null) {
+export async function getUploads(ids: number[] = null): Promise<GetUploadResponseData> {
     const selector: Prisma.UploadFileQueueFindManyArgs = {
         select: {
             id: true,

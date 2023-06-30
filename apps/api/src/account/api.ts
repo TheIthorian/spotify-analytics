@@ -1,15 +1,10 @@
+import { GetUserDetailsResponseData } from 'spotify-analytics-types';
 import { makeLogger } from '../logger';
 import prisma from '../prismaClient';
 
 const log = makeLogger(module);
 
-export type UserDetails = {
-    id: number;
-    username: string;
-    streamHistoryRecordCount: number;
-};
-
-export async function getUserDetails(): Promise<UserDetails> {
+export async function getUserDetails(): Promise<GetUserDetailsResponseData> {
     log.info(`(${getUserDetails.name})`);
 
     const streamHistoryRecordCount = await prisma.streamHistory.count();
