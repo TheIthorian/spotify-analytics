@@ -1,9 +1,22 @@
 import React from 'react';
-import { Clear } from '@mui/icons-material';
-import { Button, Divider, FormControl, IconButton, Input, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
+import * as Icons from '@mui/icons-material';
+import {
+    Alert,
+    Button,
+    Collapse,
+    Divider,
+    FormControl,
+    IconButton,
+    Input,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Stack,
+} from '@mui/material';
 
 import { CONFIG } from '@/config';
-import { GetUploadResponseData } from 'spotify-analytics-types';
+import { PostUploadResponseData } from 'spotify-analytics-types';
 
 async function uploadFile(files: File[]) {
     const formData = new FormData();
@@ -24,7 +37,8 @@ async function uploadFile(files: File[]) {
         throw new Error('Error uploading file', { cause: await response.json() });
     }
 
-    return (await response.json()) as GetUploadResponseData;
+    const data = await response.json();
+    return data as PostUploadResponseData;
 }
 
 export function UploadFiles({ onSubmit }: { onSubmit: () => void }) {
@@ -76,11 +90,21 @@ export function UploadFiles({ onSubmit }: { onSubmit: () => void }) {
 
     async function handleSubmit() {
         console.log('handleSubmit.uploadFile');
-        await uploadFile(selectedFiles).catch(() => {
+        const newUploads = await uploadFile(selectedFiles).catch(e => {
             setProgress(0);
-            setMessage('Could not upload the file!');
+            setMessage('Could not upload the file! ' + e);
             setSelectedFiles([]);
         });
+
+        console.log({ newUploads });
+
+        if (newUploads?.duplicates?.length) {
+            const message =
+                newUploads.duplicates.length === 1
+                    ? `The file ${newUploads.duplicates[0]} has already been uploaded and will be ignored.`
+                    : 'The following files have already been uploaded and will be ignored: ' + newUploads.duplicates.join(', ');
+            setMessage(message);
+        }
 
         console.log('handleSubmit.onSubmit');
         clearFileInput();
@@ -100,6 +124,25 @@ export function UploadFiles({ onSubmit }: { onSubmit: () => void }) {
                     </Button>
                 </Stack>
             </FormControl>
+            <Collapse in={!!message} sx={{ marginTop: 1 }}>
+                <Alert
+                    severity='warning'
+                    action={
+                        <IconButton
+                            aria-label='close'
+                            color='inherit'
+                            size='small'
+                            onClick={() => {
+                                setMessage('');
+                            }}
+                        >
+                            <Icons.Close fontSize='inherit' />
+                        </IconButton>
+                    }
+                >
+                    {message}
+                </Alert>
+            </Collapse>
             <StagedFileList files={selectedFiles} onRemoveItem={handleRemoveFileItem} />
         </>
     );
@@ -116,7 +159,7 @@ function StagedFileList({ files, onRemoveItem }: { files: File[]; onRemoveItem: 
                         <ListItemButton>
                             <ListItemText primary={file.name} />
                             <IconButton edge='end' aria-label='delete' onClick={() => onRemoveItem(file.name)}>
-                                <Clear />
+                                <Icons.Clear />
                             </IconButton>
                         </ListItemButton>
                     </ListItem>

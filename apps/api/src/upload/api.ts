@@ -1,7 +1,7 @@
 import { UploadedFile } from 'express-fileupload';
 import { Prisma, UploadFileQueue } from '@prisma/client';
 
-import { GetUploadResponseData, Upload, JOB_STATUS, STATUS_BY_ID } from 'spotify-analytics-types';
+import { GetUploadResponseData, Upload, JOB_STATUS, STATUS_BY_ID, PostUploadResponseData } from 'spotify-analytics-types';
 
 import prisma from '../prismaClient';
 import { makeLogger } from '../logger';
@@ -15,11 +15,27 @@ const log = makeLogger(module);
  * @param files - files to be saved
  * @returns the uploads that may be processed
  */
-export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]): Promise<GetUploadResponseData> {
+export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]): Promise<PostUploadResponseData> {
     const filesArray = [files].flat(3);
     const uploads = await Promise.all(filesArray.map(async file => await saveFile(file)));
     log.info(uploads, 'Finished uploading files');
-    return await getUploads(getUploadIds(uploads));
+
+    const duplicates: string[] = [];
+    const uploadIds: number[] = [];
+    for (const upload of uploads) {
+        if (!upload) continue;
+
+        if (upload.status === JOB_STATUS.DUPLICATE) {
+            duplicates.push(upload.filename);
+        }
+
+        uploadIds.push(upload.id);
+    }
+
+    return {
+        uploads: await getUploads(uploadIds),
+        duplicates,
+    };
 }
 
 async function saveFile(file: UploadedFile): Promise<Upload | void> {
@@ -38,7 +54,6 @@ async function saveFile(file: UploadedFile): Promise<Upload | void> {
             isDuplicate = true;
             log.info(existingFileUpload, 'File already exists. Skipping upload.');
             void deleteTempFile(tempFilePath);
-            return;
         }
     }
 
@@ -86,16 +101,4 @@ export async function getUploads(ids: number[] = null): Promise<GetUploadRespons
     }
 
     return uploads;
-}
-
-function getUploadIds(uploads: Array<void | UploadFileQueue>) {
-    if (!uploads) return [];
-
-    const ids = [];
-    for (const upload of uploads) {
-        if (upload && upload.id) {
-            ids.push(upload.id);
-        }
-    }
-    return ids;
 }
