@@ -13,6 +13,7 @@ import { UploadFiles } from '@/components/upload-file';
 
 import { CONFIG } from '@/config';
 import { useRouter } from 'next/router';
+import { GetUserDetailsResponseData, UserDetails } from 'spotify-analytics-types';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,11 +24,11 @@ async function getUserDetails() {
         throw new Error('Error fetching data', { cause: await res.json() });
     }
 
-    return res.json();
+    return (await res.json()) as GetUserDetailsResponseData;
 }
 
 export default function Home() {
-    const [userDetails, setUserDetails] = React.useState(null);
+    const [userDetails, setUserDetails] = React.useState<UserDetails | undefined>();
 
     React.useEffect(() => {
         getUserDetails()

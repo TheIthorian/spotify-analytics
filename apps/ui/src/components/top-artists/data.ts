@@ -1,4 +1,5 @@
 import { CONFIG } from '@/config';
+import { GetTopArtistsResponseData } from 'spotify-analytics-types';
 
 export async function getTopArtists({
     dateFrom,
@@ -23,7 +24,7 @@ export async function getTopArtists({
         throw new Error('Error fetching data', { cause: await res.json() });
     }
 
-    const topArtists = (await res.json()).map((record: { count: number; name: string }) => ({
+    const topArtists = ((await res.json()) as GetTopArtistsResponseData).map((record: { count: number; name: string }) => ({
         count: record.count / (1000 * 60 * 60),
         name: record.name,
     }));

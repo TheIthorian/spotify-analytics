@@ -1,7 +1,9 @@
-import { CONFIG } from '@/config';
+import React from 'react';
 import { Clear } from '@mui/icons-material';
 import { Button, Divider, FormControl, IconButton, Input, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
-import React from 'react';
+
+import { CONFIG } from '@/config';
+import { GetUploadResponseData } from 'spotify-analytics-types';
 
 async function uploadFile(files: File[]) {
     const formData = new FormData();
@@ -22,7 +24,7 @@ async function uploadFile(files: File[]) {
         throw new Error('Error uploading file', { cause: await response.json() });
     }
 
-    return await response.json();
+    return (await response.json()) as GetUploadResponseData;
 }
 
 export function UploadFiles({ onSubmit }: { onSubmit: () => void }) {

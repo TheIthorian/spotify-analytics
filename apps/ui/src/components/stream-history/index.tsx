@@ -18,6 +18,7 @@ import { Empty } from 'c/empty';
 
 import { TablePaginationActions } from '../table-pagination-action';
 import { getStreamHistory } from './data';
+import { StreamHistory } from 'spotify-analytics-types';
 
 const DEFAULT_ROWS_PER_PAGE = 5;
 
@@ -26,7 +27,7 @@ export function StreamHistory() {
     const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
     const [totalNumberOfRecords, setTotalNumberOfRecords] = React.useState(0);
 
-    const [streamHistoryData, setStreamHistoryData] = React.useState([]);
+    const [streamHistoryData, setStreamHistoryData] = React.useState<StreamHistory[]>([]);
     const [error, setError] = React.useState<String>();
     const [errorCause, setErrorCause] = React.useState<String>();
     const [loading, setLoading] = React.useState(true);
@@ -41,7 +42,7 @@ export function StreamHistory() {
     };
 
     React.useEffect(() => {
-        getStreamHistory({ dateFrom: null, dateTo: null, limit: rowsPerPage, offset: page })
+        getStreamHistory({ dateFrom: undefined, dateTo: undefined, limit: rowsPerPage, offset: page })
             .then(({ streamHistory, count, total }) => {
                 setStreamHistoryData(streamHistory);
                 setTotalNumberOfRecords(total);
