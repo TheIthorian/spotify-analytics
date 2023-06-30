@@ -12,6 +12,7 @@ import { StreamHistoryStats } from '@/components/stream-history-stats';
 import { UploadFiles } from '@/components/upload-file';
 
 import { CONFIG } from '@/config';
+import { useRouter } from 'next/router';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -64,6 +65,8 @@ function Analytics() {
 }
 
 function GetStarted() {
+    const router = useRouter();
+
     return (
         <Card variant='outlined' sx={{ height: '100%' }}>
             <Box
@@ -88,7 +91,7 @@ function GetStarted() {
                     </Typography>
                 </Box>
                 <Box marginBottom={1}>
-                    <UploadFiles />
+                    <UploadFiles onSubmit={() => router.push('/upload')} />
                 </Box>
                 <Typography variant='caption' sx={{ margin: 1.5, maxWidth: 800 }}>
                     Not sure where to get this from? Read our guide on how to download your stream history from Spotify.
