@@ -20,9 +20,10 @@ describe('Account', () => {
         const res = await request(app).get('/api/me').expect(200);
 
         expect(res.body).toMatchObject({
-            streamHistoryRecordCount: expect.any(Number),
             id: expect.any(Number),
             username: expect.any(String),
+            hasStreamHistoryRecords: expect.any(Boolean),
+            hasUploads: expect.any(Boolean),
         });
     });
 });

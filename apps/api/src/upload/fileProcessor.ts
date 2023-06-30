@@ -1,6 +1,7 @@
+import { JOB_STATUS } from 'spotify-analytics-types';
+
 import prisma from '../prismaClient';
 import { makeLogger } from '../logger';
-import { JOB_STATUS } from './constants';
 import { deleteTempFile } from '../util/file';
 
 import { getFileProcessorType } from './fileProcessor/index';

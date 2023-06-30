@@ -12,6 +12,8 @@ import { StreamHistoryStats } from '@/components/stream-history-stats';
 import { UploadFiles } from '@/components/upload-file';
 
 import { CONFIG } from '@/config';
+import { useRouter } from 'next/router';
+import { GetUserDetailsResponseData, UserDetails } from 'spotify-analytics-types';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,11 +24,11 @@ async function getUserDetails() {
         throw new Error('Error fetching data', { cause: await res.json() });
     }
 
-    return res.json();
+    return (await res.json()) as GetUserDetailsResponseData;
 }
 
 export default function Home() {
-    const [userDetails, setUserDetails] = React.useState(null);
+    const [userDetails, setUserDetails] = React.useState<UserDetails | undefined>();
 
     React.useEffect(() => {
         getUserDetails()
@@ -48,7 +50,7 @@ export default function Home() {
     return (
         <HomeLayout>
             <Nav />
-            {userDetails.streamHistoryRecordCount > 0 ? <Analytics /> : <GetStarted />}
+            {userDetails.hasUploads || userDetails.hasStreamHistoryRecords ? <Analytics /> : <GetStarted />}
         </HomeLayout>
     );
 }
@@ -64,6 +66,8 @@ function Analytics() {
 }
 
 function GetStarted() {
+    const router = useRouter();
+
     return (
         <Card variant='outlined' sx={{ height: '100%' }}>
             <Box
@@ -88,7 +92,7 @@ function GetStarted() {
                     </Typography>
                 </Box>
                 <Box marginBottom={1}>
-                    <UploadFiles />
+                    <UploadFiles onSubmit={() => router.push('/upload')} />
                 </Box>
                 <Typography variant='caption' sx={{ margin: 1.5, maxWidth: 800 }}>
                     Not sure where to get this from? Read our guide on how to download your stream history from Spotify.

@@ -18,6 +18,7 @@ import { Empty } from 'c/empty';
 
 import { TablePaginationActions } from '../table-pagination-action';
 import { getStreamHistory } from './data';
+import { StreamHistory } from 'spotify-analytics-types';
 
 const DEFAULT_ROWS_PER_PAGE = 5;
 
@@ -26,12 +27,10 @@ export function StreamHistory() {
     const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
     const [totalNumberOfRecords, setTotalNumberOfRecords] = React.useState(0);
 
-    const [streamHistoryData, setStreamHistoryData] = React.useState([]);
+    const [streamHistoryData, setStreamHistoryData] = React.useState<StreamHistory[]>([]);
     const [error, setError] = React.useState<String>();
     const [errorCause, setErrorCause] = React.useState<String>();
     const [loading, setLoading] = React.useState(true);
-
-    const emptyRows = 0;
 
     const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
         setPage(newPage);
@@ -43,7 +42,7 @@ export function StreamHistory() {
     };
 
     React.useEffect(() => {
-        getStreamHistory({ dateFrom: null, dateTo: null, limit: rowsPerPage, offset: page })
+        getStreamHistory({ dateFrom: undefined, dateTo: undefined, limit: rowsPerPage, offset: page })
             .then(({ streamHistory, count, total }) => {
                 setStreamHistoryData(streamHistory);
                 setTotalNumberOfRecords(total);
@@ -107,11 +106,6 @@ export function StreamHistory() {
                                 <TableCell style={{ width: 160 }}>{new Date(row.datePlayed).toLocaleDateString()}</TableCell>
                             </TableRow>
                         ))}
-                        {emptyRows > 0 && (
-                            <TableRow style={{ height: 53 * emptyRows }}>
-                                <TableCell colSpan={6} />
-                            </TableRow>
-                        )}
                     </TableBody>
                     <TableFooter>
                         <TableRow>

@@ -13,13 +13,14 @@ datasource db {
 
 // File processing queue
 model UploadFileQueue {
-    id       Int     @id @default(autoincrement())
-    status   Int     @default(0) // 0: waiting
-    filePath String
-    filename String?
-    mimetype String
-    size     Int
-    md5      String
+    id         Int      @id @default(autoincrement())
+    status     Int      @default(0) // 0: waiting
+    filePath   String
+    filename   String?
+    mimetype   String
+    size       Int
+    md5        String
+    uploadDate DateTime @default(now())
 
     @@index([status])
 }
