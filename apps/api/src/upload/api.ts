@@ -1,5 +1,5 @@
 import { UploadedFile } from 'express-fileupload';
-import { Prisma, UploadFileQueue } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { GetUploadResponseData, Upload, JOB_STATUS, STATUS_BY_ID, PostUploadResponseData } from 'spotify-analytics-types';
 
@@ -42,8 +42,6 @@ async function saveFile(file: UploadedFile): Promise<Upload | void> {
     const { name: filename, tempFilePath, mimetype, size, md5 } = file;
     log.info({ filename, mimetype, size, md5, tempFilePath }, `(${saveFile.name}) - Saving file`);
 
-    let isDuplicate = false;
-
     // TODO - make a feature flag
     if (config.skipDuplicateUploads) {
         const existingFileUpload = await prisma.uploadFileQueue.findFirst({
@@ -51,25 +49,23 @@ async function saveFile(file: UploadedFile): Promise<Upload | void> {
         });
 
         if (existingFileUpload) {
-            isDuplicate = true;
             log.info(existingFileUpload, 'File already exists. Skipping upload.');
             void deleteTempFile(tempFilePath);
+            return;
         }
     }
 
-    const upload = await prisma.uploadFileQueue
-        .create({
-            data: {
-                filePath: tempFilePath,
-                status: isDuplicate ? JOB_STATUS.DUPLICATE : JOB_STATUS.WAITING,
-                filename,
-                mimetype,
-                size,
-                md5,
-                uploadDate: new Date(),
-            },
-        })
-        .catch(err => log.error(err, 'Unable to push file to queue'));
+    const upload = await prisma.uploadFileQueue.create({
+        data: {
+            filePath: tempFilePath,
+            status: JOB_STATUS.WAITING,
+            filename,
+            mimetype,
+            size,
+            md5,
+            uploadDate: new Date(),
+        },
+    });
 
     return upload;
 }
