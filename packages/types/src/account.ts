@@ -1,7 +1,8 @@
 export type UserDetails = {
     id: number;
     username: string;
-    streamHistoryRecordCount: number;
+    hasStreamHistoryRecords: boolean;
+    hasUploads: boolean;
 };
 
 export type GetUserDetailsResponseData = UserDetails;
