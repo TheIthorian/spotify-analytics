@@ -11,6 +11,8 @@ export type Upload = {
 
 export type GetUploadResponseData = Upload[];
 
+export type PostUploadResponseData = { uploads: GetUploadResponseData; duplicates: string[] };
+
 export const STATUS_BY_ID = {
     0: 'waiting',
     1: 'processing',
