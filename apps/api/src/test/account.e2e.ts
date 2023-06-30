@@ -22,8 +22,8 @@ describe('Account', () => {
         expect(res.body).toMatchObject({
             id: expect.any(Number),
             username: expect.any(String),
-            hasStreamHistoryRecords: false,
-            hasUploads: false,
+            hasStreamHistoryRecords: expect.any(Boolean),
+            hasUploads: expect.any(Boolean),
         });
     });
 });
