@@ -92,9 +92,5 @@ export async function getUploads(ids: number[] = null): Promise<GetUploadRespons
 
     const uploads = await prisma.uploadFileQueue.findMany(selector);
 
-    for (const upload of uploads) {
-        upload.status = STATUS_BY_ID[upload.status];
-    }
-
-    return uploads;
+    return uploads.map(upload => ({ ...upload, status: STATUS_BY_ID[upload.status] }));
 }
