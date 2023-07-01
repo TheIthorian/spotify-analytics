@@ -8,5 +8,8 @@
         "build": "",
         "start": "",
         "test": ""
+    },
+    "dependencies": {
+        "spotify-analytics-microservice": "*"
     }
 }
