@@ -8,12 +8,13 @@ import { makeLogger, requestLogger } from './logger';
 import prisma from './prismaClient';
 import { allowCrossDomain } from './middleware/cors';
 import config from './config';
+import * as socket from './socket';
 
 console.log({ config });
 
 const log = makeLogger(module);
 
-export function expressApp(port: number) {
+export function expressApp(port: number, { useSocket }: { useSocket: boolean }) {
     const app = express();
 
     app.use(requestLogger);
@@ -34,6 +35,8 @@ export function expressApp(port: number) {
 
     app.use(initialiseRoutes());
 
+    if (useSocket) socket.init(app);
+
     app.get('/', (req, res) => res.send('Hello'));
 
     app.set('port', port);
@@ -41,8 +44,8 @@ export function expressApp(port: number) {
     return app;
 }
 
-export function start(port: number) {
-    const app = expressApp(port);
+export function start(port: number, { useSocket = false } = {}) {
+    const app = expressApp(port, { useSocket });
     const server = createServer(app);
     server.listen(port);
 
@@ -68,5 +71,5 @@ export async function stop(server: Server) {
 }
 
 if (require.main === module) {
-    start(config.port);
+    start(config.port, { useSocket: true });
 }

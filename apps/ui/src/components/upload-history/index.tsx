@@ -19,9 +19,9 @@ import {
 import { Empty } from 'c/empty';
 
 import { TablePaginationActions } from '../table-pagination-action';
-import { getUploadHistory } from './data';
+import { getSocketConnection, getUploadHistory } from './data';
 import { UploadFiles } from '../upload-file';
-import { Upload } from 'spotify-analytics-types';
+import { UploadRecord, UploadStatus } from 'spotify-analytics-types';
 
 const DEFAULT_ROWS_PER_PAGE = 5;
 
@@ -30,7 +30,7 @@ export function UploadHistory() {
     const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
     const [totalNumberOfRecords, setTotalNumberOfRecords] = React.useState(0);
 
-    const [uploadHistoryData, setUploadHistoryData] = React.useState<Upload[]>([]);
+    const [uploadHistoryData, setUploadHistoryData] = React.useState<UploadRecord[]>([]);
     const [error, setError] = React.useState<String>();
     const [errorCause, setErrorCause] = React.useState<String>();
     const [loading, setLoading] = React.useState(true);
@@ -61,6 +61,18 @@ export function UploadHistory() {
 
     React.useEffect(() => {
         fetchUploadHistory();
+
+        getSocketConnection().on('message', (data: { id: string; status: UploadStatus }) => {
+            console.log('message', data);
+            setUploadHistoryData(uploadHistory => {
+                const upload = uploadHistory.find(upload => upload.id === Number(data.id));
+                if (upload) {
+                    console.log('upload', upload);
+                    upload.status = data.status;
+                }
+                return [...uploadHistory];
+            });
+        });
     }, [rowsPerPage, page]);
 
     if (loading) {
@@ -137,7 +149,7 @@ function UploadHistoryDataTable({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {uploadHistoryData.map(row => (
+                        {uploadHistoryData.map((row: UploadRecord) => (
                             <TableRow key={row.id}>
                                 <TableCell scope='row'>{row.id}</TableCell>
                                 <TableCell scope='row'>{row.filename}</TableCell>
