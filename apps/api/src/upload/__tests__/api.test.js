@@ -4,7 +4,7 @@ import * as hashMd5 from 'md5';
 import { prismaMock } from '../../__mocks__/prismaClient';
 
 import { getUploads, saveFiles } from '../api';
-import { JOB_STATUS } from '../constants';
+import { JOB_STATUS } from 'spotify-analytics-types';
 
 const streamHistoryFileData = [
     {
@@ -70,6 +70,7 @@ describe('upload api', () => {
                     mimetype: fileToUpload.mimetype,
                     size: fileToUpload.size,
                     md5: fileToUpload.md5,
+                    uploadDate: expect.any(Date),
                 },
             });
         });

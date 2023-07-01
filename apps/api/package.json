@@ -92,6 +92,7 @@
         "prisma": "^4.12.0",
         "spotify-analytics-microservice": "*",
         "stream-json": "^1.7.5",
+        "spotify-analytics-types": "*",
         "zod": "^3.21.4"
     }
 }

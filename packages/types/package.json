@@ -1,0 +1,9 @@
+{
+    "name": "spotify-analytics-types",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "dependencies": {
+        "typescript": "latest",
+        "zod": "^3.21.4"
+    }
+}
