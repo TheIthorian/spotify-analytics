@@ -9,7 +9,12 @@ export type Upload = {
     uploadDate: Date;
 };
 
-export type GetUploadResponseData = Upload[];
+export type UploadStatus = (typeof STATUS_BY_ID)[keyof typeof STATUS_BY_ID];
+
+export type GetUploadResponseData = UploadRecord[];
+
+export type UploadRecord = Omit<Upload, 'status'> & { status: UploadStatus };
+export type UploadStatusValue = (typeof JOB_STATUS)[keyof typeof JOB_STATUS];
 
 export type PostUploadResponseData = { uploads: GetUploadResponseData; duplicates: string[] };
 
