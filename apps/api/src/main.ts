@@ -8,6 +8,7 @@ import { makeLogger, requestLogger } from './logger';
 import prisma from './prismaClient';
 import { allowCrossDomain } from './middleware/cors';
 import config from './config';
+import * as socket from './socket';
 
 console.log({ config });
 
@@ -33,6 +34,8 @@ export function expressApp(port: number) {
     );
 
     app.use(initialiseRoutes());
+
+    socket.init(app);
 
     app.get('/', (req, res) => res.send('Hello'));
 
