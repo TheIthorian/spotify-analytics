@@ -14,7 +14,7 @@ console.log({ config });
 
 const log = makeLogger(module);
 
-export function expressApp(port: number) {
+export function expressApp(port: number, { useSocket }: { useSocket: boolean }) {
     const app = express();
 
     app.use(requestLogger);
@@ -35,7 +35,7 @@ export function expressApp(port: number) {
 
     app.use(initialiseRoutes());
 
-    socket.init(app);
+    if (useSocket) socket.init(app);
 
     app.get('/', (req, res) => res.send('Hello'));
 
@@ -44,8 +44,8 @@ export function expressApp(port: number) {
     return app;
 }
 
-export function start(port: number) {
-    const app = expressApp(port);
+export function start(port: number, { useSocket = false } = {}) {
+    const app = expressApp(port, { useSocket });
     const server = createServer(app);
     server.listen(port);
 
@@ -71,5 +71,5 @@ export async function stop(server: Server) {
 }
 
 if (require.main === module) {
-    start(config.port);
+    start(config.port, { useSocket: true });
 }
