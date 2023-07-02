@@ -7,7 +7,7 @@
     "license": "Apache-2.0",
     "scripts": {
         "ts": "ts-node --files",
-        "build": "prisma db push && ts",
+        "build": "prisma db push && prisma generate && tsc",
         "start": "prisma generate && concurrently \"yarn start:api\" \"yarn start:jobs\"",
         "start:api": "yarn ts src/main.ts | pino-pretty",
         "start:jobs": "yarn ts-node src/upload/fileProcessor.ts | pino-pretty",
