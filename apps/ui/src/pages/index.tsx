@@ -96,7 +96,7 @@ function GetStarted() {
                     <UploadFiles onSubmit={() => router.push('/upload')} />
                 </Box>
                 <Typography variant='caption' sx={{ margin: 1.5, maxWidth: 800 }}>
-                    Not sure where to get this from? <Link href='help/upload'> Read our guide</Link> on how to download your stream history
+                    Not sure where to get this from? <Link href='help/upload'>Read our guide</Link> on how to download your stream history
                     from Spotify.
                 </Typography>
                 <Typography variant='caption'>Read our privacy policy to learn more about how we use your data.</Typography>
