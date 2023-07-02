@@ -22,6 +22,7 @@ import { TablePaginationActions } from '../table-pagination-action';
 import { getUploadHistory } from './data';
 import { UploadFiles } from '../upload-file';
 import { Upload } from 'spotify-analytics-types';
+import { Link } from '@/components/link';
 
 const DEFAULT_ROWS_PER_PAGE = 5;
 
@@ -82,6 +83,10 @@ export function UploadHistory() {
             <Card sx={{ padding: 2 }}>
                 <Typography variant='h6'>Upload Stream History</Typography>
                 <Typography variant='body1'>Upload more spotify stream history by adding files below.</Typography>
+                <Typography variant='body2'>
+                    <Link href='help/upload'>See how to download your stream history from Spotify.</Link>
+                </Typography>
+
                 <Box marginTop={2}>
                     <UploadFiles onSubmit={fetchUploadHistory} />
                 </Box>
