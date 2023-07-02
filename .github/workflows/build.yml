@@ -3,11 +3,11 @@ on:
         types: [reopened]
     push:
 
-name: e2e
+name: build
 
 jobs:
     test:
-        name: e2e
+        name: build
         runs-on: ubuntu-latest
         strategy:
             matrix:
