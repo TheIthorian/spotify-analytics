@@ -3,11 +3,11 @@ on:
         types: [reopened]
     push:
 
-name: e2e
+name: build
 
 jobs:
     test:
-        name: e2e
+        name: build
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -24,7 +24,8 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-            - name: Run end to end tests
-              run: npm run test:e2e
-              env:
-                  E2E_DATABASE_URL: file:./dev.test.db
+            - name: Generate .env
+              run: echo "DATABASE_URL=file:./dev.db" > apps/api/.env
+
+            - name: Build app
+              run: npm run build

@@ -1,1 +1,2 @@
-*.ts
+_spotifyClient.ts
+types.ts
