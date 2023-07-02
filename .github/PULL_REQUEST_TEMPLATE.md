@@ -1,7 +1,8 @@
 #### Checklist
 
--   [ ] `yarn test && yarn test:e2e` passes
--   [ ] commit message follows commit guidelines
+-   [ ] unit and e2e tests pass
+-   [ ] build passes
+-   [ ] pr pointing to correct branch
 
 #### Description of change
 
