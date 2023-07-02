@@ -15,16 +15,16 @@ async function enrichTracks() {
 
     const tracks = await prisma.streamHistory.findMany({
         take: batchSize,
-        where: { spotifyTrackId: { not: null } },
+        where: { spotifyTrackUri: { not: null } },
     });
 
     const spotify = getSpotifyClient();
     const spotifyTracks = await Promise.all(
-        tracks.map(track => spotify.searchTracks(QueryString.stringify({ track: track.spotifyTrackId, artist: track.artistName })))
+        tracks.map(track => spotify.searchTracks(QueryString.stringify({ track: track.spotifyTrackUri, artist: track.artistName })))
     );
 
     for (let i = 0; i < tracks.length; i++) {
-        tracks[i].spotifyTrackId = spotifyTracks[i].tracks.items[0].id;
+        tracks[i].spotifyTrackUri = spotifyTracks[i].tracks.items[0].id;
     }
 }
 
