@@ -19,7 +19,7 @@ import {
     Toolbar,
     Typography,
 } from '@mui/material';
-import { Dashboard, Upload } from '@mui/icons-material';
+import { Dashboard, QuestionMark, Upload } from '@mui/icons-material';
 import Link from 'next/link';
 
 const i18n = {
@@ -151,6 +151,21 @@ function NavigationDrawer() {
                         </ListItem>
                     </List>
                     <Divider />
+
+                    <List>
+                        <ListItem key='Help'>
+                            <Link href='/help'>
+                                <ListItemButton sx={{ paddingRight: 5 }}>
+                                    <ListItemIcon>
+                                        <IconButton size='large' edge='start' color='inherit' aria-label='menu' sx={{ mr: 2 }}>
+                                            <QuestionMark />
+                                        </IconButton>
+                                    </ListItemIcon>
+                                    <ListItemText primary='Help' />
+                                </ListItemButton>
+                            </Link>
+                        </ListItem>
+                    </List>
                 </Box>
             </Drawer>
         </>
