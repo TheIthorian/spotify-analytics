@@ -1,6 +1,6 @@
 on:
     pull_request:
-        types: [opened, reopened]
+        types: [reopened]
     push:
 
 name: e2e
