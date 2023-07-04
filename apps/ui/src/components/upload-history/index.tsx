@@ -21,7 +21,7 @@ import { Empty } from 'c/empty';
 import { TablePaginationActions } from '../table-pagination-action';
 import { getUploadHistory } from './data';
 import { UploadFiles } from '../upload-file';
-import { Upload } from 'spotify-analytics-types';
+import { GetUploadResponseData } from 'spotify-analytics-types';
 import { Link } from '@/components/link';
 
 const DEFAULT_ROWS_PER_PAGE = 5;
@@ -31,7 +31,7 @@ export function UploadHistory() {
     const [rowsPerPage, setRowsPerPage] = React.useState(DEFAULT_ROWS_PER_PAGE);
     const [totalNumberOfRecords, setTotalNumberOfRecords] = React.useState(0);
 
-    const [uploadHistoryData, setUploadHistoryData] = React.useState<Upload[]>([]);
+    const [uploadHistoryData, setUploadHistoryData] = React.useState<GetUploadResponseData>([]);
     const [error, setError] = React.useState<String>();
     const [errorCause, setErrorCause] = React.useState<String>();
     const [loading, setLoading] = React.useState(true);
@@ -47,10 +47,10 @@ export function UploadHistory() {
 
     function fetchUploadHistory() {
         console.log('fetchUploadHistory');
-        getUploadHistory()
-            .then(uploadHistory => {
-                setUploadHistoryData(uploadHistory);
-                setTotalNumberOfRecords(uploadHistory.length);
+        getUploadHistory({ dateFrom: undefined, dateTo: undefined, limit: rowsPerPage, offset: page })
+            .then(({ uploads, count, total }) => {
+                setUploadHistoryData(uploads);
+                setTotalNumberOfRecords(total);
             })
             .catch(err => {
                 console.error(err);
