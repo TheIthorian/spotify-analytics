@@ -20,24 +20,24 @@ export async function getStreamHistory(
 ): Promise<{ streamHistory: GetStreamHistoryResponseData; recordCount: number }> {
     log.info({ options }, `(${getStreamHistory.name})`);
 
-    const queryArgs: Prisma.StreamHistoryFindManyArgs = {};
+    const selector: Prisma.StreamHistoryFindManyArgs = {};
 
     if (options.dateFrom || options.dateTo) {
         const dateFilter: { gte?: Date; lte?: Date } = {};
-        queryArgs.where = { datePlayed: dateFilter };
+        selector.where = { datePlayed: dateFilter };
         if (options.dateFrom) dateFilter.gte = options.dateFrom;
         if (options.dateTo) dateFilter.lte = options.dateTo;
     }
 
     const limit = parseLimit(options.limit, 100);
     const offset = options.offset ?? 0;
-    queryArgs.skip = limit * offset;
-    queryArgs.take = limit;
+    selector.skip = limit * offset;
+    selector.take = limit;
 
-    log.debug({ queryArgs }, `(${getStreamHistory.name}) - queryArgs`);
+    log.debug({ selector }, `(${getStreamHistory.name}) - selector`);
 
     const streamHistory = await prisma.streamHistory.findMany({
-        ...queryArgs,
+        ...selector,
         orderBy: { datePlayed: 'desc' },
     });
 
