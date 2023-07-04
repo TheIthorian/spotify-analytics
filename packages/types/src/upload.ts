@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type Upload = {
     id: number;
     status: number;
@@ -9,7 +11,16 @@ export type Upload = {
     uploadDate: Date;
 };
 
-export type GetUploadResponseData = Upload[];
+export type GetUploadResponseData = Array<Omit<Upload, 'filePath'>>;
+
+export const GetUploadHistoryOptionsSchema = z.object({
+    dateFrom: z.coerce.date().optional(),
+    dateTo: z.coerce.date().optional(),
+    limit: z.coerce.number().positive().optional(),
+    offset: z.coerce.number().nonnegative().optional(),
+});
+
+export type GetUploadHistoryOptions = z.infer<typeof GetUploadHistoryOptionsSchema>;
 
 export type PostUploadResponseData = { uploads: GetUploadResponseData; duplicates: string[] };
 
