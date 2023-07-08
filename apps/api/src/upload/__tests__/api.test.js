@@ -90,12 +90,54 @@ describe('upload api', () => {
     });
 
     describe('getUploads', () => {
-        it('finds all uploads', async () => {
+        beforeEach(() => {
             prismaMock.uploadFileQueue.findFirst.mockResolvedValue([{ id: 1 }]);
             prismaMock.uploadFileQueue.findMany.mockResolvedValue([{ id: 1, status: 0 }]);
+            prismaMock.uploadFileQueue.count.mockResolvedValue(1);
+        });
 
-            await getUploads();
+        it('finds all uploads', async () => {
+            const { uploads, recordCount } = await getUploads({});
+
+            expect(uploads).toStrictEqual([{ id: 1, status: 'waiting' }]);
+            expect(recordCount).toBe(1);
+
             expect(prismaMock.uploadFileQueue.findMany).toHaveBeenCalledTimes(1);
+            expect(prismaMock.uploadFileQueue.findMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    take: 10, // default
+                    skip: 0,
+                    orderBy: { uploadDate: 'desc' },
+                })
+            );
+        });
+
+        it('finds all uploads with search options', async () => {
+            const options = {
+                dateFrom: new Date(),
+                dateTo: new Date(),
+                limit: 10,
+                offset: 1,
+            };
+            const { uploads, recordCount } = await getUploads(options);
+
+            expect(uploads).toStrictEqual([{ id: 1, status: 'waiting' }]);
+            expect(recordCount).toBe(1);
+
+            expect(prismaMock.uploadFileQueue.findMany).toHaveBeenCalledTimes(1);
+            expect(prismaMock.uploadFileQueue.findMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    where: {
+                        uploadDate: {
+                            gte: options.dateFrom,
+                            lte: options.dateTo,
+                        },
+                    },
+                    take: 10,
+                    skip: 10,
+                    orderBy: { uploadDate: 'desc' },
+                })
+            );
         });
     });
 });
