@@ -4,7 +4,7 @@ export type Upload = {
     id: number;
     status: number;
     filePath: string;
-    filename: string;
+    filename: string | null;
     mimetype: string;
     size: number;
     md5: string;

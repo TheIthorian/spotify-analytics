@@ -20,7 +20,7 @@ export const getHistoryHandler: RequestHandler[] = [
         log.info({ url: req.url }, '(getStreamHistoryHandler)');
 
         try {
-            const { streamHistory, recordCount } = await api.getStreamHistory(res.locals.parsedQuery);
+            const { streamHistory, recordCount } = await api.getStreamHistory(res.locals.parsedQuery ?? {});
 
             res.status(200);
             res.setHeader('count', streamHistory.length);
@@ -41,7 +41,7 @@ export const getTopArtistHandler: RequestHandler[] = [
         log.info({ url: req.url }, '(getTopArtistHandler)');
 
         try {
-            const topArtists = await api.getTopArtist(res.locals.parsedQuery);
+            const topArtists = await api.getTopArtist(res.locals.parsedQuery ?? {});
 
             res.status(200);
             res.json(topArtists);
