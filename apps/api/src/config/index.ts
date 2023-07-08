@@ -12,4 +12,11 @@ export default {
     maxUploadFileSize: 50 * 1024 * 1024, // 50 MB
 
     skipDuplicateUploads: true,
+
+    oAuthProviders: {
+        github: {
+            clientId: process.env.GITHUB_CLIENT_ID ?? '',
+            clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
+        },
+    },
 };
