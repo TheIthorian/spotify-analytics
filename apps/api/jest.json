@@ -3,6 +3,8 @@
     "rootDir": "./",
     "testEnvironment": "node",
     "testRegex": ".e2e.ts$",
+    "globalSetup": "./src/test/jestGlobalSetup.js",
+    "globalTeardown": "./src/test/jestGlobalTeardown.js",
     "transform": {
         "^.+\\.(t|j)s$": "ts-jest"
     }

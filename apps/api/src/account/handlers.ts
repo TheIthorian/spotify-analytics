@@ -8,7 +8,7 @@ const log = makeLogger(module);
 export const getUserDetailsHandler: RequestHandler[] = [
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userDetails = await api.getUserDetails();
+            const userDetails = await api.getUserDetails(1);
 
             res.status(200);
             res.json(userDetails);

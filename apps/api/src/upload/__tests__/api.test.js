@@ -71,6 +71,7 @@ describe('upload api', () => {
                     size: fileToUpload.size,
                     md5: fileToUpload.md5,
                     uploadDate: expect.any(Date),
+                    userId: 1,
                 },
             });
         });

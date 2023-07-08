@@ -72,6 +72,7 @@ async function saveFile(file: UploadedFile): Promise<Upload | void> {
             size,
             md5,
             uploadDate: new Date(),
+            userId: 1,
         },
     });
 

@@ -15,7 +15,7 @@ async function insertHistory(histories: Omit<StreamHistory, 'id'>[]) {
     return Promise.all(
         histories.map(history =>
             prisma.streamHistory.create({
-                data: history,
+                data: { ...history, userId: 1 },
             })
         )
     );
