@@ -18,7 +18,7 @@ export const PasswordLoginRequestBodySchema = z.object({
 export type PasswordLoginRequestBody = z.infer<typeof PasswordLoginRequestBodySchema>;
 
 export const LoginRequestQuerySchema = z.object({
-    provider: z.enum(['github', 'password']),
+    provider: z.enum(['github', 'password']).default('password'),
 });
 
 export type LoginRequestQuery = z.infer<typeof LoginRequestQuerySchema>;
