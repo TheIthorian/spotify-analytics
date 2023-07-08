@@ -6,7 +6,7 @@ const log = makeLogger(module);
 
 export function QuerySchemaValidator<SchemaType extends z.ZodType>(schema: SchemaType): RequestHandler {
     return function schemaValidation(req, res, next) {
-        const result = validateData(schema, req.query);
+        const result = validateData(schema, req.query ?? {});
 
         if (!result.success) {
             const error = result.error;
@@ -21,8 +21,9 @@ export function QuerySchemaValidator<SchemaType extends z.ZodType>(schema: Schem
     };
 }
 
-type ValidationResult<T> = { success: false; code: number; error: z.ZodError<z.ZodIssue> } | { success: true; data: T };
-
+type FailedValidationResult = { success: false; code: number; error: z.ZodError<z.ZodIssue> };
+type SuccessfulValidationResult<T> = { success: true; data: T };
+type ValidationResult<T> = FailedValidationResult | SuccessfulValidationResult<T>;
 export function validateData<SchemaType extends z.ZodType>(schema: SchemaType, data: unknown): ValidationResult<z.infer<SchemaType>> {
     const result = schema.safeParse(data);
 
