@@ -118,7 +118,6 @@ export async function getUploads(options: GetUploadHistoryOptions): Promise<{
             md5: true,
             uploadDate: true,
         },
-        take: 100,
         orderBy: { uploadDate: 'desc' },
     };
 
