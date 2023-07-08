@@ -124,6 +124,7 @@ describe('dequeueAllFiles', () => {
                 reasonStart: 'appload',
                 reasonEnd: 'appload',
                 incognitoMode: false,
+                userId: 1,
             },
         });
 
