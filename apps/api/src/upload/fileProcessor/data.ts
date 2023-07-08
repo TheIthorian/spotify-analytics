@@ -43,6 +43,7 @@ export async function insertSimpleHistory(history: SimpleStreamHistory[]) {
                         artistName: track.artistName,
                         msPlayed: track.msPlayed,
                         endTime: new Date(track.endTime),
+                        userId: 1,
                     },
                 })
             )
@@ -72,6 +73,7 @@ export async function insertStreamHistory(history: JsonStreamHistoryRecord[]) {
                     reasonStart: track.reason_start,
                     reasonEnd: track.reason_end,
                     incognitoMode: track.incognito_mode,
+                    userId: 1,
                 },
             });
         })
