@@ -4,16 +4,31 @@ import prisma from '../prismaClient';
 
 const log = makeLogger(module);
 
-export async function getUserDetails(): Promise<GetUserDetailsResponseData> {
-    log.info(`(${getUserDetails.name})`);
+export async function getUserDetails(userId: number): Promise<GetUserDetailsResponseData> {
+    log.info({ userId }, `(${getUserDetails.name})`);
 
-    const [streamHistory, upload] = await Promise.all([prisma.streamHistory.findFirst(), prisma.uploadFileQueue.findFirst()]);
+    const [streamHistory, upload, userDetails] = await Promise.all([
+        prisma.streamHistory.findFirst({ where: { userId } }),
+        prisma.uploadFileQueue.findFirst({ where: { userId } }),
+        prisma.user.findFirst({
+            select: {
+                id: true,
+                username: true,
+                displayName: true,
+            },
+            where: { id: userId },
+        }),
+    ]);
+
     const hasStreamHistoryRecords = !!streamHistory;
     const hasUploads = !!upload;
 
-    const id = 1;
-    const username = 'user@example.com';
+    const results = {
+        ...userDetails,
+        hasStreamHistoryRecords,
+        hasUploads,
+    };
 
-    log.info({ id, username, hasStreamHistoryRecords, hasUploads }, `(${getUserDetails.name}) - results`);
-    return { id, username, hasStreamHistoryRecords, hasUploads };
+    log.info(results, `(${getUserDetails.name}) - results`);
+    return results;
 }
