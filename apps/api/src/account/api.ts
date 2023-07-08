@@ -1,4 +1,6 @@
 import { GetUserDetailsResponseData } from 'spotify-analytics-types';
+import { ResourceNotFoundError } from 'spotify-analytics-errors';
+
 import { makeLogger } from '../logger';
 import prisma from '../prismaClient';
 
@@ -19,6 +21,10 @@ export async function getUserDetails(userId: number): Promise<GetUserDetailsResp
             where: { id: userId },
         }),
     ]);
+
+    if (!userDetails) {
+        throw new ResourceNotFoundError(`User {${userId}} not found`);
+    }
 
     const hasStreamHistoryRecords = !!streamHistory;
     const hasUploads = !!upload;
