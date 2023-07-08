@@ -11,6 +11,20 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model User {
+    id          Int    @id @default(autoincrement())
+    username    String @unique
+    displayName String
+
+    UploadFileQueue     UploadFileQueue[]
+    Playlist            Playlist[]
+    PlaylistTrack       PlaylistTrack[]
+    StreamHistory       StreamHistory[]
+    SimpleStreamHistory SimpleStreamHistory[]
+
+    @@index([username])
+}
+
 // File processing queue
 model UploadFileQueue {
     id         Int      @id @default(autoincrement())
@@ -22,7 +36,11 @@ model UploadFileQueue {
     md5        String
     uploadDate DateTime @default(now())
 
+    userId Int
+    User   User @relation(fields: [userId], references: [id])
+
     @@index([status])
+    @@index([userId])
 }
 
 // User playlists
@@ -33,6 +51,11 @@ model Playlist {
     description       String
     numberOfFollowers Int
     tracks            PlaylistTrack[]
+
+    userId Int
+    User   User @relation(fields: [userId], references: [id])
+
+    @@index([userId])
 }
 
 // Tracks for playlists
@@ -44,6 +67,11 @@ model PlaylistTrack {
     spotifyTrackId Int?
     Playlist       Playlist? @relation(fields: [playlistId], references: [id])
     playlistId     Int?
+
+    userId Int
+    User   User @relation(fields: [userId], references: [id])
+
+    @@index([userId])
 }
 
 // User stream history
@@ -72,10 +100,14 @@ model StreamHistory {
     reasonEnd     String
     incognitoMode Boolean?
 
+    userId Int
+    User   User @relation(fields: [userId], references: [id])
+
     @@index([datePlayed])
     @@index([trackName])
     @@index([artistName])
     @@index([isSong])
+    @@index([userId])
 }
 
 model SimpleStreamHistory {
@@ -86,7 +118,11 @@ model SimpleStreamHistory {
     endTime        DateTime
     spotifyTrackId Int?
 
+    userId Int
+    User   User @relation(fields: [userId], references: [id])
+
     @@index([endTime])
     @@index([artistName])
     @@index([spotifyTrackId])
+    @@index([userId])
 }
