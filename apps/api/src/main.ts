@@ -1,14 +1,15 @@
 import * as express from 'express';
 import { createServer, Server } from 'http';
 import * as fileUpload from 'express-fileupload';
-import * as expressStatusMonitor from 'express-status-monitor';
 import * as bodyParser from 'body-parser';
+import * as expressStatusMonitor from 'express-status-monitor';
 
 import initialiseRoutes from './routes';
 import { makeLogger, requestLogger } from './logger';
 import prisma from './prismaClient';
 import { allowCrossDomain } from './middleware/cors';
 import config from './config';
+import { errorHandler } from './middleware/errorHandlers';
 
 console.log({ config });
 
@@ -42,6 +43,8 @@ export function expressApp(port: number) {
     );
 
     app.use(initialiseRoutes());
+
+    app.use(errorHandler());
 
     app.get('/', (req, res) => res.send('Hello'));
 
