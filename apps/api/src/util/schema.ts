@@ -21,6 +21,25 @@ export function QuerySchemaValidator<SchemaType extends z.ZodType>(schema: Schem
     };
 }
 
+type ValidationResult<T> = { success: false; code: number; error: z.ZodError<z.ZodIssue> } | { success: true; data: T };
+
+export function validateData<SchemaType extends z.ZodType>(schema: SchemaType, data: unknown): ValidationResult<z.infer<SchemaType>> {
+    const result = schema.safeParse(data);
+
+    if (!result.success) {
+        const error = (result as z.SafeParseError<typeof data>).error;
+        log.error(error, 'QuerySchemaValidator - validation failed');
+
+        return {
+            success: false,
+            code: 400,
+            error,
+        };
+    }
+
+    return { success: true, data: result.data };
+}
+
 export function parseLimit(limit?: number, maxLimit = 100) {
     const DEFAULT_LIMIT = 10;
 
