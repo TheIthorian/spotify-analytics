@@ -22,6 +22,7 @@ export function generateStreamHistory(properties: Partial<StreamHistory> = {}): 
             reasonStart: properties?.reasonStart ?? 'unknown',
             reasonEnd: properties?.reasonEnd ?? 'unknown',
             incognitoMode: properties?.incognitoMode ?? faker.datatype.boolean(),
+            userId: properties?.userId ?? 1,
         };
     }
 
@@ -43,6 +44,7 @@ export function generateStreamHistory(properties: Partial<StreamHistory> = {}): 
         reasonStart: properties?.reasonStart ?? 'unknown',
         reasonEnd: properties?.reasonEnd ?? 'unknown',
         incognitoMode: properties?.incognitoMode ?? faker.datatype.boolean(),
+        userId: properties?.userId ?? 1,
     };
 }
 
