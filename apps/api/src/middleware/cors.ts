@@ -11,10 +11,5 @@ export function allowCrossDomain(req: Request, res: Response, next: NextFunction
 
     res.header('Access-Control-Expose-Headers', 'Total,Count');
 
-    if (req.method === 'OPTIONS') {
-        res.status(200);
-        res.send();
-    }
-
     next();
 }

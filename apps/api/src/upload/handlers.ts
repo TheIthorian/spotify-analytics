@@ -1,16 +1,24 @@
 import { RequestHandler } from 'express';
+import { GetUploadHistoryOptions, GetUploadHistoryOptionsSchema } from 'spotify-analytics-types';
+
 import { makeLogger } from '../logger';
+import { QuerySchemaValidator } from '../util/schema';
+
 import * as uploadApi from './api';
+import { ParsedQueryResponse } from 'util/typescript';
 
 const log = makeLogger(module);
 
 export const getUploadHandler: RequestHandler[] = [
-    async (req, res, next) => {
+    QuerySchemaValidator(GetUploadHistoryOptionsSchema),
+    async (req, res: ParsedQueryResponse<GetUploadHistoryOptions>, next) => {
         log.info('(getUploadHandler)');
 
         try {
-            const uploads = await uploadApi.getUploads();
+            const { uploads, recordCount } = await uploadApi.getUploads(res.locals.parsedQuery);
             res.status(200);
+            res.setHeader('count', uploads.length);
+            res.setHeader('total', recordCount);
             res.json(uploads);
         } catch (err) {
             log.error(err, 'getUploadHandler');

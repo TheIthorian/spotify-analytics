@@ -10,7 +10,7 @@ export function QuerySchemaValidator<SchemaType extends z.ZodType>(schema: Schem
 
         if (!result.success) {
             const error = (result as z.SafeParseError<typeof req.query>).error;
-            log.error(error);
+            log.error(error, 'QuerySchemaValidator - validation failed');
             res.status(400);
             res.json(error);
         } else {
