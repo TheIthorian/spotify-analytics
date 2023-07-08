@@ -6,10 +6,10 @@ const log = makeLogger(module);
 
 export function QuerySchemaValidator<SchemaType extends z.ZodType>(schema: SchemaType): RequestHandler {
     return function schemaValidation(req, res, next) {
-        const result = schema.safeParse(req.query);
+        const result = validateData(schema, req.query);
 
         if (!result.success) {
-            const error = (result as z.SafeParseError<typeof req.query>).error;
+            const error = result.error;
             log.error(error, 'QuerySchemaValidator - validation failed');
             res.status(400);
             res.json(error);
