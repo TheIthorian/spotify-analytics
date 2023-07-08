@@ -2,6 +2,7 @@ import * as express from 'express';
 import { createServer, Server } from 'http';
 import * as fileUpload from 'express-fileupload';
 import * as expressStatusMonitor from 'express-status-monitor';
+import * as bodyParser from 'body-parser';
 
 import initialiseRoutes from './routes';
 import { makeLogger, requestLogger } from './logger';
@@ -21,6 +22,14 @@ export function expressApp(port: number) {
     app.use(expressStatusMonitor()); // `/status` to see stats
 
     app.use(allowCrossDomain);
+
+    app.use(
+        bodyParser.urlencoded({
+            extended: true,
+        })
+    );
+
+    app.use(bodyParser.json());
 
     app.use(
         fileUpload({
