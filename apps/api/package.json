@@ -88,6 +88,8 @@
         "node-cache": "^5.1.2",
         "node-cron": "^3.0.2",
         "node-fetch": "^2.6.9",
+        "passport": "^0.6.0",
+        "passport-local": "^1.0.0",
         "pino": "^8.11.0",
         "pino-multi-stream": "^6.0.0",
         "prisma": "^4.12.0",
