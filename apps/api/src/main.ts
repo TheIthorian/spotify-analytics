@@ -10,6 +10,8 @@ import prisma from './prismaClient';
 import { allowCrossDomain } from './middleware/cors';
 import config from './config';
 import { errorHandler } from './middleware/errorHandlers';
+import * as passport from 'passport';
+import * as session from 'express-session';
 
 console.log({ config });
 
@@ -41,6 +43,31 @@ export function expressApp(port: number) {
             preserveExtension: 10,
         })
     );
+
+    app.use(
+        session({
+            secret: 'r8q,+&1LM3)CD*zAGpx1xm{NeQhc;#',
+            resave: false,
+            saveUninitialized: true,
+            cookie: { maxAge: 60 * 60 * 1000 }, // 1 hour
+        })
+    );
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+
+    passport.serializeUser(function (user, done) {
+        done(null, user);
+    });
+
+    passport.deserializeUser(function (userId, done) {
+        try {
+            const user = prisma.user.findUnique({ where: { id: userId as number } });
+            done(null, user);
+        } catch (err) {
+            done(err);
+        }
+    });
 
     app.use(initialiseRoutes());
 
