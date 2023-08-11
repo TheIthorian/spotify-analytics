@@ -16,7 +16,7 @@
         "allowJs": true,
         "noImplicitAny": false,
         "strict": true,
-        "strictNullChecks": false,
+        "strictNullChecks": true,
         "noErrorTruncation": true
     },
     "include": ["src/**/*"]

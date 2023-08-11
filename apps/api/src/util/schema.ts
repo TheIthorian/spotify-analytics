@@ -6,10 +6,10 @@ const log = makeLogger(module);
 
 export function QuerySchemaValidator<SchemaType extends z.ZodType>(schema: SchemaType): RequestHandler {
     return function schemaValidation(req, res, next) {
-        const result = schema.safeParse(req.query);
+        const result = validateData(schema, req.query ?? {});
 
         if (!result.success) {
-            const error = (result as z.SafeParseError<typeof req.query>).error;
+            const error = result.error;
             log.error(error, 'QuerySchemaValidator - validation failed');
             res.status(400);
             res.json(error);
@@ -19,6 +19,26 @@ export function QuerySchemaValidator<SchemaType extends z.ZodType>(schema: Schem
 
         next();
     };
+}
+
+type FailedValidationResult = { success: false; code: number; error: z.ZodError<z.ZodIssue> };
+type SuccessfulValidationResult<T> = { success: true; data: T };
+type ValidationResult<T> = FailedValidationResult | SuccessfulValidationResult<T>;
+export function validateData<SchemaType extends z.ZodType>(schema: SchemaType, data: unknown): ValidationResult<z.infer<SchemaType>> {
+    const result = schema.safeParse(data);
+
+    if (!result.success) {
+        const error = (result as z.SafeParseError<typeof data>).error;
+        log.error(error, 'QuerySchemaValidator - validation failed');
+
+        return {
+            success: false,
+            code: 400,
+            error,
+        };
+    }
+
+    return { success: true, data: result.data };
 }
 
 export function parseLimit(limit?: number, maxLimit = 100) {

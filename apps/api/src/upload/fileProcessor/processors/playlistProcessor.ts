@@ -6,7 +6,7 @@ export class PlaylistProcessor implements FileProcessor {
     private log: Logger;
 
     type = FileType.Playlist;
-    source: UploadFileQueue;
+    source?: UploadFileQueue;
 
     constructor(log: Logger) {
         this.log = log;

@@ -1,6 +1,6 @@
 import config from '../config';
 
-let memory = [];
+let memory: Record<string, any> = [];
 
 export function log(name: string, other: Record<string, any> = {}) {
     if (!config.includeMemLog) return;

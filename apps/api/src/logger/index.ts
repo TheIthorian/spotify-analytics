@@ -27,7 +27,7 @@ export function makeLogger(module: Module | undefined, level = DEFAULT_LEVEL): L
 
     let name = 'unknown';
     if (module?.filename) {
-        const modulePath = module.filename.split('\\apps\\api\\src\\').pop().split('\\');
+        const modulePath = module.filename?.split('\\apps\\api\\src\\')?.pop()?.split('\\') ?? [];
         name = `${modulePath.join(', ')}`;
     }
 

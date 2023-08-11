@@ -46,7 +46,7 @@ export async function saveFiles(files: UploadedFile | UploadedFile[] | (Uploaded
     };
 }
 
-async function saveFile(file: UploadedFile): Promise<Upload | void> {
+async function saveFile(file: UploadedFile): Promise<{ id: number; filename: string; status: Upload['status'] } | void> {
     const { name: filename, tempFilePath, mimetype, size, md5 } = file;
     log.info({ filename, mimetype, size, md5, tempFilePath }, `(${saveFile.name}) - Saving file`);
 
@@ -76,7 +76,7 @@ async function saveFile(file: UploadedFile): Promise<Upload | void> {
         },
     });
 
-    return upload;
+    return { id: upload.id, filename, status: upload.status };
 }
 
 export async function getUploadsById(ids: number[]): Promise<GetUploadResponseData> {

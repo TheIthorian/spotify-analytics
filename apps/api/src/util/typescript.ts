@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
@@ -8,6 +8,10 @@ export interface ParsedQueryResponse<T> extends Response {
 
 export interface ParsedBodyResponse<T> extends Response {
     locals: Record<string, any> & { parsedBody?: T };
+}
+
+export interface UserAwareRequest extends Request {
+    user?: number;
 }
 
 export function isType<T extends object>(item: object, fields: string[]): item is T {

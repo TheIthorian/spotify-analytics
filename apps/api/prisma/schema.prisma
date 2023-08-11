@@ -16,6 +16,10 @@ model User {
     username    String @unique
     displayName String
 
+    passwordHash String
+    passwordSalt String
+    token        String?
+
     UploadFileQueue     UploadFileQueue[]
     Playlist            Playlist[]
     PlaylistTrack       PlaylistTrack[]

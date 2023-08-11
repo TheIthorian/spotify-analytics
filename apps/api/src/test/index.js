@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const concurrently = require('concurrently');
 const dotEnv = require('dotenv');
+const { dropTestDatabase } = require('./testUtils/database');
 
 dotEnv.config();
 
 // prisma generate && concurrently \"npm run start:api\"  \"jest --config jest.json \" -s=\"last\"
 
 const DATABASE_URL = process.env.E2E_DATABASE_URL;
+
+dropTestDatabase();
 
 // https://dev.to/tylerlwsmith/exiting-node-js-when-programmatically-using-concurrently-to-run-multiple-scripts-1o78
 concurrently(

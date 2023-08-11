@@ -10,7 +10,7 @@ export class SimpleStreamHistoryProcessor implements FileProcessor {
     private log: Logger;
 
     type = FileType.SimpleStreamingHistory;
-    source: UploadFileQueue;
+    source?: UploadFileQueue;
 
     constructor(log: Logger) {
         this.log = log;
@@ -22,6 +22,7 @@ export class SimpleStreamHistoryProcessor implements FileProcessor {
 
     async process(validateFields = true) {
         this.log.info({ file: this.source }, `(${SimpleStreamHistoryProcessor.name}.${this.process.name}) - Processing upload file`);
+        if (!this.source) return;
         const filepath = this.source.filePath;
 
         try {
@@ -39,6 +40,7 @@ export class SimpleStreamHistoryProcessor implements FileProcessor {
 
     async processAsync(validateFields = true) {
         this.log.info({ file: this.source }, `(${SimpleStreamHistoryProcessor.name}.${this.process.name}) - Processing upload file`);
+        if (!this.source) return;
         const filepath = this.source.filePath;
 
         try {

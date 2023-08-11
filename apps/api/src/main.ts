@@ -1,6 +1,9 @@
 import * as express from 'express';
 import { createServer, Server } from 'http';
 import * as fileUpload from 'express-fileupload';
+import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
+
 import * as expressStatusMonitor from 'express-status-monitor';
 
 import initialiseRoutes from './routes';
@@ -8,6 +11,7 @@ import { makeLogger, requestLogger } from './logger';
 import prisma from './prismaClient';
 import { allowCrossDomain } from './middleware/cors';
 import config from './config';
+import { errorHandler } from './middleware/errorHandlers';
 
 console.log({ config });
 
@@ -23,6 +27,16 @@ export function expressApp(port: number) {
     app.use(allowCrossDomain);
 
     app.use(
+        bodyParser.urlencoded({
+            extended: true,
+        })
+    );
+
+    app.use(bodyParser.json());
+
+    app.use(cookieParser());
+
+    app.use(
         fileUpload({
             limits: { fileSize: config.maxUploadFileSize },
             safeFileNames: true,
@@ -33,6 +47,8 @@ export function expressApp(port: number) {
     );
 
     app.use(initialiseRoutes());
+
+    app.use(errorHandler());
 
     app.get('/', (req, res) => res.send('Hello'));
 

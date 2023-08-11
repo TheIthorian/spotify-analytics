@@ -16,6 +16,6 @@ describe('Health', () => {
     });
 
     it('/api/health (GET) - responds with ok', async () => {
-        await request(app).get('/api/health').expect(200).expect('ok').then();
+        await request(app).get('/api/health').expect(200).expect('ok');
     });
 });

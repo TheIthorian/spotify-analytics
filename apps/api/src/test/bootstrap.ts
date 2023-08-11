@@ -1,15 +1,14 @@
 import * as crypto from 'crypto';
 import prisma from '../prismaClient';
-import { USER } from './constants';
 
-export default async function setup() {
-    const username = USER.username;
-    const password = USER.password;
+export async function bootstrap() {
+    const username = 'test user';
+    const password = 'test password';
     const salt = 'test salt';
 
     const passwordHash = await hashPassword(password, salt);
 
-    await prisma.user.create({
+    const user = await prisma.user.create({
         data: {
             username,
             displayName: 'test user display name',
@@ -17,14 +16,16 @@ export default async function setup() {
             passwordSalt: salt,
         },
     });
+
+    return { user, password };
 }
 
 // TODO - move this to a util file
 const ITERATIONS = 100000;
 const KEYLEN = 64;
 
-async function hashPassword(password, salt) {
-    return new Promise((resolve, reject) => {
+async function hashPassword(password: string, salt: string) {
+    return new Promise<string>((resolve, reject) => {
         crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, 'sha512', (err, derivedKey) => {
             if (err) {
                 return reject(err);

@@ -29,7 +29,7 @@ export class StreamHistoryProcessor implements FileProcessor {
     private log: Logger;
 
     type = FileType.StreamingHistory;
-    source: UploadFileQueue;
+    source?: UploadFileQueue;
 
     constructor(log: Logger) {
         this.log = log;
@@ -44,6 +44,7 @@ export class StreamHistoryProcessor implements FileProcessor {
             { file: this.source, validateFields },
             `(${StreamHistoryProcessor.name}.${this.process.name}) - Processing upload file`
         );
+        if (!this.source) return;
         const filepath = this.source.filePath;
 
         try {
@@ -64,6 +65,7 @@ export class StreamHistoryProcessor implements FileProcessor {
             { file: this.source, validateFields },
             `(${StreamHistoryProcessor.name}.${this.process.name}) - Processing upload file`
         );
+        if (!this.source) return;
         const filepath = this.source.filePath;
 
         try {

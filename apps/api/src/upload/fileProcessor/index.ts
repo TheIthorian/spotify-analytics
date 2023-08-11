@@ -25,7 +25,7 @@ export function getFileProcessorType(filename: string): FileProcessor {
 
 class UnknownFile implements FileProcessor {
     type = FileType.Unknown;
-    source: UploadFileQueue;
+    source?: UploadFileQueue;
 
     setSource(source: UploadFileQueue) {
         this.source = source;
@@ -33,11 +33,15 @@ class UnknownFile implements FileProcessor {
 
     async process() {
         log.info({ file: this.source }, `${UnknownFile.name}.(${this.process.name}) - Processing upload file (stream)`);
+
+        if (!this.source) return;
         await setIgnored(this.source.id);
     }
 
     async processAsync() {
         log.info({ file: this.source }, `${UnknownFile.name}.(${this.process.name}) - Processing upload file (async)`);
+
+        if (!this.source) return;
         await setIgnored(this.source.id);
     }
 }

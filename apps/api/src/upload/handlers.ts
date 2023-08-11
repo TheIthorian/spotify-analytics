@@ -15,7 +15,7 @@ export const getUploadHandler: RequestHandler[] = [
         log.info('(getUploadHandler)');
 
         try {
-            const { uploads, recordCount } = await uploadApi.getUploads(res.locals.parsedQuery);
+            const { uploads, recordCount } = await uploadApi.getUploads(res.locals.parsedQuery ?? {});
             res.status(200);
             res.setHeader('count', uploads.length);
             res.setHeader('total', recordCount);
