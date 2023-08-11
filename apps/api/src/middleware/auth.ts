@@ -1,11 +1,5 @@
 import * as crypto from 'crypto';
 
-import * as passport from 'passport';
-import { Strategy as LocalStrategy } from 'passport-local';
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-
-import { VerifyFunction } from 'passport-local';
-
 import { makeLogger } from '../logger';
 import prisma from '../prismaClient';
 import { verifyToken } from '../auth/jwt';
@@ -65,13 +59,6 @@ export async function verifyUsernamePasswordAsync(username: string, password: st
     });
 }
 
-// export function sessionAuthenticate(req, res, next) {
-//     log.info('sessionAuthenticate ');
-//     return passport.authenticate('local', (err, user, info, status) => {
-//         log.info({ err, user, info, status }, 'sessionAuthenticate complete');
-//     });
-// }
-
 export async function tokenAuthenticate(token: string) {
     log.info('tokenAuthenticate - jwt: ' + token);
 
@@ -107,33 +94,3 @@ export function sessionAuthenticate() {
         }
     };
 }
-
-// passport.use(new LocalStrategy({ session: false }, verifyUsernamePassword));
-
-// passport.use(
-//     new JwtStrategy(
-//         {
-//             secretOrKey: 'secret',
-//             passReqToCallback: true,
-//             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-//         },
-//         async (req, payload, done) => {
-//             log.info({ payload }, 'jwt verify');
-
-//             prisma.user
-//                 .findFirst({ where: { id: payload.id } })
-//                 .then(user => {
-//                     if (user) {
-//                         req.user = user;
-//                         return done(null, user);
-//                     }
-
-//                     return done(null, false);
-//                 })
-//                 .catch(err => {
-//                     log.error({ err }, 'jwt verify');
-//                     return done(err, false);
-//                 });
-//         }
-//     )
-// );

@@ -43,33 +43,3 @@ export const loginHandler: RequestHandler[] = [
         next();
     },
 ];
-
-export const logoutHandler: RequestHandler[] = [
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            await api.logout('xxxxx');
-            res.status(202);
-            res.json();
-        } catch (err) {
-            log.error(err, 'logoutHandler');
-            return next(err);
-        }
-
-        next();
-    },
-];
-
-export const signupHandler: RequestHandler[] = [
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            await api.logout('xxxxx');
-            res.status(201);
-            res.json();
-        } catch (err) {
-            log.error(err, 'signupHandler');
-            return next(err);
-        }
-
-        next();
-    },
-];

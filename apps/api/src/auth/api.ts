@@ -30,6 +30,7 @@ export async function logout(session: string) {
 
     await tokenAuthenticate(session);
 
+    // TODO - fix this
     // await prisma.user.update({
     //     where: { token: session },
     //     data: { token: null },

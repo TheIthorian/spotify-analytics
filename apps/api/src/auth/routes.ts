@@ -1,9 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import expressPromiseRouter from 'express-promise-router';
-import * as passport from 'passport';
 import * as api from './api';
 import { makeLogger } from '../logger';
-import { verifyUsernamePasswordAsync } from '../middleware/auth';
 
 const log = makeLogger(module);
 
@@ -11,7 +9,6 @@ function init() {
     const router = expressPromiseRouter();
 
     router.post('/login', [
-        // passport.authenticate('local', { session: false }),
         async (req: Request, res: Response, next: NextFunction) => {
             log.info('login handler');
 
@@ -37,7 +34,12 @@ function init() {
         next();
     });
 
-    // router.post('/signup', signupHandler);
+    // router.post('/signup', [
+    //     async (req: Request, res: Response, next: NextFunction) => {
+    //         log.info('signup handler');
+    //         next();
+    //     },
+    // ]);
 
     return router;
 }
