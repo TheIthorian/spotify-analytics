@@ -45,7 +45,7 @@ export async function dequeueAllFiles(
 
         await Promise.all(
             uploads.map(async uploadFile => {
-                const fileProcessor = getFileProcessorType(uploadFile.filename);
+                const fileProcessor = getFileProcessorType(uploadFile.filename ?? '');
                 fileProcessor.setSource(uploadFile);
 
                 memLog.log('dequeueAllFiles', { fileId: uploadFile.id, filename: uploadFile.filename });
