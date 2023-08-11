@@ -24,7 +24,7 @@ async function enrichTracks() {
     );
 
     for (let i = 0; i < tracks.length; i++) {
-        tracks[i].spotifyTrackUri = spotifyTracks[i].tracks.items[0].id;
+        // tracks[i].spotifyTrackUri = spotifyTracks[i].tracks.items[0].id;
     }
 }
 

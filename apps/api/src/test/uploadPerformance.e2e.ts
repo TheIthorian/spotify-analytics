@@ -98,7 +98,7 @@ describe.skip('Upload performance', () => {
         'uploads and dequeues many large files',
         async () => {
             // Upload files
-            const runs = [];
+            const runs: Array<ReturnType<typeof getPerformanceLog>> = [];
 
             for (const readStrategy of readStrategyOptions) {
                 for (const batchSize of batchSizes) {
