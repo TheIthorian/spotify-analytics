@@ -72,28 +72,32 @@ export async function verifyUsernamePasswordAsync(username: string, password: st
 //     });
 // }
 
+export async function tokenAuthenticate(token: string) {
+    log.info('tokenAuthenticate - jwt: ' + token);
+
+    const verifiedToken = verifyToken(token);
+
+    if (!verifiedToken) {
+        throw Error('Invalid token');
+    }
+
+    const userId = verifiedToken.body['userId'];
+    const user = await prisma.user.findFirst({ where: { id: userId, token } });
+    return user;
+}
+
 export function sessionAuthenticate() {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-            log.info('sessionAuthenticate - jwt: ' + req.cookies.jwt);
-            const token = req.cookies.jwt;
-
-            const verifiedToken = verifyToken(token);
-
-            if (!verifiedToken) {
-                throw Error('Invalid token');
-            }
-
-            const userId = verifiedToken.body['userId'];
-
-            const user = await prisma.user.findFirst({ where: { id: userId, token } });
+            const user = await tokenAuthenticate(req.cookies.jwt);
 
             if (!user) {
                 res.status(401);
                 res.json({ message: 'Invalid token (user not found)' });
+                return next();
             }
 
-            req.user = userId;
+            req.user = user.id;
             next();
         } catch (error) {
             // TODO : Split by error type

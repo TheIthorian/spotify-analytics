@@ -1,6 +1,6 @@
 import { NotImplementedError } from 'spotify-analytics-errors';
 import { makeLogger } from '../logger';
-import { verifyUsernamePasswordAsync } from '../middleware/auth';
+import { tokenAuthenticate, verifyUsernamePasswordAsync } from '../middleware/auth';
 import { jwt } from './jwt';
 import prisma from '../prismaClient';
 
@@ -27,5 +27,11 @@ export async function login({ username, password }: LoginInputs) {
 
 export async function logout(session: string) {
     log.info({ session }, `(${logout.name})`);
-    throw new NotImplementedError(logout.name + ' not implemented');
+
+    await tokenAuthenticate(session);
+
+    // await prisma.user.update({
+    //     where: { token: session },
+    //     data: { token: null },
+    // });
 }

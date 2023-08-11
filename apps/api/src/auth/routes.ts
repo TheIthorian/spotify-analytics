@@ -24,7 +24,13 @@ function init() {
         },
     ]);
 
-    router.post('/logout', (req: Request, res: Response, next: NextFunction) => {
+    router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {
+        await api.logout(req.cookies.jwt).catch(err => {
+            log.error({ err }, 'logout error');
+            res.status(400);
+            res.json({ message: 'Unable to log out. Token not valid' });
+        });
+
         res.clearCookie('jwt');
         res.status(200);
         res.json({ message: 'Logged out' });
