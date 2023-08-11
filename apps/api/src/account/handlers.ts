@@ -1,15 +1,15 @@
-import { NextFunction, Request, RequestHandler, Response } from 'express';
-
+import { NextFunction, RequestHandler, Response } from 'express';
 import { makeLogger } from '../logger';
 import * as api from './api';
+import { UserAwareRequest } from '../util/typescript';
 
 const log = makeLogger(module);
 
 export const getUserDetailsHandler: RequestHandler[] = [
-    async (req: Request, res: Response, next: NextFunction) => {
-        log.info('getUserDetailsHandler - userId: ' + req.user);
+    async (req: UserAwareRequest, res: Response, next: NextFunction) => {
+        const userId = req.user!;
+        log.info('getUserDetailsHandler - userId: ' + userId);
 
-        const userId = req.user as number;
         try {
             const userDetails = await api.getUserDetails(userId);
 
