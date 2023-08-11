@@ -18,6 +18,7 @@ model User {
 
     passwordHash String
     passwordSalt String
+    token        String?
 
     UploadFileQueue     UploadFileQueue[]
     Playlist            Playlist[]

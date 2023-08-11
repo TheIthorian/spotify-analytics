@@ -33,8 +33,6 @@ export const loginHandler: RequestHandler[] = [
             }
 
             await api.login(parsedBody.data);
-
-            res.cookie('session-id', 'xxxxx');
             res.status(201);
             res.json();
         } catch (err) {

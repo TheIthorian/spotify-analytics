@@ -2,6 +2,8 @@ import * as express from 'express';
 import { createServer, Server } from 'http';
 import * as fileUpload from 'express-fileupload';
 import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
+
 import * as expressStatusMonitor from 'express-status-monitor';
 
 import initialiseRoutes from './routes';
@@ -34,6 +36,8 @@ export function expressApp(port: number) {
 
     app.use(bodyParser.json());
 
+    app.use(cookieParser());
+
     app.use(
         fileUpload({
             limits: { fileSize: config.maxUploadFileSize },
@@ -44,30 +48,30 @@ export function expressApp(port: number) {
         })
     );
 
-    app.use(
-        session({
-            secret: 'r8q,+&1LM3)CD*zAGpx1xm{NeQhc;#',
-            resave: false,
-            saveUninitialized: true,
-            cookie: { maxAge: 60 * 60 * 1000 }, // 1 hour
-        })
-    );
+    // app.use(
+    //     session({
+    //         secret: 'r8q,+&1LM3)CD*zAGpx1xm{NeQhc;1',
+    //         resave: false,
+    //         saveUninitialized: true,
+    //         cookie: { maxAge: 60 * 1000 }, // 1 min
+    //     })
+    // );
 
-    app.use(passport.initialize());
-    app.use(passport.session());
+    // app.use(passport.initialize());
+    // app.use(passport.session());
 
-    passport.serializeUser(function (user, done) {
-        done(null, user);
-    });
+    // passport.serializeUser(function (user, done) {
+    //     done(null, user);
+    // });
 
-    passport.deserializeUser(function (userId, done) {
-        try {
-            const user = prisma.user.findUnique({ where: { id: userId as number } });
-            done(null, user);
-        } catch (err) {
-            done(err);
-        }
-    });
+    // passport.deserializeUser(function (userId, done) {
+    //     try {
+    //         const user = prisma.user.findUnique({ where: { id: userId as number } });
+    //         done(null, user);
+    //     } catch (err) {
+    //         done(err);
+    //     }
+    // });
 
     app.use(initialiseRoutes());
 
