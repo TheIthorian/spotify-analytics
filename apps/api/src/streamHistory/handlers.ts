@@ -11,6 +11,7 @@ import * as api from './api';
 import { ParsedQueryResponse } from '../util/typescript';
 import { QuerySchemaValidator } from '../util/schema';
 import { cache } from '../util/cache';
+import { assertUserAwareRequest } from '../middleware/auth';
 
 const log = makeLogger(module);
 
@@ -18,9 +19,10 @@ export const getHistoryHandler: RequestHandler[] = [
     QuerySchemaValidator(GetStreamHistoryOptionsSchema),
     async (req: Request, res: ParsedQueryResponse<GetStreamHistoryOptions>, next: NextFunction) => {
         log.info({ url: req.url }, '(getStreamHistoryHandler)');
+        assertUserAwareRequest(req);
 
         try {
-            const { streamHistory, recordCount } = await api.getStreamHistory(res.locals.parsedQuery ?? {});
+            const { streamHistory, recordCount } = await api.getStreamHistory(req.user, res.locals.parsedQuery ?? {});
 
             res.status(200);
             res.setHeader('count', streamHistory.length);
@@ -39,9 +41,10 @@ export const getTopArtistHandler: RequestHandler[] = [
     QuerySchemaValidator(GetTopArtistsOptionsSchema),
     async (req: Request, res: ParsedQueryResponse<GetTopArtistsOptions>, next: NextFunction) => {
         log.info({ url: req.url }, '(getTopArtistHandler)');
+        assertUserAwareRequest(req);
 
         try {
-            const topArtists = await api.getTopArtist(res.locals.parsedQuery ?? {});
+            const topArtists = await api.getTopArtist(req.user, res.locals.parsedQuery ?? {});
 
             res.status(200);
             res.json(topArtists);
@@ -57,10 +60,10 @@ export const getTopArtistHandler: RequestHandler[] = [
 export const getStatsHandler: RequestHandler[] = [
     async (req: Request, res: Response, next: NextFunction) => {
         log.info({ url: req.url }, '(getStatsHandler)');
+        assertUserAwareRequest(req);
 
         try {
-            const getStats = cache(api.getStats);
-            const stats = await getStats();
+            const stats = await cache(api.getStats)(req.user);
 
             res.status(200);
             res.json(stats);

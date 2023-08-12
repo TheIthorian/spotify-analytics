@@ -34,12 +34,16 @@ function init() {
         next();
     });
 
-    // router.post('/signup', [
-    //     async (req: Request, res: Response, next: NextFunction) => {
-    //         log.info('signup handler');
-    //         next();
-    //     },
-    // ]);
+    // TODO - add schema validation
+    router.post('/signup', [
+        async (req: Request, res: Response, next: NextFunction) => {
+            log.info('signup handler');
+            const user = await api.signup(req.body);
+            res.status(200);
+            res.json({ message: 'Signed up', user });
+            next();
+        },
+    ]);
 
     return router;
 }

@@ -51,7 +51,7 @@ export class StreamHistoryProcessor implements FileProcessor {
             await readJsonWithStream<JsonStreamHistoryRecord>(filepath, {
                 validationFields: StreamHistoryProcessor.validationFields,
                 validateFields,
-                onData: async data => await insertStreamHistory([data]),
+                onData: async data => await insertStreamHistory(this.source!.userId, [data]),
             });
             await setComplete(this.source.id);
         } catch (err) {
@@ -74,7 +74,7 @@ export class StreamHistoryProcessor implements FileProcessor {
                 validateFields,
             });
 
-            await insertStreamHistory(data);
+            await insertStreamHistory(this.source.userId, data);
 
             await setComplete(this.source.id);
         } catch (err) {

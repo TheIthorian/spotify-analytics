@@ -23,9 +23,12 @@ const log = makeLogger(module);
  * @param files - files to be saved
  * @returns the uploads that may be processed
  */
-export async function saveFiles(files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]): Promise<PostUploadResponseData> {
+export async function saveFiles(
+    userId: number,
+    files: UploadedFile | UploadedFile[] | (UploadedFile | UploadedFile[])[]
+): Promise<PostUploadResponseData> {
     const filesArray = [files].flat(3);
-    const uploads = await Promise.all(filesArray.map(async file => await saveFile(file)));
+    const uploads = await Promise.all(filesArray.map(async file => await saveFile(userId, file)));
     log.info(uploads, 'Finished uploading files');
 
     const duplicates: string[] = [];
@@ -41,12 +44,12 @@ export async function saveFiles(files: UploadedFile | UploadedFile[] | (Uploaded
     }
 
     return {
-        uploads: await getUploadsById(uploadIds),
+        uploads: await getUploadsById(userId, uploadIds),
         duplicates,
     };
 }
 
-async function saveFile(file: UploadedFile): Promise<{ id: number; filename: string; status: Upload['status'] } | void> {
+async function saveFile(userId: number, file: UploadedFile): Promise<{ id: number; filename: string; status: Upload['status'] } | void> {
     const { name: filename, tempFilePath, mimetype, size, md5 } = file;
     log.info({ filename, mimetype, size, md5, tempFilePath }, `(${saveFile.name}) - Saving file`);
 
@@ -72,14 +75,14 @@ async function saveFile(file: UploadedFile): Promise<{ id: number; filename: str
             size,
             md5,
             uploadDate: new Date(),
-            userId: 1,
+            userId,
         },
     });
 
     return { id: upload.id, filename, status: upload.status };
 }
 
-export async function getUploadsById(ids: number[]): Promise<GetUploadResponseData> {
+export async function getUploadsById(userId: number, ids: number[]): Promise<GetUploadResponseData> {
     const uploads = await prisma.uploadFileQueue.findMany({
         select: {
             id: true,
@@ -92,7 +95,7 @@ export async function getUploadsById(ids: number[]): Promise<GetUploadResponseDa
         },
         take: 100,
         orderBy: { id: 'desc' },
-        where: { id: { in: ids } },
+        where: { id: { in: ids }, userId },
     });
 
     for (const upload of uploads) {
@@ -105,7 +108,10 @@ export async function getUploadsById(ids: number[]): Promise<GetUploadResponseDa
 /**
  * Gets all uploads with the given ids. If no ids are given, the last 100 uploads are returned.
  */
-export async function getUploads(options: GetUploadHistoryOptions): Promise<{
+export async function getUploads(
+    userId: number,
+    options: GetUploadHistoryOptions
+): Promise<{
     uploads: GetUploadResponseData;
     recordCount: number;
 }> {
@@ -119,12 +125,13 @@ export async function getUploads(options: GetUploadHistoryOptions): Promise<{
             md5: true,
             uploadDate: true,
         },
+        where: { userId },
         orderBy: { uploadDate: 'desc' },
     };
 
     if (options.dateFrom || options.dateTo) {
         const dateFilter: { gte?: Date; lte?: Date } = {};
-        selector.where = { uploadDate: dateFilter };
+        selector.where!.uploadDate = dateFilter;
         if (options.dateFrom) dateFilter.gte = options.dateFrom;
         if (options.dateTo) dateFilter.lte = options.dateTo;
     }
@@ -136,7 +143,10 @@ export async function getUploads(options: GetUploadHistoryOptions): Promise<{
 
     log.debug({ selector }, `(${getUploads.name}) - selector`);
 
-    const [uploads, recordCount] = await Promise.all([prisma.uploadFileQueue.findMany(selector), prisma.uploadFileQueue.count()]);
+    const [uploads, recordCount] = await Promise.all([
+        prisma.uploadFileQueue.findMany(selector),
+        prisma.uploadFileQueue.count({ where: { userId } }),
+    ]);
 
     for (const upload of uploads) {
         upload.status = STATUS_BY_ID[upload.status];

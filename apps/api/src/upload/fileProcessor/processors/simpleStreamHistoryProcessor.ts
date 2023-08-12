@@ -29,7 +29,7 @@ export class SimpleStreamHistoryProcessor implements FileProcessor {
             await readJsonWithStream<SimpleStreamHistory>(filepath, {
                 validationFields: SimpleStreamHistoryProcessor.validationFields,
                 validateFields,
-                onData: data => insertSimpleHistory([data]),
+                onData: data => insertSimpleHistory(this.source!.userId, [data]),
             });
             await setComplete(this.source.id);
         } catch (err) {
@@ -48,7 +48,7 @@ export class SimpleStreamHistoryProcessor implements FileProcessor {
                 validationFields: SimpleStreamHistoryProcessor.validationFields,
                 validateFields,
             });
-            await insertSimpleHistory(data);
+            await insertSimpleHistory(this.source.userId, data);
             await setComplete(this.source.id);
         } catch (err) {
             this.log.error(err, 'Error creating simple streaming history');

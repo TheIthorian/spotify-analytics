@@ -11,7 +11,7 @@ export interface ParsedBodyResponse<T> extends Response {
 }
 
 export interface UserAwareRequest extends Request {
-    user?: number;
+    user: number;
 }
 
 export function isType<T extends object>(item: object, fields: string[]): item is T {

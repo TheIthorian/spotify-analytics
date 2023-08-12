@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import { makeLogger } from '../logger';
 import prisma from '../prismaClient';
 import { verifyToken } from '../auth/jwt';
-import { NextFunction, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { User } from '@prisma/client';
 import { UserAwareRequest } from '../util/typescript';
 
@@ -11,6 +11,32 @@ const log = makeLogger(module);
 
 const ITERATIONS = 100000;
 const KEYLEN = 64;
+
+export function generateSalt(): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        crypto.randomBytes(KEYLEN, (err, salt) => {
+            if (err) {
+                log.error({ err }, `(${generateSalt.name}) - error generating salt`);
+                return reject(err);
+            }
+
+            return resolve(salt.toString('hex'));
+        });
+    });
+}
+
+export function hashPassword(password: string, salt: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, 'sha512', (err, derivedKey) => {
+            if (err) {
+                log.error({ err }, `(${hashPassword.name}) - error hashing`);
+                return reject(err);
+            }
+
+            return resolve(derivedKey.toString('hex'));
+        });
+    });
+}
 
 export function verifyUsernamePassword(username, password, done) {
     log.info({ username, password }, `(${verifyUsernamePassword.name})`);
@@ -79,7 +105,7 @@ export async function tokenAuthenticate(token: string) {
 }
 
 export function sessionAuthenticate() {
-    return async (req: UserAwareRequest, res: Response, next: NextFunction) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = await tokenAuthenticate(req.cookies.jwt);
 
@@ -89,7 +115,8 @@ export function sessionAuthenticate() {
                 return next();
             }
 
-            req.user = user?.id;
+            const userReq = req as UserAwareRequest;
+            userReq.user = user?.id;
             next();
         } catch (error) {
             // TODO : Split by error type
@@ -98,4 +125,10 @@ export function sessionAuthenticate() {
             res.json({ message: 'Invalid token' });
         }
     };
+}
+
+export function assertUserAwareRequest(req: Request): asserts req is UserAwareRequest {
+    if (!('user' in req) || !req.user) {
+        throw new Error('UserAwareRequest is not UserAwareRequest');
+    }
 }

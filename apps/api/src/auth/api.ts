@@ -1,6 +1,6 @@
 import { NotImplementedError } from 'spotify-analytics-errors';
 import { makeLogger } from '../logger';
-import { tokenAuthenticate, verifyUsernamePasswordAsync } from '../middleware/auth';
+import { generateSalt, hashPassword, tokenAuthenticate, verifyUsernamePasswordAsync } from '../middleware/auth';
 import { jwt } from './jwt';
 import prisma from '../prismaClient';
 
@@ -35,4 +35,20 @@ export async function logout(session: string) {
     //     where: { token: session },
     //     data: { token: null },
     // });
+}
+
+export async function signup({ username, password }: LoginInputs) {
+    log.info(`(${signup.name})`);
+
+    const passwordSalt = await generateSalt();
+    const passwordHash = await hashPassword(password, passwordSalt);
+
+    return await prisma.user.create({
+        data: {
+            username,
+            displayName: username,
+            passwordSalt,
+            passwordHash,
+        },
+    });
 }
