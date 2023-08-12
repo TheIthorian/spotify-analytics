@@ -10,7 +10,6 @@ function initRoutes() {
 function getHealthHandler(req: Request, res: Response, next: NextFunction) {
     res.status(200);
     res.send('ok');
-    next();
 }
 
 module.exports = initRoutes();
