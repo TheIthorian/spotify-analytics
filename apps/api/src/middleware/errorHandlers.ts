@@ -9,6 +9,10 @@ export function errorHandler() {
         log.error(error);
 
         if (error instanceof AppError) {
+            if (error.logError) {
+                log.error({ name: error.name, message: error.message, data: error.data }, 'AppError');
+            }
+
             res.status(error.status);
             res.json(error.toJson());
             return next();

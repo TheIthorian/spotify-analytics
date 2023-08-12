@@ -8,24 +8,22 @@ const log = makeLogger(module);
 function init() {
     const router = expressPromiseRouter();
 
-    router.post('/login', [
-        async (req: Request, res: Response, next: NextFunction) => {
-            log.info('login handler');
+    router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+        log.info('login handler');
 
-            const token = await api.login(req.body);
+        const token = await api.login(req.body);
 
-            res.cookie('jwt', token.compact(), { httpOnly: true, secure: true });
-            res.status(200);
-            res.json({ message: 'Logged in' });
-            next();
-        },
-    ]);
+        res.cookie('jwt', token.compact(), { httpOnly: true, secure: true });
+        res.status(200);
+        res.json({ message: 'Logged in' });
+        next();
+    });
 
     router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {
-        await api.logout(req.cookies.jwt).catch(err => {
-            log.error({ err }, 'logout error');
-            res.status(400);
-            res.json({ message: 'Unable to log out. Token not valid' });
+        await api.logout(req.cookies.jwt).catch(error => {
+            log.error({ error }, 'logout error');
+            res.clearCookie('jwt');
+            throw error;
         });
 
         res.clearCookie('jwt');
@@ -35,15 +33,13 @@ function init() {
     });
 
     // TODO - add schema validation
-    router.post('/signup', [
-        async (req: Request, res: Response, next: NextFunction) => {
-            log.info('signup handler');
-            const user = await api.signup(req.body);
-            res.status(200);
-            res.json({ message: 'Signed up', user });
-            next();
-        },
-    ]);
+    router.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
+        log.info('signup handler');
+        const user = await api.signup(req.body);
+        res.status(200);
+        res.json({ message: 'Signed up', user });
+        next();
+    });
 
     return router;
 }

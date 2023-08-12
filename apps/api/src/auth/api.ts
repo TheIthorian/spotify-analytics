@@ -1,8 +1,9 @@
 import { NotImplementedError } from 'spotify-analytics-errors';
 import { makeLogger } from '../logger';
-import { generateSalt, hashPassword, tokenAuthenticate, verifyUsernamePasswordAsync } from '../middleware/auth';
+import { tokenAuthenticate } from '../middleware/auth';
 import { jwt } from './jwt';
 import prisma from '../prismaClient';
+import { generateSalt, hashPassword, verifyUsernamePassword } from './crypto';
 
 const log = makeLogger(module);
 
@@ -13,8 +14,7 @@ export async function webFlowLogin(provider: string) {
 
 export type LoginInputs = { username: string; password: string };
 export async function login({ username, password }: LoginInputs) {
-    const user = await verifyUsernamePasswordAsync(username, password);
-
+    const user = await verifyUsernamePassword(username, password);
     const token = await jwt({ userId: user.id, permission: 'user' });
 
     await prisma.user.update({

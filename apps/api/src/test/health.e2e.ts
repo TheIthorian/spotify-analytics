@@ -15,7 +15,7 @@ describe('Health', () => {
         await stop(server);
     });
 
-    it('/api/health (GET) - responds with ok', async () => {
-        await request(app).get('/api/health').expect(200).expect('ok');
+    it('/status/health (GET) - responds with ok', async () => {
+        await request(app).get('/status/health').expect(200).expect('ok');
     });
 });

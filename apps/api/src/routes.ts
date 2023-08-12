@@ -9,7 +9,7 @@ export default function initialiseRoutes() {
     const router = express.Router();
 
     router.use('/auth/', require('./auth/routes'));
-    router.use('/api/', require('./health'));
+    router.use('/status/', require('./health'));
 
     router.use('/api/', sessionAuthenticate());
 

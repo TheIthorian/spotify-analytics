@@ -3,6 +3,7 @@ import * as secureRandom from 'secure-random';
 
 import config from '../config';
 import { makeLogger } from '../logger';
+import { TokenError } from 'spotify-analytics-errors';
 
 const log = makeLogger(module);
 
@@ -30,5 +31,10 @@ export function verifyToken(token: string) {
         throw new Error('No token provided');
     }
 
-    return verify(token, signingKey);
+    try {
+        return verify(token, signingKey);
+    } catch (error) {
+        log.error({ error }, 'verifyToken');
+        throw new TokenError('Invalid token');
+    }
 }
