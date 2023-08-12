@@ -12,6 +12,32 @@ const log = makeLogger(module);
 const ITERATIONS = 100000;
 const KEYLEN = 64;
 
+export function generateSalt(): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        crypto.randomBytes(KEYLEN, (err, salt) => {
+            if (err) {
+                log.error({ err }, `(${generateSalt.name}) - error generating salt`);
+                return reject(err);
+            }
+
+            return resolve(salt.toString('hex'));
+        });
+    });
+}
+
+export function hashPassword(password: string, salt: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, 'sha512', (err, derivedKey) => {
+            if (err) {
+                log.error({ err }, `(${hashPassword.name}) - error hashing`);
+                return reject(err);
+            }
+
+            return resolve(derivedKey.toString('hex'));
+        });
+    });
+}
+
 export function verifyUsernamePassword(username, password, done) {
     log.info({ username, password }, `(${verifyUsernamePassword.name})`);
 
