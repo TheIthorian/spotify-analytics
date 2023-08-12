@@ -35,6 +35,8 @@ const streamHistoryFileData = [
 const STREAM_HISTORY_PATH = __dirname + '/assets/StreamingHistory.json';
 
 describe('upload api', () => {
+    const userId = 1;
+
     beforeAll(() => {
         writeFileSync(STREAM_HISTORY_PATH, JSON.stringify(streamHistoryFileData), { flag: 'w' });
     });
@@ -59,7 +61,7 @@ describe('upload api', () => {
             prismaMock.uploadFileQueue.findMany.mockResolvedValue([{ id: 1, status: 0 }]);
 
             // When
-            await saveFiles(fileToUpload);
+            await saveFiles(userId, fileToUpload);
 
             // Then
             expect(prismaMock.uploadFileQueue.create).toHaveBeenCalledWith({
@@ -71,7 +73,7 @@ describe('upload api', () => {
                     size: fileToUpload.size,
                     md5: fileToUpload.md5,
                     uploadDate: expect.any(Date),
-                    userId: 1,
+                    userId,
                 },
             });
         });
@@ -82,7 +84,7 @@ describe('upload api', () => {
             prismaMock.uploadFileQueue.findMany.mockResolvedValue([{ id: 1, status: 0 }]);
 
             // When
-            await saveFiles(fileToUpload);
+            await saveFiles(userId, fileToUpload);
 
             // Then
             expect(prismaMock.uploadFileQueue.create).not.toHaveBeenCalled();
@@ -98,7 +100,7 @@ describe('upload api', () => {
         });
 
         it('finds all uploads', async () => {
-            const { uploads, recordCount } = await getUploads({});
+            const { uploads, recordCount } = await getUploads(userId, {});
 
             expect(uploads).toStrictEqual([{ id: 1, status: 'waiting' }]);
             expect(recordCount).toBe(1);
@@ -120,7 +122,7 @@ describe('upload api', () => {
                 limit: 10,
                 offset: 1,
             };
-            const { uploads, recordCount } = await getUploads(options);
+            const { uploads, recordCount } = await getUploads(userId, options);
 
             expect(uploads).toStrictEqual([{ id: 1, status: 'waiting' }]);
             expect(recordCount).toBe(1);
@@ -133,6 +135,7 @@ describe('upload api', () => {
                             gte: options.dateFrom,
                             lte: options.dateTo,
                         },
+                        userId,
                     },
                     take: 10,
                     skip: 10,

@@ -63,6 +63,8 @@ const STREAM_HISTORY_PATH = __dirname + '/assets/StreamingHistory_dequeueAllFile
 const BROKEN_STREAM_HISTORY_PATH = __dirname + '/assets/BrokenStreamingHistory_dequeueAllFiles_test.json';
 
 describe('dequeueAllFiles', () => {
+    const userId = 1;
+
     beforeAll(() => {
         writeFileSync(STREAM_HISTORY_PATH, JSON.stringify(streamHistoryFileData), { flag: 'w' });
         writeFileSync(BROKEN_STREAM_HISTORY_PATH, JSON.stringify(brokenStreamHistoryFileData), { flag: 'w' });
@@ -83,6 +85,7 @@ describe('dequeueAllFiles', () => {
                 mimetype: 'application/json',
                 size: 100,
                 md5: hashMd5(JSON.stringify(streamHistoryFileData)),
+                userId,
             },
         ];
 
@@ -124,7 +127,7 @@ describe('dequeueAllFiles', () => {
                 reasonStart: 'appload',
                 reasonEnd: 'appload',
                 incognitoMode: false,
-                userId: 1,
+                userId,
             },
         });
 
@@ -145,6 +148,7 @@ describe('dequeueAllFiles', () => {
                 mimetype: 'application/json',
                 size: 100,
                 md5: hashMd5(JSON.stringify(brokenStreamHistoryFileData)),
+                userId,
             },
         ];
         prismaMock.uploadFileQueue.findMany.mockResolvedValue(fileUploadQueue);

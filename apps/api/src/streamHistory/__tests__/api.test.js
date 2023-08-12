@@ -3,6 +3,8 @@ import { getStreamHistory, getTopArtist } from '../api';
 import { generateStreamHistories } from '../../test/testUtils/recordGenerator';
 
 describe('stream history api', () => {
+    const userId = 1;
+
     describe('getStreamHistory', () => {
         const totalRecords = 109;
         const queryResult = generateStreamHistories({ isSong: true }, 1);
@@ -14,13 +16,14 @@ describe('stream history api', () => {
         });
 
         it('Finds the latest stream history items using query defaults', async () => {
-            const result = await getStreamHistory({});
+            const result = await getStreamHistory(userId, {});
 
             expect(prismaMock.streamHistory.findMany).toHaveBeenCalledTimes(1);
             expect(prismaMock.streamHistory.findMany).toHaveBeenCalledWith({
                 skip: 0,
                 take: 10,
                 orderBy: { datePlayed: 'desc' },
+                where: { userId },
             });
 
             expect(result).toStrictEqual({ streamHistory: queryResult, recordCount: totalRecords });
@@ -32,7 +35,7 @@ describe('stream history api', () => {
             const dateTo = new Date(2023, 0, 1);
 
             // When
-            await getStreamHistory({
+            await getStreamHistory(userId, {
                 dateFrom,
                 dateTo,
                 limit: 10,
@@ -42,7 +45,7 @@ describe('stream history api', () => {
             // Then
             expect(prismaMock.streamHistory.findMany).toHaveBeenCalledTimes(1);
             expect(prismaMock.streamHistory.findMany).toHaveBeenCalledWith({
-                where: { datePlayed: { gte: dateFrom, lte: dateTo } },
+                where: { datePlayed: { gte: dateFrom, lte: dateTo }, userId },
                 skip: 10 * 2,
                 take: 10,
                 orderBy: { datePlayed: 'desc' },
@@ -50,7 +53,7 @@ describe('stream history api', () => {
         });
 
         it('Has the max limit as 100', async () => {
-            await getStreamHistory({
+            await getStreamHistory(userId, {
                 limit: 1000,
             });
 
@@ -71,7 +74,7 @@ describe('stream history api', () => {
         });
 
         it('finds all uploads by time played', async () => {
-            const result = await getTopArtist({});
+            const result = await getTopArtist(userId, {});
 
             expect(result).toStrictEqual([
                 { count: 1000, name: 'ABC' },
@@ -85,7 +88,7 @@ describe('stream history api', () => {
             const dateTo = new Date(2023, 0, 1);
 
             // When
-            await getTopArtist({
+            await getTopArtist(userId, {
                 dateFrom,
                 dateTo,
             });
@@ -95,7 +98,7 @@ describe('stream history api', () => {
             expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledWith({
                 by: ['artistName'],
                 _count: { id: true }, // defaults to count
-                where: { datePlayed: { gte: dateFrom, lte: dateTo }, isSong: true },
+                where: { datePlayed: { gte: dateFrom, lte: dateTo }, isSong: true, userId },
                 orderBy: {
                     _count: { id: 'desc' },
                 },
@@ -111,7 +114,7 @@ describe('stream history api', () => {
 
             prismaMock.streamHistory.groupBy.mockResolvedValue(queryResult);
 
-            await getTopArtist({
+            await getTopArtist(userId, {
                 groupBy: 'timePlayed',
                 limit: 20,
             });
@@ -120,7 +123,7 @@ describe('stream history api', () => {
             expect(prismaMock.streamHistory.groupBy).toHaveBeenCalledWith({
                 by: ['artistName'],
                 _sum: { msPlayed: true },
-                where: { isSong: true },
+                where: { isSong: true, userId },
                 orderBy: {
                     _sum: { msPlayed: 'desc' },
                 },
@@ -129,7 +132,7 @@ describe('stream history api', () => {
         });
 
         it('Has the max limit as 100', async () => {
-            await getTopArtist({
+            await getTopArtist(userId, {
                 limit: 1000,
             });
 
