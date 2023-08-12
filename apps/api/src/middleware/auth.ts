@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import { makeLogger } from '../logger';
 import prisma from '../prismaClient';
 import { verifyToken } from '../auth/jwt';
-import { NextFunction, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { User } from '@prisma/client';
 import { UserAwareRequest } from '../util/typescript';
 
@@ -79,7 +79,7 @@ export async function tokenAuthenticate(token: string) {
 }
 
 export function sessionAuthenticate() {
-    return async (req: UserAwareRequest, res: Response, next: NextFunction) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = await tokenAuthenticate(req.cookies.jwt);
 
@@ -89,7 +89,8 @@ export function sessionAuthenticate() {
                 return next();
             }
 
-            req.user = user?.id;
+            const userReq = req as UserAwareRequest;
+            userReq.user = user?.id;
             next();
         } catch (error) {
             // TODO : Split by error type
@@ -98,4 +99,10 @@ export function sessionAuthenticate() {
             res.json({ message: 'Invalid token' });
         }
     };
+}
+
+export function assertUserAwareRequest(req: Request): asserts req is UserAwareRequest {
+    if (!('user' in req) || !req.user) {
+        throw new Error('UserAwareRequest is not UserAwareRequest');
+    }
 }

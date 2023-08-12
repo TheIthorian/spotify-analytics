@@ -10,8 +10,8 @@ export async function getUserDetails(userId: number): Promise<GetUserDetailsResp
     log.info({ userId }, `(${getUserDetails.name})`);
 
     const [streamHistory, upload, userDetails] = await Promise.all([
-        prisma.streamHistory.findFirst({ where: { id: userId } }),
-        prisma.uploadFileQueue.findFirst({ where: { id: userId } }),
+        prisma.streamHistory.findFirst({ where: { userId } }),
+        prisma.uploadFileQueue.findFirst({ where: { userId } }),
         prisma.user.findFirst({
             select: {
                 id: true,

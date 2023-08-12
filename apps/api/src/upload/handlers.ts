@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express';
+import { Request, RequestHandler } from 'express';
 import { GetUploadHistoryOptions, GetUploadHistoryOptionsSchema } from 'spotify-analytics-types';
 
 import { makeLogger } from '../logger';
@@ -6,16 +6,18 @@ import { QuerySchemaValidator } from '../util/schema';
 
 import * as uploadApi from './api';
 import { ParsedQueryResponse } from 'util/typescript';
+import { assertUserAwareRequest } from '../middleware/auth';
 
 const log = makeLogger(module);
 
 export const getUploadHandler: RequestHandler[] = [
     QuerySchemaValidator(GetUploadHistoryOptionsSchema),
-    async (req, res: ParsedQueryResponse<GetUploadHistoryOptions>, next) => {
+    async (req: Request, res: ParsedQueryResponse<GetUploadHistoryOptions>, next) => {
         log.info('(getUploadHandler)');
+        assertUserAwareRequest(req);
 
         try {
-            const { uploads, recordCount } = await uploadApi.getUploads(res.locals.parsedQuery ?? {});
+            const { uploads, recordCount } = await uploadApi.getUploads(req.user, res.locals.parsedQuery ?? {});
             res.status(200);
             res.setHeader('count', uploads.length);
             res.setHeader('total', recordCount);
@@ -30,8 +32,9 @@ export const getUploadHandler: RequestHandler[] = [
 ];
 
 export const postUploadHandler: RequestHandler[] = [
-    async (req, res, next) => {
+    async (req: Request, res, next) => {
         log.info(`(postUploadHandler)`);
+        assertUserAwareRequest(req);
 
         if (!req.files || !Object.keys(req.files).length) {
             res.status(400);
@@ -41,7 +44,7 @@ export const postUploadHandler: RequestHandler[] = [
 
         try {
             const allFiles = Object.values(req.files);
-            const data = await uploadApi.saveFiles(allFiles);
+            const data = await uploadApi.saveFiles(req.user, allFiles);
             res.status(200);
             res.json(data);
         } catch (err) {

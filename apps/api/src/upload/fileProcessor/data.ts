@@ -33,7 +33,7 @@ export async function setIgnored(id: number) {
         .catch(err => log.error({ err, id }, 'Error marking file as ignored'));
 }
 
-export async function insertSimpleHistory(history: SimpleStreamHistory[]) {
+export async function insertSimpleHistory(userId: number, history: SimpleStreamHistory[]) {
     await prisma
         .$transaction(
             history.map(track =>
@@ -43,7 +43,7 @@ export async function insertSimpleHistory(history: SimpleStreamHistory[]) {
                         artistName: track.artistName,
                         msPlayed: track.msPlayed,
                         endTime: new Date(track.endTime),
-                        userId: 1,
+                        userId,
                     },
                 })
             )
@@ -51,7 +51,7 @@ export async function insertSimpleHistory(history: SimpleStreamHistory[]) {
         .catch(err => log.error({ err }, 'Error inserting simple streaming history'));
 }
 
-export async function insertStreamHistory(history: JsonStreamHistoryRecord[]) {
+export async function insertStreamHistory(userId: number, history: JsonStreamHistoryRecord[]) {
     await prisma.$transaction(
         history.map(track => {
             return prisma.streamHistory.create({
@@ -73,7 +73,7 @@ export async function insertStreamHistory(history: JsonStreamHistoryRecord[]) {
                     reasonStart: track.reason_start,
                     reasonEnd: track.reason_end,
                     incognitoMode: track.incognito_mode,
-                    userId: 1,
+                    userId,
                 },
             });
         })

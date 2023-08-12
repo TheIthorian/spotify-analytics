@@ -16,15 +16,18 @@ import config from '../config';
 const log = makeLogger(module);
 
 export async function getStreamHistory(
+    userId: number,
     options: GetStreamHistoryOptions
 ): Promise<{ streamHistory: GetStreamHistoryResponseData; recordCount: number }> {
     log.info({ options }, `(${getStreamHistory.name})`);
 
-    const selector: Prisma.StreamHistoryFindManyArgs = {};
+    const selector: Prisma.StreamHistoryFindManyArgs = {
+        where: { userId },
+    };
 
     if (options.dateFrom || options.dateTo) {
         const dateFilter: { gte?: Date; lte?: Date } = {};
-        selector.where = { datePlayed: dateFilter };
+        selector.where!.datePlayed = dateFilter;
         if (options.dateFrom) dateFilter.gte = options.dateFrom;
         if (options.dateTo) dateFilter.lte = options.dateTo;
     }
@@ -47,12 +50,12 @@ export async function getStreamHistory(
     return { streamHistory, recordCount };
 }
 
-type TopArtistsListAggregateQueryOptions = { where: { datePlayed?: { gte?: Date; lte?: Date }; isSong: boolean } };
+type TopArtistsListAggregateQueryOptions = { where: { datePlayed?: { gte?: Date; lte?: Date }; isSong: boolean; userId: number } };
 
-export async function getTopArtist(options: GetTopArtistsOptions): Promise<GetTopArtistsResponseData> {
+export async function getTopArtist(userId: number, options: GetTopArtistsOptions): Promise<GetTopArtistsResponseData> {
     log.info({ options }, `(${getTopArtist.name})`);
 
-    const queryArgs: TopArtistsListAggregateQueryOptions = { where: { isSong: true } };
+    const queryArgs: TopArtistsListAggregateQueryOptions = { where: { isSong: true, userId } };
     if (options.dateFrom || options.dateTo) {
         const dateFilter: { gte?: Date; lte?: Date } = {};
         queryArgs.where.datePlayed = dateFilter;
@@ -97,7 +100,7 @@ async function getArtistsByPlayCount(queryArgs: TopArtistsListAggregateQueryOpti
     return queryResult.map(a => ({ count: a._count.id ?? 0, name: a.artistName ?? 'unknown' }));
 }
 
-export async function getStats(): Promise<GetStatsResponseData> {
+export async function getStats(userId: number): Promise<GetStatsResponseData> {
     log.info(`(${getStats.name})`);
 
     type CountQueryResult = PrismaPromise<[{ total: string }]>;
@@ -105,16 +108,16 @@ export async function getStats(): Promise<GetStatsResponseData> {
     const [totalPlaytime, uniqueArtistCount, uniqueTrackCount, trackCount] =
         config.databaseType === 'file'
             ? await Promise.all([
-                  prisma.streamHistory.aggregate({ _sum: { msPlayed: true }, where: { isSong: true } }),
-                  prisma.$queryRaw`SELECT COUNT(DISTINCT ArtistName) as total FROM StreamHistory WHERE IsSong` as CountQueryResult,
-                  prisma.$queryRaw`SELECT COUNT(DISTINCT spotifyTrackUri) as total FROM StreamHistory WHERE IsSong` as CountQueryResult,
-                  prisma.$queryRaw`SELECT COUNT(*) as total FROM StreamHistory WHERE IsSong` as CountQueryResult,
+                  prisma.streamHistory.aggregate({ _sum: { msPlayed: true }, where: { isSong: true, userId } }),
+                  prisma.$queryRaw`SELECT COUNT(DISTINCT ArtistName) as total FROM StreamHistory WHERE IsSong AND UserId = ${userId}` as CountQueryResult,
+                  prisma.$queryRaw`SELECT COUNT(DISTINCT spotifyTrackUri) as total FROM StreamHistory WHERE IsSong AND UserId = ${userId}` as CountQueryResult,
+                  prisma.$queryRaw`SELECT COUNT(*) as total FROM StreamHistory WHERE IsSong AND UserId = ${userId}` as CountQueryResult,
               ])
             : await Promise.all([
-                  prisma.streamHistory.aggregate({ _sum: { msPlayed: true }, where: { isSong: true } }),
-                  prisma.$queryRaw`SELECT COUNT(DISTINCT "artistName") as total FROM public."StreamHistory" as SH WHERE "isSong";` as CountQueryResult,
-                  prisma.$queryRaw`SELECT COUNT(DISTINCT "spotifyTrackUri") as total FROM public."StreamHistory" as SH WHERE "isSong";` as CountQueryResult,
-                  prisma.$queryRaw`SELECT COUNT(*) as total FROM public."StreamHistory" WHERE "isSong";` as CountQueryResult,
+                  prisma.streamHistory.aggregate({ _sum: { msPlayed: true }, where: { isSong: true, userId } }),
+                  prisma.$queryRaw`SELECT COUNT(DISTINCT "artistName") as total FROM public."StreamHistory" as SH WHERE "isSong" AND UserId = ${userId};` as CountQueryResult,
+                  prisma.$queryRaw`SELECT COUNT(DISTINCT "spotifyTrackUri") as total FROM public."StreamHistory" as SH WHERE "isSong" AND UserId = ${userId};` as CountQueryResult,
+                  prisma.$queryRaw`SELECT COUNT(*) as total FROM public."StreamHistory" WHERE "isSong" AND UserId = ${userId};` as CountQueryResult,
               ]);
 
     return {
