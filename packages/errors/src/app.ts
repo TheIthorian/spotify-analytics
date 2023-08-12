@@ -9,9 +9,6 @@ export class AppError<T = undefined> extends Error {
         super(message);
         this.data = opts.data;
         this.name = name;
-
-        if (this.logError) {
-        }
     }
 
     toJson() {
@@ -41,5 +38,24 @@ export class NotImplementedError extends AppError<object> {
     status = 501;
     constructor(message: string) {
         super(message, NotImplementedError.name);
+    }
+}
+
+export class AuthenticationError extends AppError<object> {
+    status = 401;
+    constructor(cause: string) {
+        super('Unable to authenticate user', AuthenticationError.name, { data: { cause } });
+    }
+
+    // Don't return why the authentication failed
+    toJson() {
+        return { message: this.message, name: this.name };
+    }
+}
+
+export class TokenError extends AppError<object> {
+    status = 401;
+    constructor(cause: string) {
+        super('Unable to verify token', TokenError.name, { data: { cause } });
     }
 }
