@@ -25,8 +25,10 @@ export const darkTheme = createTheme({
             main: '#1976d2',
         },
     },
+    typography: { ...baseTheme.typography, allVariants: { color: 'white' } },
 });
 
 export const lightTheme = createTheme({
     ...baseTheme,
+    typography: { ...baseTheme.typography, allVariants: { color: 'black' } },
 });

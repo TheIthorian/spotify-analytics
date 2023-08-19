@@ -19,7 +19,7 @@ export async function getStreamHistory({
     if (offset) query.append('offset', offset.toString(10));
 
     const res = await fetch(CONFIG.API_BASE + '/history?' + query.toString(), {
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', jwt: localStorage.getItem('jwt') ?? '' },
     });
 
     if (!res.ok) {

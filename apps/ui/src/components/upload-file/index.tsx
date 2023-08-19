@@ -29,6 +29,7 @@ async function uploadFile(files: File[]) {
         method: 'POST',
         body: formData,
         // redirect: 'follow'
+        headers: { jwt: localStorage.getItem('jwt') ?? '' },
     };
 
     const response = await fetch(CONFIG.API_BASE + '/upload', requestOptions);

@@ -19,7 +19,9 @@ import { Link } from '@/components/link';
 const inter = Inter({ subsets: ['latin'] });
 
 async function getUserDetails() {
-    const res = await fetch(CONFIG.API_BASE + '/me', {});
+    const res = await fetch(CONFIG.API_BASE + '/me', {
+        headers: { jwt: localStorage.getItem('jwt') ?? '' },
+    });
 
     if (!res.ok) {
         throw new Error('Error fetching data', { cause: await res.json() });

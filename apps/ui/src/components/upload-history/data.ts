@@ -19,7 +19,7 @@ export async function getUploadHistory({
     if (offset) query.append('offset', offset.toString(10));
 
     const res = await fetch(CONFIG.API_BASE + '/upload?' + query.toString(), {
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', jwt: localStorage.getItem('jwt') ?? '' },
     });
 
     if (!res.ok) {
