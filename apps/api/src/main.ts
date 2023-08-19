@@ -1,21 +1,26 @@
 import * as express from 'express';
-import { createServer, Server } from 'http';
+import * as cors from 'cors';
+import { createServer, Server } from 'https';
 import * as fileUpload from 'express-fileupload';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
-
+import * as fs from 'fs';
 import * as expressStatusMonitor from 'express-status-monitor';
 
 import initialiseRoutes from './routes';
 import { makeLogger, requestLogger } from './logger';
 import prisma from './prismaClient';
-import { allowCrossDomain } from './middleware/cors';
 import config from './config';
 import { errorHandler } from './middleware/errorHandlers';
 
 console.log({ config });
 
 const log = makeLogger(module);
+
+const httpsOptions = {
+    key: fs.readFileSync('../../.project/localhost.key'),
+    cert: fs.readFileSync('../../.project/localhost.crt'),
+};
 
 export function expressApp(port: number) {
     const app = express();
@@ -24,13 +29,17 @@ export function expressApp(port: number) {
 
     app.use(expressStatusMonitor()); // `/status` to see stats
 
-    app.use(allowCrossDomain);
+    // app.use(allowCrossDomain);
 
     app.use(
-        bodyParser.urlencoded({
-            extended: true,
+        cors({
+            origin: 'https://localhost:2999',
+            credentials: true,
+            exposedHeaders: ['Total', 'Count'],
         })
     );
+
+    app.use(bodyParser.urlencoded({ extended: true }));
 
     app.use(bodyParser.json());
 
@@ -59,11 +68,11 @@ export function expressApp(port: number) {
 
 export function start(port: number) {
     const app = expressApp(port);
-    const server = createServer(app);
+    const server = createServer(httpsOptions, app);
     server.listen(port);
 
-    log.info(`App listening on http://${config.host}:${port}`);
-    process.stdout.write(`App listening on http://${config.host}:${port}\n`);
+    log.info(`App listening on https://${config.host}:${port}`);
+    process.stdout.write(`App listening on https://${config.host}:${port}\n`);
     return { app, server };
 }
 
