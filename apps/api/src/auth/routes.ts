@@ -13,20 +13,17 @@ function init() {
 
         const token = await api.login(req.body);
 
-        res.cookie('jwt', token.compact(), { httpOnly: true, secure: true });
         res.status(200);
-        res.json({ message: 'Logged in' });
+        res.json({ message: 'Logged in', token: token.compact() });
         next();
     });
 
     router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {
         await api.logout(req.cookies.jwt).catch(error => {
             log.error({ error }, 'logout error');
-            res.clearCookie('jwt');
             throw error;
         });
 
-        res.clearCookie('jwt');
         res.status(200);
         res.json({ message: 'Logged out' });
         next();

@@ -29,7 +29,12 @@ export async function tokenAuthenticate(token: string): Promise<User | null> {
 export function sessionAuthenticate() {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const user = await tokenAuthenticate(req.cookies.jwt);
+            const jwt = req.headers['jwt'];
+            if (!jwt || typeof jwt !== 'string') {
+                throw new AuthenticationError('Invalid token (missing)');
+            }
+
+            const user = await tokenAuthenticate(jwt);
 
             if (!user) {
                 throw new AuthenticationError('Invalid token (user not found)');
