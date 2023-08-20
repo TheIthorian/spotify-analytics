@@ -1,4 +1,4 @@
 export const CONFIG = {
-    API_BASE: 'https://127.0.0.1:3001/api',
-    AUTH_BASE: 'https://127.0.0.1:3001/auth',
+    API_BASE: process.env.NEXT_PUBLIC_API_URL + '/api',
+    AUTH_BASE: process.env.NEXT_PUBLIC_API_URL + '/auth',
 };
