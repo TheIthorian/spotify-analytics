@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as cors from 'cors';
 import { createServer, Server } from 'https';
+import { createServer as createHttpServer } from 'http';
 import * as fileUpload from 'express-fileupload';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
@@ -17,10 +18,12 @@ const log = makeLogger(module);
 
 log.info({ config });
 
-const httpsOptions = {
-    key: fs.readFileSync('../../.project/localhost.key'),
-    cert: fs.readFileSync('../../.project/localhost.crt'),
-};
+const httpsOptions = config.isTest
+    ? {
+          key: fs.readFileSync('../../.project/localhost.key'),
+          cert: fs.readFileSync('../../.project/localhost.crt'),
+      }
+    : {};
 
 export function expressApp(port: number) {
     const app = express();
@@ -66,7 +69,8 @@ export function expressApp(port: number) {
 
 export function start(port: number) {
     const app = expressApp(port);
-    const server = createServer(httpsOptions, app);
+
+    const server = config.isTest ? createHttpServer(app) : createServer(httpsOptions, app);
     server.listen(port);
 
     log.info(`App listening on https://${config.host}:${port}`);

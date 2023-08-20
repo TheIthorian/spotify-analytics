@@ -20,4 +20,6 @@ export default {
             clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
         },
     },
+
+    isTest: process.env.NODE_ENV === 'test',
 };
