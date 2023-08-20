@@ -13,9 +13,9 @@ import prisma from './prismaClient';
 import config from './config';
 import { errorHandler } from './middleware/errorHandlers';
 
-console.log({ config });
-
 const log = makeLogger(module);
+
+log.info({ config });
 
 const httpsOptions = {
     key: fs.readFileSync('../../.project/localhost.key'),
@@ -29,11 +29,9 @@ export function expressApp(port: number) {
 
     app.use(expressStatusMonitor()); // `/status` to see stats
 
-    // app.use(allowCrossDomain);
-
     app.use(
         cors({
-            origin: 'https://localhost:2999',
+            origin: config.uiUrl,
             credentials: true,
             exposedHeaders: ['Total', 'Count'],
         })
