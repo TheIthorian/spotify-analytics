@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import { Dashboard, QuestionMark, Upload } from '@mui/icons-material';
 import Link from 'next/link';
+import { CONFIG } from '@/config';
 
 const i18n = {
     login: 'Login',
@@ -56,8 +57,9 @@ function UserProfileButton({ auth, handleLogin }: { auth: boolean; handleLogin: 
         setAnchorEl(event.currentTarget);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         handleLogin(false);
+        await fetch(CONFIG.AUTH_BASE + '/logout', { method: 'POST', headers: { jwt: localStorage.getItem('jwt') ?? '' } });
         handleClose();
     };
 

@@ -18,7 +18,9 @@ export async function getTopArtists({
     if (limit) query.append('limit', limit.toString(10));
     if (groupBy) query.append('groupBy', groupBy);
 
-    const res = await fetch(CONFIG.API_BASE + '/top-artists?' + query.toString(), {});
+    const res = await fetch(CONFIG.API_BASE + '/top-artists?' + query.toString(), {
+        headers: { jwt: localStorage.getItem('jwt') ?? '' },
+    });
 
     if (!res.ok) {
         throw new Error('Error fetching data', { cause: await res.json() });
