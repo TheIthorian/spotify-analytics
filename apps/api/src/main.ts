@@ -19,11 +19,11 @@ const log = makeLogger(module);
 log.info({ config });
 
 const httpsOptions = config.isTest
-    ? {
+    ? {}
+    : {
           key: fs.readFileSync('../../.project/localhost.key'),
           cert: fs.readFileSync('../../.project/localhost.crt'),
-      }
-    : {};
+      };
 
 export function expressApp(port: number) {
     const app = express();
