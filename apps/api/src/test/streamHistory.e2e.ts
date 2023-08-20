@@ -5,6 +5,7 @@ import prisma from '../prismaClient';
 import { start, stop } from '../main';
 import { generateStreamHistories, generateStreamHistory } from './testUtils/recordGenerator';
 import config from '../config';
+import { USER } from './constants';
 
 let streamHistories: Omit<StreamHistory, 'id'>[] = [];
 let sortedHistories: Record<string, any>[] = [];
@@ -49,7 +50,7 @@ describe('Stream History', () => {
         });
 
         it('/api/history (GET) - returns history, sorting by date', async () => {
-            const res = await request(app).get('/api/history').expect(200);
+            const res = await request(app).get('/api/history').set({ username: USER.username, password: USER.password }).expect(200);
 
             expect(res.body.length).toBe(10);
             expect(res.body).toMatchObject(sortedHistories.slice(0, 10)); // Only takes first 10
@@ -59,6 +60,7 @@ describe('Stream History', () => {
             const res = await request(app)
                 .get('/api/history')
                 .query({ limit: numberOfStreams + 5 })
+                .set({ username: USER.username, password: USER.password })
                 .expect(200);
 
             expect(res.body.length).toBe(numberOfStreams);
@@ -71,7 +73,7 @@ describe('Stream History', () => {
         await insertHistory(generateStreamHistories({ isSong: true, artistName: 'Test Artist' }, 3));
         await insertHistory(generateStreamHistories({ isSong: true, artistName: 'Test Artist 2' }, 1));
 
-        const res = await request(app).get('/api/top-artists').expect(200);
+        const res = await request(app).get('/api/top-artists').set({ username: USER.username, password: USER.password }).expect(200);
 
         expect(res.body.length).toBe(2);
         expect(res.body).toStrictEqual([
@@ -85,7 +87,7 @@ describe('Stream History', () => {
         await insertHistory(generateStreamHistories({ isSong: true, trackName: 'Test Track' }, 3));
         await insertHistory(generateStreamHistories({ isSong: true, trackName: 'Test Track 2' }, 1));
 
-        const res = await request(app).get('/api/top-tracks').expect(200);
+        const res = await request(app).get('/api/top-tracks').set({ username: USER.username, password: USER.password }).expect(200);
 
         expect(res.body.length).toBe(2);
         expect(res.body).toStrictEqual([
@@ -107,7 +109,7 @@ describe('Stream History', () => {
             generateStreamHistories({ isSong, trackName: 'Test Track', spotifyTrackUri: '3', artistName: 'artist 3', msPlayed: 0 }, 1)
         );
 
-        const res = await request(app).get('/api/history/stats').expect(200);
+        const res = await request(app).get('/api/history/stats').set({ username: USER.username, password: USER.password }).expect(200);
 
         expect(res.body).toStrictEqual({
             totalPlaytime: 300 + 200,

@@ -2,6 +2,7 @@ import * as request from 'supertest';
 
 import { start, stop } from '../main';
 import config from '../config';
+import { USER } from './constants';
 
 describe('Account', () => {
     let app, server;
@@ -17,7 +18,7 @@ describe('Account', () => {
     });
 
     it('/api/me (GET) - returns user details', async () => {
-        const res = await request(app).get('/api/me').expect(200);
+        const res = await request(app).get('/api/me').set({ username: USER.username, password: USER.password }).expect(200);
 
         expect(res.body).toMatchObject({
             id: expect.any(Number),
